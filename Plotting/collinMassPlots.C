@@ -13,17 +13,21 @@
 
 int extractData(TTree* tree, double minMasses[], double maxMasses[], int nEvents)
 {
+  int haveTriplet = 0;
+  int trigger = 0;
   float minCollMass = 0;
   float maxCollMass = 0;
   tree->SetBranchAddress("ElTau_MinCollMass", &minCollMass);
   tree->SetBranchAddress("ElTau_MaxCollMass", &maxCollMass);
-
+  tree->SetBranchAddress("ElTau_HaveTriplet", &haveTriplet);
+  tree->SetBranchAddress("ElTau_Trigger", &trigger);
+  
   int j = 0;
   for (int i = 0; i < nEvents; i++)
     {
       tree->GetEntry(i);
       
-      if (minCollMass > 0 && maxCollMass > 0)
+      if (minCollMass > 0 && maxCollMass > 0 && haveTriplet)
 	{
 	  minMasses[j] = minCollMass;
 	  maxMasses[j] = maxCollMass;
@@ -102,7 +106,7 @@ void makePlots()
 
 
   g_m250->SetTitle("#tau* mass = 250 [GeV/c^2]" + axislabels);
-  g_m5000->SetTitle("#tau* mass = 250 [GeV/c^2]" + axislabels);
+  g_m5000->SetTitle("#tau* mass = 5000 [GeV/c^2]" + axislabels);
   g_m250->SetMarkerColor(2);
   g_m5000->SetMarkerColor(4);
   g_m250->SetMarkerStyle(7);
@@ -126,16 +130,8 @@ void makePlots()
   g_m5000->SetMaximum(8000.);
   g_m5000->GetXaxis()->SetRangeUser(0., 6000.);
   g_m5000->Draw("AP");
-
   canv->Update();
-  /*
-  TLegend * l = new TLegend(0.6, 0.2, 0.85, 0.5);
-  l->SetBorderSize(0);
-  l->SetHeader("#tau* mass");
-  l->AddEntry(g_m250, "250 GeV/c^2", "F");
-  l->AddEntry(g_m5000, "5000 GeV/c^2", "F");
-  l->Draw();
-  */
+ 
   canv->SaveAs("Plots/elTau_collMassLPlots_m250m5000.png");
 
   
@@ -144,7 +140,14 @@ void makePlots()
 }
 
 
-
+ /*
+  TLegend * l = new TLegend(0.6, 0.2, 0.85, 0.5);
+  l->SetBorderSize(0);
+  l->SetHeader("#tau* mass");
+  l->AddEntry(g_m250, "250 GeV/c^2", "F");
+  l->AddEntry(g_m5000, "5000 GeV/c^2", "F");
+  l->Draw();
+  */
 
 
 
