@@ -3,6 +3,7 @@
 
 import os
 import sys
+import numpy as np
 import ROOT
 from ROOT import TFile
 from ROOT import TCut
@@ -21,15 +22,16 @@ from ROOT import TGraph
 from array import array
 
 
-def scanBinWidths(hists, masses):
+def scanBinWidths(hists, masses, sortIndices):
 
     canv = TCanvas("widthCanv", "Fractional Width Graphs", 800, 600)
     graphs = TMultiGraph()
     leg = TLegend(0.6, 0.3, 0.8, 0.5)
     
     for i in range(len(hists)):
+        ind = sortIndices[i]
         hist = hists[i]
-        mass = masses[i]
+        mass = masses[ind]
         
         #halfWidth = hist.GetStdDev()
         halfWidth = 1
@@ -47,6 +49,7 @@ def scanBinWidths(hists, masses):
         changed = True
         while changed:
             eventsIn = hist.Integral(lowBin, highBin)
+            #fracEvents.append(eventsIn)
             fracEvents.append(eventsIn / totalEvents)
             fracWidths.append(((high - low) / 2) / float(mass))
             lows.append(low)
@@ -103,7 +106,9 @@ def scanBinWidths(hists, masses):
         del graph
         
     graphs.SetTitle("Signal Bin Widths;Fractional Bin Half Width;Fraction of Events in Bin")
-    graphs.Draw("AL")
+    #graphs.SetTitle("Signal in Signal Bin;Fractional Bin Half Width;Events in Signal Bin")
+    ROOT.gStyle.SetPalette(55) #kRainBow
+    graphs.Draw("A PLC")
     leg.SetHeader("Nominal #tau* Mass", "C")
     leg.Draw("same") 
     canv.SaveAs("Plots/binWidthCurves.png")
@@ -129,7 +134,6 @@ def main(argv):
         mass = fComps[1][1:] 
         masses.append(mass)
 
-    print len(files)
         
     rootFile0 = TFile(dirPath + files[0], "READ")
     rootFile1 = TFile(dirPath + files[1], "READ")
@@ -165,15 +169,16 @@ def main(argv):
     trees.append(tree9)
 
 
-    
-   
+    masses_np = np.array(masses, dtype="i")
+    sortIndices = np.argsort(masses_np)
 
         
     candleCanv = TCanvas("candleCanv", "Candlestick Plots", 700, 700)
     hists = []
     for i in range(len(trees)):
-        mass = masses[i]
-        tree = trees[i]
+        index = sortIndices[i]
+        mass = masses[index]
+        tree = trees[index]
         baseCuts = TCut("ElTau_HaveTriplet")
         elCuts = ""
         tauCuts = ""
@@ -227,7 +232,7 @@ def main(argv):
     candleCanv.SaveAs("Plots/massComparisons.png")
 
 
-    scanBinWidths(hists, masses)
+    scanBinWidths(hists, masses, sortIndices)
 
     
                      
