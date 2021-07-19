@@ -17,10 +17,12 @@ int extractData(TTree* tree, double minMasses[], double maxMasses[], int nEvents
   int trigger = 0;
   float minCollMass = 0;
   float maxCollMass = 0;
+  int isTauStar = 0;
   tree->SetBranchAddress("ElTau_MinCollMass", &minCollMass);
   tree->SetBranchAddress("ElTau_MaxCollMass", &maxCollMass);
   tree->SetBranchAddress("ElTau_HaveTriplet", &haveTriplet);
   tree->SetBranchAddress("ElTau_Trigger", &trigger);
+  tree->SetBranchAddress("ElTau_GenIsTauStar", &isTauStar);
   
   int j = 0;
   for (int i = 0; i < nEvents; i++)
@@ -84,7 +86,7 @@ void makePlots()
   
   //Extract data from ROOT files
   TFile* file_m250 = TFile::Open("../Data/m250.root");
-  TFile* file_m5000 = TFile::Open("../Data/m5000.root");
+  TFile* file_m5000 = TFile::Open("../Data/tree.root");
   
   TTree* tree_m250 = (TTree*) file_m250->Get("Events");
   TTree* tree_m5000 = (TTree*) file_m5000->Get("Events");
@@ -148,7 +150,5 @@ void makePlots()
   l->AddEntry(g_m5000, "5000 GeV/c^2", "F");
   l->Draw();
   */
-
-
 
 
