@@ -22,6 +22,18 @@ from ROOT import TGraph
 from array import array
 
 
+def triggerEffs(trees):
+    effs = []
+    for tree in trees:
+        trigEntries = tree.GetEntries("ElTau_HaveTriplet&&ElTau_Trigger")
+        tripEntries = tree.GetEntries("ElTau_HaveTriplet")
+        effs.append(float(trigEntries) / tripEntries)
+    print "Trigger Efficiencies: (HaveTriplet && Trigger) / HaveTriplet:"
+    print effs
+    print "Average efficiency = " + str(sum(effs)/len(effs))
+    
+
+
 def scanBinWidths(hists, masses, sortIndices):
 
     canv = TCanvas("widthCanv", "Fractional Width Graphs", 800, 600)
@@ -233,6 +245,7 @@ def main(argv):
 
 
     scanBinWidths(hists, masses, sortIndices)
+    triggerEffs(trees)
 
     
                      

@@ -154,7 +154,7 @@ void plotDRs(TTree *tree, TString mass)
   //drCanv->SetLogy(true);
   //stack->Draw();
   drHist_tau->Draw("hist");
-  drCanv->cd(2);
+  //drCanv->cd(2);
   //drCanv->SetLogy(true);
   drHist_el->Draw("hist same");
 
