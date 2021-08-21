@@ -1,0 +1,8 @@
+universe = vanilla
+Executable = runSingleElTrig.sh
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+Output = condor_SingleElTrigger_$(Cluster)_$(Process).stdout
+Error = condor_SingleElTrigger_$(Cluster)_$(Process).stderr
+Log = condor_SingleElTrigger_$(Cluster)_$(Process).log
+Queue 1
