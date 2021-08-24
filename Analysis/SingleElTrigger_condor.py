@@ -28,10 +28,6 @@ class SingleElTrigger(Module):
         self.addObject(self.h_cosdphi)
 	self.h_metEt = ROOT.TH1F("h_metEt", "MET_sumEt", 150, 0, 1500)
 	self.addObject(self.h_metEt)
-	#self.h_ptEff = ROOT.TH1F('h_ptEff', 'Single Electron Trigger Efficiency', 10, 0, 100)
-	#self.h_ptEff.SetXTitle("Electron pt [GeV/c]")
-	#self.h_ptEff.SetYTitle("Trigger Efficiency")
-        #self.addObject(self.h_ptEff)
     def endJob(self):
         Module.endJob(self)
         print("# of reconstructable events: %s: " % self.ntot)
@@ -41,10 +37,6 @@ class SingleElTrigger(Module):
         print("     signal eff: %f " % eff)
         triggereff_el = float(self.n2)/float(self.n1)
         print("     single el trigger eff: %f " % triggereff_el)
-	#self.h_ptEff.Divide(self.h_ptnum, self.h_ptdenom)
-	#canv = ROOT.TCanvas("canv", "Single Electron Trigger Eff", 600, 600)
-	#self.h_ptEff.Draw("err")
-	#canv.SaveAs("~/nobackup/TauStar/Plots/singleElTrigEff.png")
     def beginFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         self.out = wrappedOutputTree
     def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
@@ -81,13 +73,6 @@ class SingleElTrigger(Module):
 			return False
 
         electrons = Collection(event, "Electron")
-        nGenEls = 0
-        # check if there are even any reconstructable electrons
-        #for el in electrons:
-        #    if el.genPartFlav==15: 
-	#	nGenEls = nGenEls + 1
-        #if nGenEls != 1: 
-	#	return False
 	if len(electrons) < 1:
 		return False
 
@@ -126,15 +111,23 @@ class SingleElTrigger(Module):
             self.n2 = self.n2 + 1
             self.h_ptnum.Fill(goodEl.pt)
 
-	#Calculate variables used later for W->e+nu event selection
-	# deltaPhi between the Electron and MET
+	#Calculate variables used for W->e+nu event selection
+        # deltaPhi between the Electron and MET
         cosdphi = math.cos(deltaPhi(goodEl.phi, event.MET_phi))
-        self.h_cosdphi.Fill(cosdphi)
-        # transverse mass
         mT = 2. * event.MET_pt * goodEl.pt * (1.-cosdphi)
         mT = math.sqrt(mT)
+        met_sumEt = event.MET_sumEt
+        #These cuts chosen by taking ratio of backgrounds to WJets
+        if mT < 50 or mT > 110:
+                return False
+        if cosdphi >=0:
+                return False
+        if met_sumEt < 800:
+                return False
+
+        self.h_cosdphi.Fill(cosdphi)
         self.h_mt.Fill(mT)
-	self.h_metEt.Fill(event.MET_sumEt)
+        self.h_metEt.Fill(met_sumEt)
 
 			
 	return True	
@@ -162,13 +155,18 @@ SingleElTriggerConstr = lambda : SingleElTrigger()
 fileNames = ["WJetsToLNu_2018.root", "DYJetsToLL_2018.root", "DYJetsToLLM10_2018.root", "ST_tW_antitop_2018.root", "ST_tW_top_2018.root", 
 "TTTo2L2Nu_2018.root", "TTToSemiLeptonic_2018.root", "WW_2018.root", "WZ_2018.root", "ZZ_2018.root", "ST_t_channel_antitop_2018.root", "ST_t_channel_top_2018.root"]
 
+#fileNames = ["ElectronA_2018.root", "ElectronB_2018.root", "ElectronC_2018.root", "ElectronD_2018.root", "ElectronE_2018.root", "ElectronF_2018.root",
+#"ElectronG_2018.root", "ElectronH_2018.root"]
+
+
+print "Trees version date is 20082021"
 
 for fileName in fileNames:
 # Run SingleElTrigger.py over all MC files
 	outName = fileName.split("_2018")[0] + ".root"
 	print "Processing " + fileName
 	print "Will write output to " + outName
-	files = ["root://cmsxrootd.fnal.gov//store/user/fojensen/cmsdas_19072021/"+fileName]
+	files = ["root://cmsxrootd.fnal.gov//store/user/fojensen/cmsdas_20082021/"+fileName]
 
 
 
