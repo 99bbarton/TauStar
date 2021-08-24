@@ -11,8 +11,9 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 from PhysicsTools.NanoAODTools.postprocessing.tools import deltaPhi, deltaR
 
 class SingleElTrigger(Module):
-    def __init__(self):
+    def __init__(self, isData=False):
         self.writeHistFile = True
+    	self.isData = isData
     def beginJob(self, histFile=None, histDirName=None):
         Module.beginJob(self, histFile, histDirName)
         self.ntot = 0
@@ -72,6 +73,20 @@ class SingleElTrigger(Module):
 		if jet.btagDeepB >= 0.4168: #Medium wp
 			return False
 
+	#For data, we want to select W events first so as not to bias ourselves by selecting with an el trigger
+	#Use a MET trigger since W events have MET
+	#https://twiki.cern.ch/twiki/bin/view/CMS/JetMETPathsRun2#Single_PF_Jet_Paths_AN1  #and go to Single PF MET paths
+	if self.isData:
+		metTrig = False
+		if hasattr(event, "HLT_PFMET200_NotCleaned"): metTrig = metTrig or event.HLT_PFMET200_NotCleaned
+		if hasattr(event, "HLT_PFMET200_HBHECleaned"): metTrig = metTrig or event.HLT_PFMET200_HBHECleaned
+		if hasattr(event, "HLT_PFMET200_HBHE_BeamHaloCleaned"): metTrig = metTrig or event.HLT_PFMET200_HBHE_BeamHaloCleaned	
+		if hasattr(event, "HLT_PFMET250_HBHECleaned"): metTrig = metTrig or event.HLT_PFMET250_HBHECleaned
+		if hasattr(event, "HLT_PFMET300_HBHECleaned"): metTrig = metTrig or event.HLT_PFMET300_HBHECleaned
+		if hasattr(event, "HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned"): metTrig = metTrig or event.HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned
+		if not metTrig:
+			return False
+
         electrons = Collection(event, "Electron")
 	if len(electrons) < 1:
 		return False
@@ -97,8 +112,7 @@ class SingleElTrigger(Module):
 	
 	# check trigger performance
         #https://twiki.cern.ch/CMS/MuonHLT2017#Recommendations_for_2017_data_an
-        self.h_ptdenom.Fill(goodEl.pt)
-        
+        self.h_ptdenom.Fill(goodEl.pt)        
 	trigger = False
 	if hasattr(event, "HLT_Ele27_WPTight_Gsf"): Trigger = trigger or event.HLT_Ele27_WPTight_Gsf
         if hasattr(event, "HLT_Ele25_eta2p1_WPTight_Gsf"): trigger = trigger or event.HLT_Ele25_eta2p1_WPTight_Gsf
@@ -122,8 +136,8 @@ class SingleElTrigger(Module):
                 return False
         if cosdphi >=0:
                 return False
-        if met_sumEt < 800:
-                return False
+        #if met_sumEt < 800:
+        #        return False
 
         self.h_cosdphi.Fill(cosdphi)
         self.h_mt.Fill(mT)
@@ -134,39 +148,33 @@ class SingleElTrigger(Module):
 
 
 
-SingleElTriggerConstr = lambda : SingleElTrigger()
+SingleElTriggerConstr = lambda isData : SingleElTrigger(isData)
 ######################################### END MODULE CLASS ###################################
 
 
+isData = True
+treeVersion = "20082021"
+year = "2018"
 
+fileNames = []
+if isData:
+	fileNames = ["WJetsToLNu_2018.root", "DYJetsToLL_2018.root", "DYJetsToLLM10_2018.root", "ST_tW_antitop_2018.root", "ST_tW_top_2018.root", 
+	"TTTo2L2Nu_2018.root", "TTToSemiLeptonic_2018.root", "WW_2018.root", "WZ_2018.root", "ZZ_2018.root", "ST_t_channel_antitop_2018.root", "ST_t_channel_top_2018.root"]
+else:
+	fileNames = ["ElectronA_2018.root", "ElectronB_2018.root", "ElectronC_2018.root", "ElectronD_2018.root"]
 
-
-
-        
-#files = ["root://cmsxrootd.fnal.gov///store/mc/RunIISummer20UL18NanoAODv2/WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v15_L1v1-v1/230000/F33C455E-704C-0847-A69C-4996D0CDD707.root"]
-#files = ["root://cmseosmgm01.fnal.gov:1094//store/user/fojensen/tauHats2021/F33C455E-704C-0847-A69C-4996D0CDD707.root"];
-#files = ["root://cmsxrootd.fnal.gov///store/mc/RunIIAutumn18NanoAODv7/Taustar_TauG_L10000_m625_CP5_13TeV_pythia8/NANOAODSIM/Nano02Apr2020_102X_upgrade2018_realistic_v21-v1/100000/300236C3-B93D-8847-AE65-1973AA2F1506.root"]
-#files = ["root://cmseosmgm01.fnal.gov:1094//store/user/fojensen/tauHats2021/300236C3-B93D-8847-AE65-1973AA2F1506.root"]
-#files = ["root://cmsxrootd.fnal.gov//store/mc/RunIISummer20UL18NanoAODv2/VBFHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v15_L1v1-v2/100000/14F26C77-EC1C-A34E-A935-D1FBA3E420C6.root"]
-#files = ["root://cmseosmgm01.fnal.gov:1094//store/user/fojensen/tauHats2021/14F26C77-EC1C-A34E-A935-D1FBA3E420C6.root"]
-#files = ["root://cmsxrootd.fnal.gov///store/mc/RunIISummer20UL18NanoAODv2/GluGluHToTauTau_M125_TuneCP5_13TeV-powheg-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v15_L1v1-v3/100000/99D8CE15-B532-164E-BB6D-03EAC1BEE6EC.root"]
-#files = ["root://cmseosmgm01.fnal.gov:1094//store/user/fojensen/tauHats2021/99D8CE15-B532-164E-BB6D-03EAC1BEE6EC.root"]
-
-fileNames = ["WJetsToLNu_2018.root", "DYJetsToLL_2018.root", "DYJetsToLLM10_2018.root", "ST_tW_antitop_2018.root", "ST_tW_top_2018.root", 
-"TTTo2L2Nu_2018.root", "TTToSemiLeptonic_2018.root", "WW_2018.root", "WZ_2018.root", "ZZ_2018.root", "ST_t_channel_antitop_2018.root", "ST_t_channel_top_2018.root"]
-
-#fileNames = ["ElectronA_2018.root", "ElectronB_2018.root", "ElectronC_2018.root", "ElectronD_2018.root", "ElectronE_2018.root", "ElectronF_2018.root",
-#"ElectronG_2018.root", "ElectronH_2018.root"]
-
-
-print "Trees version date is 20082021"
+print "Trees version date is " + treeVersion
+print "Year is " + year
+print "isData = " + str(isData)
+print "All input files (" + str(len(fileNames)) + "):"
+print fileNames
 
 for fileName in fileNames:
 # Run SingleElTrigger.py over all MC files
-	outName = fileName.split("_2018")[0] + ".root"
+	outName = fileName.split("_"+year)[0] + ".root"
 	print "Processing " + fileName
 	print "Will write output to " + outName
-	files = ["root://cmsxrootd.fnal.gov//store/user/fojensen/cmsdas_20082021/"+fileName]
+	files = ["root://cmsxrootd.fnal.gov//store/user/fojensen/cmsdas_"+treeVersion+"/"+fileName]
 
 
 
@@ -179,7 +187,7 @@ for fileName in fileNames:
     	cut=preselection,
     	branchsel=None,
     	#maxEntries = 100000,
-    	modules=[SingleElTrigger()],
+    	modules=[SingleElTrigger(isData)],
     	noOut=True,
     	histFileName=outName,
     	histDirName="plots",
