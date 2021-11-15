@@ -44,7 +44,8 @@ class ElTriggerEff(Module):
         # find good reconstructed electrons
         for el in electrons:
             elID = abs(el.eta)<2.5 and el.pt > 12
-            elID = elID and el.mvaFall17V2Iso_WP90
+            #elID = elID and el.mvaFall17V2Iso_WP90
+            elID = elID and el.mvaFall17V2Iso_WP80
             if elID:
                 nGoodEl = nGoodEl + 1
                 goodEl = el
@@ -57,7 +58,8 @@ class ElTriggerEff(Module):
         # We don't want reconstructed muons
         for mu in muons:
             muID = mu.pt>=8. and abs(mu.eta)<2.4
-            muID = muID and mu.pfIsoId>=4 and mu.tightId
+            #muID = muID and mu.pfIsoId>=4 and mu.tightId
+            muID = muID and mu.pfIsoId>=4 and mu.mediumId
             if muID:
                 return False
 
@@ -66,11 +68,12 @@ class ElTriggerEff(Module):
         for tau in taus:
                 tauID = tau.pt>=20 and abs(tau.eta)<2.3
                 tauID = tauID and tau.decayMode != 5 and tau.decayMode != 6 and tau.decayMode != 7
-                tauID = tauID and (8&tau.idDeepTau2017v2p1VSjet) and (8&tau.idDeepTau2017v2p1VSmu) and (32&tau.idDeepTau2017v2p1VSe)
+                #tauID = tauID and (8&tau.idDeepTau2017v2p1VSjet) and (8&tau.idDeepTau2017v2p1VSmu) and (32&tau.idDeepTau2017v2p1VSe)
+                tauID = tauID and (8&tau.idDeepTau2017v2p1VSjet) and (8&tau.idDeepTau2017v2p1VSmu) and (16&tau.idDeepTau2017v2p1VSe)
                 if tauID:
                         return False        
 
-        #Don't want b-tagged jets
+        #Don't want b-tagged jets - CURRENTLY NO CUT IS APPLIED - MUST BE APPLIED IN ANALYSIS
         jets = Collection(event, "Jet")
         nBJetsL = 0
         nBJetsM = 0
@@ -84,7 +87,7 @@ class ElTriggerEff(Module):
                            nBJetsT += 1
                         if jet.btagDeepB >= 0.4168: #Medium wp
                            nBJetsM += 1           
-                           return False
+                           #return False
 
         #We want to select W events first so as not to bias ourselves by selecting with an el trigger
         if event.MET_pt < 200: #smallest value visible in triggers for 2018
