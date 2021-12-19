@@ -15,37 +15,45 @@ using namespace std;
 const int N_MC_FILES = 12;
 const int N_DATA_FILES = 4;
 
-void getMCTrees(TTree **treesArr, TString labels[])
+void getMCTrees(TTree **treesArr, TString labels[], TString runDir)
 { 
   TFile* files[N_MC_FILES];
   TTree* trees[N_MC_FILES];
   
-  files[0] = TFile::Open("root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/WJetsToLNu_2018.root");
-  labels[0] = "WJetsToLNu_2018";
-  files[1] = TFile::Open("root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/WW_2018.root");
-  labels[1] = "WW_2018";
-  files[2] = TFile::Open("root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/WZ_2018.root");
-  labels[2] = "WZ_2018";
-  files[3] = TFile::Open("root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/ZZ_2018.root");
-  labels[3] = "ZZ_2018";
-  files[4] = TFile::Open("root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/DYJetsToLL_M50_2018.root");
-  labels[4] = "DYJetsToLL_M50_2018";
-  files[5] = TFile::Open("root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/DYJetsToLL_M10to50_2018.root");
-  labels[5] = "DYJetsToLL_M10-50_2018";
-  files[6] = TFile::Open("root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/ST_tW_top_2018.root");
-  labels[6] = "ST_tW_top_2018";
-  files[7] = TFile::Open("root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/ST_tW_antitop_2018.root");
-  labels[7] = "ST_tW_antitop_2018";
-  files[8] = TFile::Open("root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/ST_t_channel_antitop_2018.root");
-  labels[8] = "ST_t_channel_antitop_2018";
-  files[9] = TFile::Open("root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/ST_t_channel_top_2018.root");
-  labels[9] = "ST_t_channel_top_2018";
-  //files[10] = TFile::Open("root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/QCD_Mu15_2018.root");
-  //labels[10] = "QCD_Mu15_2018";
-  files[10] = TFile::Open("root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/TTTo2L2Nu_2018.root");
-  labels[10] = "TTTo2L2Nu_2018";
-  files[11] = TFile::Open("root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/TTToSemiLeptonic_2018.root");
-  labels[11] = "TTToSemiLeptonic_2018";
+  TString baseDir = "root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/";  
+    
+  if (runDir == "13Nov2021/" or runDir == "")
+   {
+     files[0] = TFile::Open(baseDir + runDir + "WJetsToLNu_2018.root");
+     labels[0] = "WJetsToLNu_2018"; 
+     files[1] = TFile::Open(baseDir + runDir + "WW_2018.root");
+     labels[1] = "WW_2018";
+     files[2] = TFile::Open(baseDir + runDir + "WZ_2018.root");
+     labels[2] = "WZ_2018";
+     files[3] = TFile::Open(baseDir + runDir + "ZZ_2018.root");
+     labels[3] = "ZZ_2018";
+     files[4] = TFile::Open(baseDir + runDir + "DYJetsToLL_M50_2018.root");
+     labels[4] = "DYJetsToLL_M50_2018";
+     files[5] = TFile::Open(baseDir + runDir + "DYJetsToLL_M10to50_2018.root");
+     labels[5] = "DYJetsToLL_M10-50_2018";
+     files[6] = TFile::Open(baseDir + runDir + "ST_tW_top_2018.root");
+     labels[6] = "ST_tW_top_2018";
+     files[7] = TFile::Open(baseDir + runDir + "ST_tW_antitop_2018.root");
+     labels[7] = "ST_tW_antitop_2018";
+     files[8] = TFile::Open(baseDir + runDir + "ST_t_channel_antitop_2018.root");
+     labels[8] = "ST_t_channel_antitop_2018";
+     files[9] = TFile::Open(baseDir + runDir + "ST_t_channel_top_2018.root");
+     labels[9] = "ST_t_channel_top_2018";
+     files[10] = TFile::Open(baseDir + runDir + "TTTo2L2Nu_2018.root");
+     labels[10] = "TTTo2L2Nu_2018";
+     files[11] = TFile::Open(baseDir + runDir + "TTToSemiLeptonic_2018.root");
+     labels[11] = "TTToSemiLeptonic_2018";
+   }
+  else
+   {
+     cout << "Invalid run directory (" << runDir << ") exiting" << endl;
+     exit(-1);
+   }
 
 
   for (int i = 0; i < N_MC_FILES; i++)
@@ -55,15 +63,17 @@ void getMCTrees(TTree **treesArr, TString labels[])
 }
 
 
-void getDataTrees(TTree **treesArr)
+void getDataTrees(TTree **treesArr, TString runDir)
 {  
   TFile* files[N_DATA_FILES];
   TTree* trees[N_DATA_FILES];
-  
-  files[0] = TFile::Open("root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/MET_2018A.root");
-  files[1] = TFile::Open("root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/MET_2018B.root");
-  files[2] = TFile::Open("root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/MET_2018C.root");
-  files[3] = TFile::Open("root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/MET_2018D.root");
+
+
+  TString baseDir = "root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/"; 
+  files[0] = TFile::Open(baseDir + runDir + "MET_2018A.root");
+  files[1] = TFile::Open(baseDir + runDir + "MET_2018B.root");
+  files[2] = TFile::Open(baseDir + runDir + "MET_2018C.root");
+  files[3] = TFile::Open(baseDir + runDir + "MET_2018D.root");
 
   for (int i = 0; i < N_DATA_FILES; i++)
     {
@@ -77,16 +87,23 @@ void plotElTrigEff(bool ratioStyle = true)
   TTree* mcTrees[N_MC_FILES];
   TTree* dataTrees[N_DATA_FILES];
   TString labels[N_MC_FILES];
-  getMCTrees(mcTrees, labels);
-  getDataTrees(dataTrees);
+  //TString runDir = "13Nov2021/";
+  TString runDir = "";
+  getMCTrees(mcTrees, labels, runDir);
+  getDataTrees(dataTrees, runDir);
   
   TCanvas *canv = new TCanvas("canv", "Single El Trigger Eff Plots", 600, 600);
   TCanvas *etaCanv = new TCanvas("etaCanv", "Single El Trigger Plots in Eta", 1000, 800); 
  
   TCut baseCuts = TCut("");
-  TCut metPtCut = TCut("ElTrig_metPt>250"); 
+  TCut metPtCut = TCut("ElTrig_metPt>250");
+  TCut metFlagsCut = TCut("Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter");
   //https://indico.cern.ch/event/1042812/attachments/2288980/3891127/METHatsLPC2020.pdf Slide 20
-  baseCuts = baseCuts + metPtCut;  
+  TCut bTagsCut = TCut("ElTrig_bTagsM==0&&ElTrig_bTagsT==0");
+  if (runDir == "13Nov2021/")
+     baseCuts = baseCuts + metPtCut + metFlagsCut + bTagsCut;  
+  else
+    baseCuts = baseCuts + metPtCut + metFlagsCut;
 
   TCut trigCut = TCut("ElTrig_elTrig");
   TCut etaCuts[3];
@@ -176,7 +193,6 @@ void plotElTrigEff(bool ratioStyle = true)
     { 
       if (k == 8)
 	col = 40;
-      //mcHists[k]->Divide(hDenMC);
       mcHists[k]->SetXTitle("el pt [GeV]");
       mcHists[k]->SetYTitle("Trigger Efficiency");
       mcHists[k]->SetFillColor(col);
@@ -264,12 +280,14 @@ void plotElTrigEff(bool ratioStyle = true)
     hMC->SetXTitle("el pt [GeV]");
     hData->SetYTitle("Trigger Efficiency");
     hMC->SetYTitle("Trigger Efficiency");    
- 
+    hData->SetMaximum(1.0);
+    hMC->SetMaximum(1.0); 
+
     TRatioPlot* ratio = new TRatioPlot(hData, hMC, "divsym");
     ratio->SetH1DrawOpt("e");
     ratio->SetH2DrawOpt("e");
     ratio->Draw();
-    ratio->GetLowYaxis()->SetTitle("Data / MC");  
+    //ratio->GetLowerPad()->GetYAxis->SetTitle("Data / MC");  
 
     gPad->Modified();
     gPad->Update(); // make sure it’s really (re)drawn
@@ -331,38 +349,49 @@ void plotCutParameters(bool applyCuts=false)
   TTree* mcTrees[N_MC_FILES];
   TTree* dataTrees[N_DATA_FILES];
   TString labels[N_MC_FILES];
-  getMCTrees(mcTrees, labels);
-  getDataTrees(dataTrees);
+  TString runDir = "13Nov2021/";
+
+  getMCTrees(mcTrees, labels, runDir);
+  getDataTrees(dataTrees, runDir);
 
 
   TCanvas *canv_elPt = new TCanvas("canv_elPt", "elPt Plot", 600, 600);
   TCanvas *canv_mt = new TCanvas("canv_mt", "mt Plot", 600, 600);
   TCanvas *canv_METpt = new TCanvas("canv_METpt", "MET.pt Plot", 600, 600);
   TCanvas *canv_bTags = new TCanvas("canv_bTags", "N b-tags Plot", 600, 600);
-  TCanvas *canv_elEta = new TCanvas("canv_elEta", "elEta Plot", 600, 600);  
+  TCanvas *canv_elEta = new TCanvas("canv_elEta", "elEta Plot", 600, 600);
+  TCanvas *canv_nAK4 = new TCanvas("canv_nAK4", "nAK4 Plot", 600, 600);
+  TCanvas *canv_metSig = new TCanvas("canv_metSig", "MET Significance", 600, 600);
 
   gStyle->SetOptStat(0);
 
   int nBins_elPt = 25;
   int nBins_mt = 15;
   int nBins_METpt = 25;
-  int nBins_bTags = 50;
+  int nBins_bTags = 100;
   int nBins_eta = 25;
+  int nBins_nAK4 = 20;
+  int nBins_metSig = 40;
   float min_eta = 0;
+  float min_nAK4 = 0;
+  float min_metSig = 0;
   float max_elPt = 200;
   float max_mt = 150;
   float max_METpt = 500;
-  float max_bTags = 0.5;
+  float max_bTags = 1;
   float max_eta = 2.5;
+  float max_nAK4 = 20;
+  float max_metSig = 200;
 
-  ////////TODO set cut levels
   TCut elTrig = "ElTrig_elTrig";
   TCut bTagCuts = "Jet_pt>=20&&abs(Jet_eta)<2.5&&4&Jet_jetId&&Jet_btagDeepB>=0.1208";
   TCut metPtCut = TCut("ElTrig_metPt>250");
+  TCut metFlagsCut = TCut("Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter");
   //https://indico.cern.ch/event/1042812/attachments/2288980/3891127/METHatsLPC2020.pdf Slide 20
+  TCut nbTagsCut = TCut("ElTrig_bTagsM==0&&ElTrig_bTagsT==0");
   TCut cuts;
   if (applyCuts)
-    cuts = metPtCut;
+    cuts = metPtCut + metFlagsCut + nbTagsCut;
   else
     cuts = "";
 
@@ -375,6 +404,8 @@ void plotCutParameters(bool applyCuts=false)
   TH1F *h_METpt_data = new TH1F("h_METpt", "MET pt", nBins_METpt, 200, max_METpt);
   TH1F *h_bTag_data = new TH1F("h_bTag", "b-tagged Events", nBins_bTags, 0.12, max_bTags);  
   TH1F *h_elEta_data = new TH1F("h_elEta_data","Electron eta", nBins_eta, min_eta, max_eta);
+  TH1F *h_nAK4_data = new TH1F("h_nAK4_data", "Num AK4 Jets", nBins_nAK4, min_nAK4, max_nAK4); 
+  TH1F *h_metSig_data = new TH1F("h_metSig_data", "MET Significance", nBins_metSig, min_metSig, max_metSig);
 
   for (int i = 0; i < N_DATA_FILES; i++)
     {
@@ -408,6 +439,18 @@ void plotCutParameters(bool applyCuts=false)
       temp_elEta->Sumw2();
       h_elEta_data->Add(temp_elEta);
       delete temp_elEta;
+
+      TH1F *temp_nAK4 = new TH1F("temp_nAK4", "", nBins_nAK4, min_nAK4, max_nAK4);
+      dataTrees[i]->Draw("nJet>>+temp_nAK4", cuts);
+      temp_nAK4->Sumw2();
+      h_nAK4_data->Add(temp_nAK4);
+      delete temp_nAK4;
+
+      TH1F *temp_metSig = new TH1F("temp_metSig", "", nBins_metSig, min_metSig, max_metSig);
+      dataTrees[i]->Draw("MET_significance>>+temp_metSig", cuts);
+      temp_metSig->Sumw2();
+      h_metSig_data->Add(temp_metSig);
+      delete temp_metSig;
     }
   h_bTag_data->Scale(1.0/h_bTag_data->GetEntries());
 
@@ -420,7 +463,9 @@ void plotCutParameters(bool applyCuts=false)
   THStack *hs_METpt_mc = new THStack("hs_METpt_mc", "MET pt");
   THStack *hs_bTag_mc = new THStack("hs_bTag_mc", "b-tagged Events");
   THStack *hs_elEta_mc = new THStack("hs_elEta_mc", "Electron eta");
-
+  THStack *hs_nAK4_mc = new THStack("hs_nAK4_mc", "Num AK4 Jets");
+  THStack *hs_metSig_mc = new THStack("hs_metSig_mc", "MET Significance");
+ 
   int col = 2;
   for (int j = 0; j < N_MC_FILES; j++)
     {      
@@ -474,6 +519,24 @@ void plotCutParameters(bool applyCuts=false)
       temp_elEta->SetXTitle("electron eta");
       hs_elEta_mc->Add((TH1F*) temp_elEta->Clone());
 
+      TH1F *temp_nAK4 = new TH1F("nAK4_"+labels[j], "", nBins_nAK4, min_nAK4, max_nAK4);
+      mcTrees[j]->Draw("nJet>>+nAK4_"+labels[j], cuts, "hist");
+      temp_nAK4->Sumw2();
+      temp_nAK4->Scale(xsWeight*lumi);
+      temp_nAK4->SetLineColor(col);
+      temp_nAK4->SetFillColor(col);
+      temp_nAK4->SetXTitle("Num AK4 Jets");
+      hs_nAK4_mc->Add((TH1F*) temp_nAK4->Clone());
+
+      TH1F *temp_metSig = new TH1F("metSig_"+labels[j], "", nBins_metSig, min_metSig, max_metSig);
+      mcTrees[j]->Draw("MET_significance>>+metSig_"+labels[j], cuts, "hist");
+      temp_metSig->Sumw2();
+      temp_metSig->Scale(xsWeight*lumi);
+      temp_metSig->SetLineColor(col);
+      temp_metSig->SetFillColor(col);
+      temp_metSig->SetXTitle("MET Significance");
+      hs_metSig_mc->Add((TH1F*) temp_metSig->Clone());
+      
       col++;
 
       leg->AddEntry(temp_METpt, labels[j], "f");
@@ -490,7 +553,11 @@ void plotCutParameters(bool applyCuts=false)
   h_bTag_data->SetLineColor(1);
   h_elEta_data->SetXTitle("electron eta");
   h_elEta_data->SetLineColor(1);
-
+  h_nAK4_data->SetXTitle("Num AK4 Jets");
+  h_nAK4_data->SetLineColor(1);
+  h_metSig_data->SetXTitle("MET Significance");
+  h_metSig_data->SetLineColor(1);
+  
   //elPt
   canv_elPt->cd();
   hs_elPt_mc->Draw("hist");
@@ -527,23 +594,90 @@ void plotCutParameters(bool applyCuts=false)
   h_elEta_data->Draw("e same");
   leg->Draw("same");
   canv_elEta->SaveAs("../Plots/TrigEff/elEta.png");
+
+  canv_nAK4->cd();
+  hs_nAK4_mc->Draw("hist");
+  hs_nAK4_mc->GetXaxis()->SetTitle("Num AK4 Jets");
+  h_nAK4_data->Draw("e same");
+  leg->Draw("same");
+  canv_nAK4->SaveAs("../Plots/TrigEff/nAK4.png");  
+
+  canv_metSig->cd();
+  hs_metSig_mc->Draw("hist");
+  hs_metSig_mc->GetXaxis()->SetTitle("MET Significance");
+  h_metSig_data->Draw("e same");
+  leg->Draw("same");
+  canv_metSig->SaveAs("../Plots/TrigEff/metSig.png");  
+
 }
 
 
-/*
-TH1F* getNbTags(TTree* tree, TString cuts)
+
+void plotNbTags()
 {
-  float btagDeepB;
-  float wp = 0.1208; 
-  int nTags = 
+  TTree* mcTrees[N_MC_FILES];
+  TString labels[N_MC_FILES];
+  TString runDir = "13Nov2021/";
+  getMCTrees(mcTrees, labels, runDir);
+  gStyle->SetOptStat(0);
 
-  tree->SetBranchAddress("Jet_btagDeepB", &btagDeepB);
-  for (int i = 0; i < tree->GetEntries(cuts); i++)
-    {
-      tree->GetEntry(i);
-      if (btagDeepB >= wp)
-        
-    }
- 
+  TCanvas *canv = new TCanvas("canv", "Number of b-Tagged Events", 1500, 600);
+
+  THStack *hs_loose = new THStack("hs_loose", "Loose WP");
+  THStack *hs_med = new THStack("hs_med", "Medium WP");
+  THStack *hs_tight = new THStack("hs_tight", "Tight WP");
+
+  TLegend *leg = new TLegend(0.5, 0.5, 0.9, 0.9);
+
+  for (int i = 0; i < N_MC_FILES; i++)
+    {  
+      TH1F* hL = new TH1F("hL_"+labels[i],"Loose WP",7, -0.5, 6.5);
+      mcTrees[i]->Draw("ElTrig_bTagsL>>+hL_"+labels[i], "ElTrig_bTagsM==0&&ElTrig_bTagsT==0");     
+      TH1F* hM = new TH1F("hM_"+labels[i],"Medium WP",7, -0.5, 6.5);
+      mcTrees[i]->Draw("ElTrig_bTagsM>>+hM_"+labels[i], "ElTrig_bTagsT==0");
+      TH1F* hT = new TH1F("hT_"+labels[i],"Tight WP",7, -0.5, 6.5);
+      mcTrees[i]->Draw("ElTrig_bTagsT>>+hT_"+labels[i]);
+      
+      int col = 2*(i+1);
+      hL->SetLineColor(col);
+      hL->SetFillColor(col);
+      hM->SetLineColor(col);
+      hM->SetFillColor(col);
+      hT->SetLineColor(col);
+      hT->SetFillColor(col);
+
+      hL->SetXTitle("# of b-tagged events");
+      hM->SetXTitle("# of b-tagged events");
+      hT->SetXTitle("# of b-tagged events");
+  
+      hs_loose->Add((TH1F*) hL->Clone());
+      hs_med->Add((TH1F*) hM->Clone());
+      hs_tight->Add((TH1F*) hT->Clone());
+
+      leg->AddEntry(hL->Clone(), labels[i], "F");   
+  
+      delete hL;
+      delete hM;
+      delete hT;
+    }  
+
+   canv->Divide(3,1);
+  
+   canv->cd(1);
+   hs_loose->Draw();
+   hs_loose->GetXaxis()->SetTitle("# of b-tagged jets/event");
+   leg->Draw();
+   
+   canv->cd(2);
+   hs_med->Draw();
+   hs_med->GetXaxis()->SetTitle("# of b-tagged jets/event");
+   leg->Draw();   
+  
+   canv->cd(3);
+   hs_tight->Draw();
+   hs_tight->GetXaxis()->SetTitle("# of b-tagged jets/event");
+   leg->Draw();
+
+   canv->SaveAs("../Plots/nBTags.png");
+
 }
-*/
