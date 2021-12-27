@@ -12,10 +12,11 @@
 
 using namespace std;
 
+const int N_YEARS = 4;
 const int N_MC_FILES = 12;
 const int N_DATA_FILES = 4;
 
-void getMCTrees(TTree **treesArr, TString labels[], TString runDir)
+void getMCTrees(TTree **treesArr, TString labels[], TString runDir, TString year)
 { 
   TFile* files[N_MC_FILES];
   TTree* trees[N_MC_FILES];
@@ -24,30 +25,30 @@ void getMCTrees(TTree **treesArr, TString labels[], TString runDir)
     
   if (runDir == "13Nov2021/" or runDir == "")
    {
-     files[0] = TFile::Open(baseDir + runDir + "WJetsToLNu_2018.root");
-     labels[0] = "WJetsToLNu_2018"; 
-     files[1] = TFile::Open(baseDir + runDir + "WW_2018.root");
-     labels[1] = "WW_2018";
-     files[2] = TFile::Open(baseDir + runDir + "WZ_2018.root");
-     labels[2] = "WZ_2018";
-     files[3] = TFile::Open(baseDir + runDir + "ZZ_2018.root");
-     labels[3] = "ZZ_2018";
-     files[4] = TFile::Open(baseDir + runDir + "DYJetsToLL_M50_2018.root");
-     labels[4] = "DYJetsToLL_M50_2018";
-     files[5] = TFile::Open(baseDir + runDir + "DYJetsToLL_M10to50_2018.root");
-     labels[5] = "DYJetsToLL_M10-50_2018";
-     files[6] = TFile::Open(baseDir + runDir + "ST_tW_top_2018.root");
-     labels[6] = "ST_tW_top_2018";
-     files[7] = TFile::Open(baseDir + runDir + "ST_tW_antitop_2018.root");
-     labels[7] = "ST_tW_antitop_2018";
-     files[8] = TFile::Open(baseDir + runDir + "ST_t_channel_antitop_2018.root");
-     labels[8] = "ST_t_channel_antitop_2018";
-     files[9] = TFile::Open(baseDir + runDir + "ST_t_channel_top_2018.root");
-     labels[9] = "ST_t_channel_top_2018";
-     files[10] = TFile::Open(baseDir + runDir + "TTTo2L2Nu_2018.root");
-     labels[10] = "TTTo2L2Nu_2018";
-     files[11] = TFile::Open(baseDir + runDir + "TTToSemiLeptonic_2018.root");
-     labels[11] = "TTToSemiLeptonic_2018";
+     files[0] = TFile::Open(baseDir + runDir + "WJetsToLNu_" + year + ".root");
+     labels[0] = "WJetsToLNu_" + year; 
+     files[1] = TFile::Open(baseDir + runDir + "WW_" + year + ".root");
+     labels[1] = "WW_" + year;
+     files[2] = TFile::Open(baseDir + runDir + "WZ_" + year + ".root");
+     labels[2] = "WZ_" + year;
+     files[3] = TFile::Open(baseDir + runDir + "ZZ_" + year + ".root");
+     labels[3] = "ZZ_" + year;
+     files[4] = TFile::Open(baseDir + runDir + "DYJetsToLL_M50_" + year + ".root");
+     labels[4] = "DYJetsToLL_M50_" + year;
+     files[5] = TFile::Open(baseDir + runDir + "DYJetsToLL_M10to50_" + year + ".root");
+     labels[5] = "DYJetsToLL_M10-50_" + year;
+     files[6] = TFile::Open(baseDir + runDir + "ST_tW_top_" + year + ".root");
+     labels[6] = "ST_tW_top_" + year;
+     files[7] = TFile::Open(baseDir + runDir + "ST_tW_antitop_" + year + ".root");
+     labels[7] = "ST_tW_antitop_" + year;
+     files[8] = TFile::Open(baseDir + runDir + "ST_t_channel_antitop_" + year + ".root");
+     labels[8] = "ST_t_channel_antitop_" + year;
+     files[9] = TFile::Open(baseDir + runDir + "ST_t_channel_top_" + year + ".root");
+     labels[9] = "ST_t_channel_top_" + year;
+     files[10] = TFile::Open(baseDir + runDir + "TTTo2L2Nu_" + year + ".root");
+     labels[10] = "TTTo2L2Nu_" + year;
+     files[11] = TFile::Open(baseDir + runDir + "TTToSemiLeptonic_" + year + ".root");
+     labels[11] = "TTToSemiLeptonic_" + year;
    }
   else
    {
@@ -59,21 +60,22 @@ void getMCTrees(TTree **treesArr, TString labels[], TString runDir)
   for (int i = 0; i < N_MC_FILES; i++)
     {
       treesArr[i] = (TTree*) files[i]->Get("Events");
+      if (treesArr[i] == NULL) cout << i << endl;
     }  
 }
 
 
-void getDataTrees(TTree **treesArr, TString runDir)
+void getDataTrees(TTree **treesArr, TString runDir, TString year)
 {  
   TFile* files[N_DATA_FILES];
   TTree* trees[N_DATA_FILES];
 
 
   TString baseDir = "root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/"; 
-  files[0] = TFile::Open(baseDir + runDir + "MET_2018A.root");
-  files[1] = TFile::Open(baseDir + runDir + "MET_2018B.root");
-  files[2] = TFile::Open(baseDir + runDir + "MET_2018C.root");
-  files[3] = TFile::Open(baseDir + runDir + "MET_2018D.root");
+  files[0] = TFile::Open(baseDir + runDir + "MET_" + year + "A.root");
+  files[1] = TFile::Open(baseDir + runDir + "MET_" + year + "B.root");
+  files[2] = TFile::Open(baseDir + runDir + "MET_" + year + "C.root");
+  files[3] = TFile::Open(baseDir + runDir + "MET_" + year + "D.root");
 
   for (int i = 0; i < N_DATA_FILES; i++)
     {
@@ -82,15 +84,16 @@ void getDataTrees(TTree **treesArr, TString runDir)
 }
 
 
-void plotElTrigEff(bool ratioStyle = true)
+void plotElTrigEff(bool ratioStyle = true, TString year="2018")
 {
   TTree* mcTrees[N_MC_FILES];
   TTree* dataTrees[N_DATA_FILES];
   TString labels[N_MC_FILES];
-  //TString runDir = "13Nov2021/";
-  TString runDir = "";
-  getMCTrees(mcTrees, labels, runDir);
-  getDataTrees(dataTrees, runDir);
+  TString runDirMC = "13Nov2021/";
+  TString runDirData = "13Nov2021/";
+
+  getMCTrees(mcTrees, labels, runDirMC, year);
+  getDataTrees(dataTrees, runDirData, year);
   
   TCanvas *canv = new TCanvas("canv", "Single El Trigger Eff Plots", 600, 600);
   TCanvas *etaCanv = new TCanvas("etaCanv", "Single El Trigger Plots in Eta", 1000, 800); 
@@ -100,7 +103,7 @@ void plotElTrigEff(bool ratioStyle = true)
   TCut metFlagsCut = TCut("Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter");
   //https://indico.cern.ch/event/1042812/attachments/2288980/3891127/METHatsLPC2020.pdf Slide 20
   TCut bTagsCut = TCut("ElTrig_bTagsM==0&&ElTrig_bTagsT==0");
-  if (runDir == "13Nov2021/")
+  if (runDirMC == "13Nov2021/" or runDirData == " 13Nov2021")
      baseCuts = baseCuts + metPtCut + metFlagsCut + bTagsCut;  
   else
     baseCuts = baseCuts + metPtCut + metFlagsCut;
@@ -349,10 +352,12 @@ void plotCutParameters(bool applyCuts=false)
   TTree* mcTrees[N_MC_FILES];
   TTree* dataTrees[N_DATA_FILES];
   TString labels[N_MC_FILES];
-  TString runDir = "13Nov2021/";
+  TString runDirMC = "13Nov2021/";
+  TString runDirData = "13Nov2021/";
+  TString year = "2018";
 
-  getMCTrees(mcTrees, labels, runDir);
-  getDataTrees(dataTrees, runDir);
+  getMCTrees(mcTrees, labels, runDirMC, year);
+  getDataTrees(dataTrees, runDirData, year);
 
 
   TCanvas *canv_elPt = new TCanvas("canv_elPt", "elPt Plot", 600, 600);
@@ -618,7 +623,8 @@ void plotNbTags()
   TTree* mcTrees[N_MC_FILES];
   TString labels[N_MC_FILES];
   TString runDir = "13Nov2021/";
-  getMCTrees(mcTrees, labels, runDir);
+  TString year = "2018";
+  getMCTrees(mcTrees, labels, runDir, year);
   gStyle->SetOptStat(0);
 
   TCanvas *canv = new TCanvas("canv", "Number of b-Tagged Events", 1500, 600);
@@ -680,4 +686,86 @@ void plotNbTags()
 
    canv->SaveAs("../Plots/nBTags.png");
 
+}
+
+
+//Make TH2Fs of pt vs eta SFs for each year
+void makeSFplots(TString year="2018")
+{
+  gStyle->SetOptStat(0);
+  TCanvas* canv = new TCanvas("canv", "Single-El Trigger SFs", 600, 600);
+  TFile* outFile = new TFile("singleElTrigEffSF_" + year + ".root", "RECREATE");
+
+  TTree* mcTrees[N_MC_FILES];
+  TTree* dataTrees[N_DATA_FILES];
+  TString labels[N_MC_FILES];
+  TString runDirMC = "13Nov2021/";
+  TString runDirData = "13Nov2021/";
+
+  getMCTrees(mcTrees, labels, runDirMC, year);
+  getDataTrees(dataTrees, runDirData, year);
+
+  const int nEtaBins = 6;
+  double etaBinsLowEdges[nEtaBins+1] = {-2.5,-2,-1.5,0,1.5,2,2.5};
+  const int nPtBins = 7;
+  double ptBinsLowEdges[nPtBins+1] = {0,29,34,50,75,100,150,200};
+
+  TH2F* hSFs = new TH2F("hSFs", "Single Electron Trigger Scale Factors (Data/MC);Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+  TH2F* hData = new TH2F("hData", "Data;Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+  TH2F* hMC = new TH2F("hMC", "MC;Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+  TH2F* hDataDen = new TH2F("hDataDen", "Data;Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+  TH2F* hMCDen = new TH2F("hMCDen", "MC;Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+
+  TCut baseCuts = TCut("");
+  TCut metPtCut = TCut("ElTrig_metPt>250");
+  TCut metFlagsCut = TCut("Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter");
+  //https://indico.cern.ch/event/1042812/attachments/2288980/3891127/METHatsLPC2020.pdf Slide 20
+  TCut bTagsCut = TCut("ElTrig_bTagsM==0&&ElTrig_bTagsT==0");
+  if (runDirData == "13Nov2021/" || runDirMC == "13Nov2021")
+     baseCuts = baseCuts + metPtCut + metFlagsCut + bTagsCut;  
+  else
+    baseCuts = baseCuts + metPtCut + metFlagsCut;
+  TCut trigCut = TCut("ElTrig_elTrig");
+
+  for (int i = 0; i < N_DATA_FILES; i++)
+  {
+    TH2F* hTempNum =  new TH2F("hTempNum", "Data;Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+    TH2F* hTempDen =  new TH2F("hTempDen", "Data;Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+    dataTrees[i]->Draw("ElTrig_elPt:ElTrig_elEta>>+hTempNum", baseCuts + trigCut);
+    dataTrees[i]->Draw("ElTrig_elPt:ElTrig_elEta>>+hTempDen", baseCuts);
+    
+    hData->Add(hTempNum);
+    hDataDen->Add(hTempDen);
+
+    delete hTempNum;
+    delete hTempDen;
+  }
+  
+  for (int i = 0; i < N_MC_FILES; i++)
+  {
+    TH2F* hTempNum =  new TH2F("hTempNum", "MC;Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+    TH2F* hTempDen =  new TH2F("hTempDen", "MC;Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+    mcTrees[i]->Draw("ElTrig_elPt:ElTrig_elEta>>+hTempNum", baseCuts + trigCut);
+    mcTrees[i]->Draw("ElTrig_elPt:ElTrig_elEta>>+hTempDen", baseCuts);
+
+    hMC->Add(hTempNum);
+    hMCDen->Add(hTempDen);
+
+    delete hTempNum;
+    delete hTempDen;
+  }
+
+  hData->Divide(hDataDen);
+  hMC->Divide(hMCDen);
+
+  hSFs->Divide(hData, hMC);
+ 
+  //outFile->Write("hData");
+  //outFile->Write("hMC");
+  outFile->Write("hSFs");
+  outFile->Close();
+
+  canv->cd();
+  hSFs->Draw("colz");
+  canv->SaveAs("../Plots/singleElTrigEffSFs.png");
 }
