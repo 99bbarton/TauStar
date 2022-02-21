@@ -8,15 +8,16 @@
 #############################################################
 # flag to be Tested
 flags = {
-    'passing_HLT_Ele27_WPTight_Gsf' : '(passing_HLT_Ele27_WPTight_Gsf == 1)',
-    'passing_HLT_Ele25_eta2p1_WPTight_Gsf' : '(passing_HLT_Ele25_eta2p1_WPTight_Gsf == 1)',
-    'passing_HLT_Ele32_WPTight_Gsf_L1DoubleEG' : '(passing_HLT_Ele32_WPTight_Gsf_L1DoubleEG == 1)',
-    'passing_HLT_Ele35_WPTight_Gsf' : '(passing_HLT_Ele35_WPTight_Gsf == 1)',
+#    'passing_HLT_Ele27_WPTight_Gsf' : '(passing_HLT_Ele27_WPTight_Gsf == 1)',
+#    'passing_HLT_Ele25_eta2p1_WPTight_Gsf' : '(passing_HLT_Ele25_eta2p1_WPTight_Gsf == 1)',
+#    'passing_HLT_Ele32_WPTight_Gsf_L1DoubleEG' : '(passing_HLT_Ele32_WPTight_Gsf_L1DoubleEG == 1)',
+#    'passing_HLT_Ele35_WPTight_Gsf' : '(passing_HLT_Ele35_WPTight_Gsf == 1)',
     'passHltEle32WPTightGsf' : '(passHltEle32WPTightGsf == 1)',
     }
 
 #baseOutDir = "root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/TNP_Fits/"
-baseOutDir = "/uscms/home/bbarton/nobackup/CMSSW_10_6_13/src/EgammaAnalysis/egm_tnp_analysis/Fits/"
+#baseOutDir = "/uscms/home/bbarton/nobackup/CMSSW_10_6_13/src/EgammaAnalysis/egm_tnp_analysis/Fits/"
+baseOutDir = "Fits/"
 
 #############################################################
 ########## samples definition  - preparing the samples
@@ -28,8 +29,8 @@ tnpTreeDir = 'tnpEleTrig'
 
 samplesDef = {
     'data'   : tnpSamples.UL2018['data_Run2018A'].clone()
-#    'mcLO'  : tnpSamples.UL2018['DY_LO'].clone(),
-#    'mcNLO'  : tnpSamples.UL2018['DY_NLO'].clone(),
+  #  'mcLO'  : tnpSamples.UL2018['DY_LO'].clone(),
+  #  'mcNLO'  : tnpSamples.UL2018['DY_NLO'].clone(),
 }
 
 ## Add remaining data samples
