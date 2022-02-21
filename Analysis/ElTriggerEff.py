@@ -12,7 +12,7 @@ class ElTriggerEff(Module):
         pass
 
     def beginJob(self):
-	pass
+        pass
     
     def endJob(self):
         pass
@@ -21,14 +21,32 @@ class ElTriggerEff(Module):
         self.out = wrappedOutputTree
         self.out.branch("ElTrig_elPt", "F") 
         self.out.branch("ElTrig_elEta", "F")
-	self.out.branch("ElTrig_metPt", "F")
-	self.out.branch("ElTrig_mt", "F")
-	self.out.branch("ElTrig_cosDPhi", "F")
-	self.out.branch("ElTrig_elTrig", "I")
+        self.out.branch("ElTrig_elDeltaEtaSC", "F") #delta eta(supercluster eta, el) with sign
+        self.out.branch("ElTrig_metPt", "F")
+        self.out.branch("ElTrig_mt", "F")
+        self.out.branch("ElTrig_cosDPhi", "F")
+        self.out.branch("ElTrig_elTrig", "I")
         self.out.branch("ElTrig_bTagsL", "I")
         self.out.branch("ElTrig_bTagsM", "I")
         self.out.branch("ElTrig_bTagsT", "I")
+        self.out.branch("ElTrig_metFlags", "I")
+        #self.out.branch("ElTrig_elRecoSF", "F")
+        #self.out.branch("ElTrig_elIDSF", "F")
+        self.out.branch("ElTrig_HLT_Ele25_eta2p1_WPTight_Gsf", "I")
+        self.out.branch("ElTrig_HLT_Ele27_WPTight_Gsf", "I")
+        self.out.branch("ElTrig_HLT_Ele32_WPTight_Gsf", "I")
+        self.out.branch("ElTrig_HLT_Ele32_WPTight_Gsf_L1DoubleEG", "I")
+        self.out.branch("ElTrig_HLT_Ele35_WPTight_Gsf", "I")
+        self.out.branch("ElTrig_HLT_Ele38_WPTight_Gsf", "I")
+        self.out.branch("ElTrig_HLT_Ele40_WPTight_Gsf", "I")
 
+        #baseDir = "root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/ElIDSFs/"
+        #elRecoSFFile = ROOT.TFile.Open(baseDir + "egammaEffi_ptAbove20.txt_EGM2D_UL2018.root")
+        #self.hElRecoSF = elRecoSFFile.Get("EGamma_SF2D")
+        #elIDSFFile = ROOT.TFile.Open(baseDir + "egammaEffi.txt_Ele_wp80iso_EGM2D.root")
+        #elIDSFFile = ROOT.TFile.Open(baseDir + "egammaEffi.txt_Ele_wp90iso_EGM2D.root")
+        #self.hElIDSF = elIDSFFile.Get("EGamma_SF2D")
+    
     def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         pass
 
@@ -53,6 +71,10 @@ class ElTriggerEff(Module):
         # require exactly one
         if nGoodEl != 1:
                 return False        
+
+        #Get the electron reco and MVA ID scale factors from E-Gamma hists
+        #elRecoSF = self.hElRecoSF.GetBinContent(self.hElRecoSF.FindBin(goodEl.eta, goodEl.pt))
+        #elIDSF = self.hElIDSF.GetBinContent(self.hElIDSF.FindBin(goodEl.eta, goodEl.pt))
 
         muons = Collection(event, "Muon")
         # We don't want reconstructed muons
@@ -80,14 +102,15 @@ class ElTriggerEff(Module):
         nBJetsT = 0
         for jet in jets:
                 if jet.pt>=20. and abs(jet.eta)<2.5 and (4&jet.jetId): #TightID + lepVeto
-                        #https://twiki.cern.ch/CMS/BtagRecommendation106XUL18
-                        if jet.btagDeepB >= 0.1208:
-                           nBJetsL += 1
-                        if jet.btagDeepB >= 0.7665:
-                           nBJetsT += 1
-                        if jet.btagDeepB >= 0.4168: #Medium wp
-                           nBJetsM += 1           
-                           #return False
+                        if deltaR(jet, goodEl) >= 0.4:
+                            #https://twiki.cern.ch/CMS/BtagRecommendation106XUL18
+                            if jet.btagDeepB >= 0.1208:
+                                nBJetsL += 1
+                            if jet.btagDeepB >= 0.7665:
+                                nBJetsT += 1
+                            if jet.btagDeepB >= 0.4168: #Medium wp
+                                nBJetsM += 1           
+                
 
         #We want to select W events first so as not to bias ourselves by selecting with an el trigger
         if event.MET_pt < 200: #smallest value visible in triggers for 2018
@@ -103,16 +126,70 @@ class ElTriggerEff(Module):
         if not metTrig:
                return False
         
+        
+        metFlags = event.Flag_goodVertices and event.Flag_globalSuperTightHalo2016Filter and event.Flag_HBHENoiseFilter and event.Flag_HBHENoiseIsoFilter 
+        metFlags = metFlags and event.Flag_EcalDeadCellTriggerPrimitiveFilter and event.Flag_BadPFMuonFilter and event.Flag_eeBadScFilter and event.Flag_ecalBadCalibFilter
+
 
         # check trigger performance
         #https://twiki.cern.ch/CMS/MuonHLT2017#Recommendations_for_2017_data_an
         trigger = False
-        if hasattr(event, "HLT_Ele27_WPTight_Gsf"): trigger = trigger or event.HLT_Ele27_WPTight_Gsf
-        if hasattr(event, "HLT_Ele25_eta2p1_WPTight_Gsf"): trigger = trigger or event.HLT_Ele25_eta2p1_WPTight_Gsf
-        #2017
-        if hasattr(event, "HLT_Ele32_WPTight_Gsf_L1DoubleEG"): trigger = trigger or event.HLT_Ele32_WPTight_Gsf_L1DoubleEG
-        if hasattr(event, "HLT_Ele35_WPTight_Gsf"): trigger = trigger or event.HLT_Ele35_WPTight_Gsf
-        if hasattr(event, "HLT_Ele32_WPTight_Gsf"): trigger = trigger or event.HLT_Ele32_WPTight_Gsf
+        if hasattr(event, "HLT_Ele25_eta2p1_WPTight_Gsf"): 
+            trigger = trigger or event.HLT_Ele25_eta2p1_WPTight_Gsf
+            if event.HLT_Ele25_eta2p1_WPTight_Gsf:
+                self.out.fillBranch("ElTrig_HLT_Ele25_eta2p1_WPTight_Gsf", 1)
+            else:
+                self.out.fillBranch("ElTrig_HLT_Ele25_eta2p1_WPTight_Gsf", 0)
+        else:
+            self.out.fillBranch("ElTrig_HLT_Ele25_eta2p1_WPTight_Gsf", -1)
+        if hasattr(event, "HLT_Ele27_WPTight_Gsf"): 
+            trigger = trigger or event.HLT_Ele27_WPTight_Gsf
+            if event.HLT_Ele27_WPTight_Gsf:
+                self.out.fillBranch("ElTrig_HLT_Ele27_WPTight_Gsf", 1)
+            else:
+                self.out.fillBranch("ElTrig_HLT_Ele27_WPTight_Gsf", 0)
+        else:
+            self.out.fillBranch("ElTrig_HLT_Ele27_WPTight_Gsf", -1)
+        if hasattr(event, "HLT_Ele32_WPTight_Gsf_L1DoubleEG"):
+            trigger = trigger or event.HLT_Ele32_WPTight_Gsf_L1DoubleEG
+            if event.HLT_Ele32_WPTight_Gsf_L1DoubleEG:
+                self.out.fillBranch("ElTrig_HLT_Ele32_WPTight_Gsf_L1DoubleEG", 1)
+            else:
+                self.out.fillBranch("ElTrig_HLT_Ele32_WPTight_Gsf_L1DoubleEG", 0)
+        else:
+            self.out.fillBranch("ElTrig_HLT_Ele32_WPTight_Gsf_L1DoubleEG", -1)
+        if hasattr(event, "HLT_Ele32_WPTight_Gsf"):
+            trigger = trigger or event.HLT_Ele32_WPTight_Gsf
+            if event.HLT_Ele32_WPTight_Gsf:
+                self.out.fillBranch("ElTrig_HLT_Ele32_WPTight_Gsf", 1)
+            else:
+                self.out.fillBranch("ElTrig_HLT_Ele32_WPTight_Gsf", 0)
+        else:
+            self.out.fillBranch("ElTrig_HLT_Ele32_WPTight_Gsf", -1)
+        if hasattr(event, "HLT_Ele35_WPTight_Gsf"): 
+            trigger = trigger or event.HLT_Ele35_WPTight_Gsf
+            if event.HLT_Ele35_WPTight_Gsf:
+                self.out.fillBranch("ElTrig_HLT_Ele35_WPTight_Gsf", 1)
+            else:
+                self.out.fillBranch("ElTrig_HLT_Ele35_WPTight_Gsf", 0)
+        else:
+            self.out.fillBranch("ElTrig_HLT_Ele35_WPTight_Gsf", -1)
+        if hasattr(event, "HLT_Ele38_WPTight_Gsf"):
+            trigger = trigger or event.HLT_Ele38_WPTight_Gsf
+            if event.HLT_Ele38_WPTight_Gsf:
+                self.out.fillBranch("ElTrig_HLT_Ele38_WPTight_Gsf", 1)
+            else:
+                self.out.fillBranch("ElTrig_HLT_Ele38_WPTight_Gsf", 0)
+        else:
+            self.out.fillBranch("ElTrig_HLT_Ele38_WPTight_Gsf", -1)
+        if hasattr(event, "HLT_Ele40_WPTight_Gsf"): 
+            trigger = trigger or event.HLT_Ele40_WPTight_Gsf
+            if event.HLT_Ele40_WPTight_Gsf:
+                self.out.fillBranch("ElTrig_HLT_Ele40_WPTight_Gsf", 1)
+            else:
+                self.out.fillBranch("ElTrig_HLT_Ele40_WPTight_Gsf", 0)
+        else:
+            self.out.fillBranch("ElTrig_HLT_Ele40_WPTight_Gsf", -1)        
         if trigger:
             elTrig = 1        
 
@@ -125,6 +202,7 @@ class ElTriggerEff(Module):
 
         self.out.fillBranch("ElTrig_elPt", goodEl.pt)
         self.out.fillBranch("ElTrig_elEta", goodEl.eta)
+        self.out.fillBranch("ElTrig_elDeltaEtaSC", goodEl.deltaEtaSC)
         self.out.fillBranch("ElTrig_metPt", event.MET_pt)
         self.out.fillBranch("ElTrig_mt", mT)
         self.out.fillBranch("ElTrig_cosDPhi", cosdphi)
@@ -132,6 +210,9 @@ class ElTriggerEff(Module):
         self.out.fillBranch("ElTrig_bTagsL", nBJetsL)
         self.out.fillBranch("ElTrig_bTagsM", nBJetsM)
         self.out.fillBranch("ElTrig_bTagsT", nBJetsT)
+        self.out.fillBranch("ElTrig_metFlags", metFlags)
+        #self.out.fillBranch("ElTrig_elRecoSF", elRecoSF)
+        #self.out.fillBranch("ElTrig_elIDSF", elIDSF)
 
         return True
 

@@ -59,7 +59,7 @@ for i, infile in enumerate(files):
         #f.write("config.Data.splitting='Automatic'\n")
         f.write("config.Data.splitting = 'FileBased'\n")
         f.write("config.Data.unitsPerJob = 1\n")
-        f.write("config.Data.outLFNDirBase = '/store/user/bbarton/TrigEffStudies/13Nov2021/'\n")
+        f.write("config.Data.outLFNDirBase = '/store/user/bbarton/TrigEffStudies/20Feb2022/'\n")
         f.write("config.Data.publication = False\n")
         f.write("\n")
         #f.write("config.section_('User')\n")
