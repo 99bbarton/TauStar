@@ -23,7 +23,7 @@ void getMCTrees(TTree **treesArr, TString labels[], TString runDir, TString year
   
   TString baseDir = "root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/";  
     
-  if (runDir == "13Nov2021/" or runDir == "")
+  if (runDir == "13Nov2021/" || runDir == "20Feb2022/")
    {
      files[0] = TFile::Open(baseDir + runDir + "WJetsToLNu_" + year + ".root");
      labels[0] = "WJetsToLNu_" + year; 
@@ -89,8 +89,8 @@ void plotElTrigEff(bool ratioStyle = true, TString year="2018")
   TTree* mcTrees[N_MC_FILES];
   TTree* dataTrees[N_DATA_FILES];
   TString labels[N_MC_FILES];
-  TString runDirMC = "13Nov2021/";
-  TString runDirData = "13Nov2021/";
+  TString runDirMC = "20Feb2022/";
+  TString runDirData = "20Feb2022/";
 
   getMCTrees(mcTrees, labels, runDirMC, year);
   getDataTrees(dataTrees, runDirData, year);
@@ -103,8 +103,9 @@ void plotElTrigEff(bool ratioStyle = true, TString year="2018")
   TCut metFlagsCut = TCut("Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter");
   //https://indico.cern.ch/event/1042812/attachments/2288980/3891127/METHatsLPC2020.pdf Slide 20
   TCut bTagsCut = TCut("ElTrig_bTagsM==0&&ElTrig_bTagsT==0");
-  if (runDirMC == "13Nov2021/" or runDirData == " 13Nov2021")
-     baseCuts = baseCuts + metPtCut + metFlagsCut + bTagsCut;  
+  TCut passHLT_Ele32_WPTight_Gsf = TCut("ElTrig_HLT_Ele32_WPTight_Gsf");
+  if (runDirMC == "13Nov2021/" || runDirData == "13Nov2021" || runDirMC == "20Feb2022/" || runDirData == "20Feb2022/")
+     baseCuts = baseCuts + metPtCut + metFlagsCut + bTagsCut + passHLT_Ele32_WPTight_Gsf;  
   else
     baseCuts = baseCuts + metPtCut + metFlagsCut;
 
@@ -347,13 +348,13 @@ void plotElTrigEff(bool ratioStyle = true, TString year="2018")
 }
 
   
-void plotCutParameters(bool applyCuts=false)
+void plotCutParameters(bool applyCuts=true)
 {
   TTree* mcTrees[N_MC_FILES];
   TTree* dataTrees[N_DATA_FILES];
   TString labels[N_MC_FILES];
-  TString runDirMC = "13Nov2021/";
-  TString runDirData = "13Nov2021/";
+  TString runDirMC = "20Feb2022/";
+  TString runDirData = "20Feb2022/";
   TString year = "2018";
 
   getMCTrees(mcTrees, labels, runDirMC, year);
@@ -399,6 +400,8 @@ void plotCutParameters(bool applyCuts=false)
     cuts = metPtCut + metFlagsCut + nbTagsCut;
   else
     cuts = "";
+
+  cout << "Applying cuts= " << cuts << endl;
 
   //2018 luminosity
   double lumi = 59830;  
@@ -481,6 +484,9 @@ void plotCutParameters(bool applyCuts=false)
       mcTrees[j]->SetBranchAddress("xsWeight", &xsWeight);
       mcTrees[j]->GetEntry(); 
      
+      cout << "xsWeight for " << labels[j] << " = " << xsWeight << endl;
+      cout << "xsWeight * lumi = event weight = " << xsWeight * lumi << endl;
+     
       TH1F *temp_elPt = new TH1F("elPt_"+labels[j], "", nBins_elPt, 10, max_elPt);
       mcTrees[j]->Draw("ElTrig_elPt>>+elPt_"+labels[j], cuts, "hist"); 	 
       temp_elPt->Sumw2();
@@ -513,7 +519,7 @@ void plotCutParameters(bool applyCuts=false)
       cumulative->SetLineColor(col);
       cumulative->SetFillColor(col);
       hs_bTag_mc->Add((TH1*) cumulative->Clone());
-      cout << "Average # b-tags / event for " << labels[j] << " = " << temp_bTag->Integral() << endl;
+      //cout << "Average # b-tags / event for " << labels[j] << " = " << temp_bTag->Integral() << endl;
 
       TH1F *temp_elEta = new TH1F("elEta_"+labels[j], "", nBins_eta, min_eta, max_eta);
       mcTrees[j]->Draw("abs(ElTrig_elEta)>>+elEta_"+labels[j], cuts, "hist");
@@ -622,7 +628,8 @@ void plotNbTags()
 {
   TTree* mcTrees[N_MC_FILES];
   TString labels[N_MC_FILES];
-  TString runDir = "13Nov2021/";
+//  TString runDir = "13Nov2021/";
+  TString runDir = "20Feb2022/";
   TString year = "2018";
   getMCTrees(mcTrees, labels, runDir, year);
   gStyle->SetOptStat(0);
@@ -690,50 +697,70 @@ void plotNbTags()
 
 
 //Make TH2Fs of pt vs eta SFs for each year
-void makeSFplots(TString year="2018")
+void makeSFplots(TString year="2018", bool testSingleTrig = false)
 {
   gStyle->SetOptStat(0);
-  TCanvas* canv = new TCanvas("canv", "Single-El Trigger SFs", 600, 600);
+  TCanvas* canv = new TCanvas("canv", "Single-El Trigger SFs", 1200, 700);
   TFile* outFile = new TFile("singleElTrigEffSF_" + year + ".root", "RECREATE");
 
   TTree* mcTrees[N_MC_FILES];
   TTree* dataTrees[N_DATA_FILES];
   TString labels[N_MC_FILES];
-  TString runDirMC = "13Nov2021/";
-  TString runDirData = "13Nov2021/";
+  TString runDirMC = "20Feb2022/";
+  TString runDirData = "20Feb2022/";
 
   getMCTrees(mcTrees, labels, runDirMC, year);
   getDataTrees(dataTrees, runDirData, year);
 
-  const int nEtaBins = 6;
-  double etaBinsLowEdges[nEtaBins+1] = {-2.5,-2,-1.5,0,1.5,2,2.5};
-  const int nPtBins = 7;
-  double ptBinsLowEdges[nPtBins+1] = {0,29,34,50,75,100,150,200};
+  //Eta bins chosen to match barrel & endcap regions in agreement with:
+  //https://github.com/cms-sw/cmssw/blob/e864342789fe1766666f49b97f8e3e3b9e6bfa25/PhysicsTools/NanoAOD/python/photons_cff.py#L213-L214
+  const int nEtaBins = 3;
+  double etaBinsLowEdges[nEtaBins+1] = {0,1.4442,1.566,2.5}; 
+  const int nPtBins = 5;
+  double ptBinsLowEdges[nPtBins+1] = {34,50,75,100,150,250};
 
-  TH2F* hSFs = new TH2F("hSFs", "Single Electron Trigger Scale Factors (Data/MC);Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
-  TH2F* hData = new TH2F("hData", "Data;Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
-  TH2F* hMC = new TH2F("hMC", "MC;Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
-  TH2F* hDataDen = new TH2F("hDataDen", "Data;Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
-  TH2F* hMCDen = new TH2F("hMCDen", "MC;Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+  TString etaBinLabels[nEtaBins] = {"[0, 1.442)", "[1.442, 1.566)", "[1.566, 2.5)"};
+  TString ptBinLabels[nPtBins] = {"[34, 50)", "[50, 75)", "[75, 100)", "[100, 150)", "[150, 250)"};
+
+  TH2F* hSFs = new TH2F("hSFs", "Single Electron Trigger Scale Factors (Data/MC);El SC Eta;El pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+  TH2F* hData = new TH2F("hData", "Data;El SC Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+  TH2F* hMC = new TH2F("hMC", "MC;El SC Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+  TH2F* hDataDen = new TH2F("hDataDen", "Data;El SC Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+  TH2F* hMCDen = new TH2F("hMCDen", "MC;El SC Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+  TH2F* hSFerrs = new TH2F("hSFerrs", "Single El Trigger SF Uncertainties; El SC Eta; El pT", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
 
   TCut baseCuts = TCut("");
   TCut metPtCut = TCut("ElTrig_metPt>250");
   TCut metFlagsCut = TCut("Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter");
   //https://indico.cern.ch/event/1042812/attachments/2288980/3891127/METHatsLPC2020.pdf Slide 20
   TCut bTagsCut = TCut("ElTrig_bTagsM==0&&ElTrig_bTagsT==0");
-  if (runDirData == "13Nov2021/" || runDirMC == "13Nov2021")
+  if (runDirData == "13Nov2021/" || runDirMC == "13Nov2021" || runDirMC == "20Feb2022/" || runDirData == "20Feb2022/")
      baseCuts = baseCuts + metPtCut + metFlagsCut + bTagsCut;  
   else
     baseCuts = baseCuts + metPtCut + metFlagsCut;
   TCut trigCut = TCut("ElTrig_elTrig");
+  TCut passHLT_Ele32_WPTight_Gsf = TCut("ElTrig_HLT_Ele32_WPTight_Gsf");
+  if (testSingleTrig)
+    trigCut = trigCut + passHLT_Ele32_WPTight_Gsf;
+
+  cout << "Trigger cut is " << trigCut << endl;
+
+  hData->Sumw2();
+  hMC->Sumw2();
+  hDataDen->Sumw2();
+  hMCDen->Sumw2();
+  hSFs->Sumw2();
+  hSFerrs->Sumw2();
 
   for (int i = 0; i < N_DATA_FILES; i++)
   {
-    TH2F* hTempNum =  new TH2F("hTempNum", "Data;Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
-    TH2F* hTempDen =  new TH2F("hTempDen", "Data;Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
-    dataTrees[i]->Draw("ElTrig_elPt:ElTrig_elEta>>+hTempNum", baseCuts + trigCut);
-    dataTrees[i]->Draw("ElTrig_elPt:ElTrig_elEta>>+hTempDen", baseCuts);
-    
+    TH2F* hTempNum =  new TH2F("hTempNum", "Data;El SC Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+    TH2F* hTempDen =  new TH2F("hTempDen", "Data;El SC Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+    //dataTrees[i]->Draw("ElTrig_elPt:ElTrig_elEta>>+hTempNum", baseCuts + trigCut);
+    //dataTrees[i]->Draw("ElTrig_elPt:ElTrig_elEta>>+hTempDen", baseCuts);
+    dataTrees[i]->Draw("ElTrig_elPt:(ElTrig_elEta+ElTrig_elDeltaEtaSC)>>+hTempNum", baseCuts + trigCut);
+    dataTrees[i]->Draw("ElTrig_elPt:(ElTrig_elEta+ElTrig_elDeltaEtaSC)>>+hTempDen", baseCuts);
+
     hData->Add(hTempNum);
     hDataDen->Add(hTempDen);
 
@@ -743,10 +770,12 @@ void makeSFplots(TString year="2018")
   
   for (int i = 0; i < N_MC_FILES; i++)
   {
-    TH2F* hTempNum =  new TH2F("hTempNum", "MC;Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
-    TH2F* hTempDen =  new TH2F("hTempDen", "MC;Electron Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
-    mcTrees[i]->Draw("ElTrig_elPt:ElTrig_elEta>>+hTempNum", baseCuts + trigCut);
-    mcTrees[i]->Draw("ElTrig_elPt:ElTrig_elEta>>+hTempDen", baseCuts);
+    TH2F* hTempNum =  new TH2F("hTempNum", "MC;El SC Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+    TH2F* hTempDen =  new TH2F("hTempDen", "MC;El SC Eta;Electron pT [GeV]", nEtaBins, etaBinsLowEdges, nPtBins, ptBinsLowEdges);
+    //mcTrees[i]->Draw("ElTrig_elPt:ElTrig_elEta>>+hTempNum", baseCuts + trigCut);
+    //mcTrees[i]->Draw("ElTrig_elPt:ElTrig_elEta>>+hTempDen", baseCuts);
+    mcTrees[i]->Draw("ElTrig_elPt:(ElTrig_elEta+ElTrig_elDeltaEtaSC)>>+hTempNum", baseCuts + trigCut);
+    mcTrees[i]->Draw("ElTrig_elPt:(ElTrig_elEta+ElTrig_elDeltaEtaSC)>>+hTempDen", baseCuts);
 
     hMC->Add(hTempNum);
     hMCDen->Add(hTempDen);
@@ -759,13 +788,98 @@ void makeSFplots(TString year="2018")
   hMC->Divide(hMCDen);
 
   hSFs->Divide(hData, hMC);
+  hSFs->Sumw2();
+
+  //Calculate uncertainties and store in hSFerrs
+  for (int i = 1; i <= hSFs->GetNbinsX(); i++)
+  {
+    hSFs->GetXaxis()->SetBinLabel(i, etaBinLabels[i-1]);
+    hSFerrs->GetXaxis()->SetBinLabel(i, etaBinLabels[i-1]);
+    for (int j = 1; j <= hSFs->GetNbinsY(); j++)
+    {
+      double err = hSFs->GetBinError(i, j); //Since Sumw2() has been called, err = sqrt(sum of squares of weight) for each bin
+      hSFerrs->SetBinContent(i, j, err);
+
+      hSFs->GetYaxis()->SetBinLabel(j, ptBinLabels[j-1]);
+      hSFerrs->GetYaxis()->SetBinLabel(j, ptBinLabels[j-1]);
+    }
+  }
  
   //outFile->Write("hData");
   //outFile->Write("hMC");
   outFile->Write("hSFs");
+  outFile->Write("hSFerrs");
   outFile->Close();
 
-  canv->cd();
-  hSFs->Draw("colz");
+  canv->Divide(2,1);
+  canv->cd(1);
+
+  gStyle->SetPaintTextFormat("4.2f");
+
+  //hSFs->LabelsOption("h","Z"); //Label bins on plot with the z (SF) value, label horizontally
+  hSFs->Draw("col texte");
+  canv->cd(2);
+  //hSFerrs->LabelsOption("h", "Z");
+  hSFerrs->Draw("col text");
   canv->SaveAs("../Plots/singleElTrigEffSFs.png");
+}
+
+
+
+void examineFiredTriggers(TString year = "2018")
+{
+  TTree* mcTrees[N_MC_FILES];
+  TTree* dataTrees[N_DATA_FILES];
+  TString labels[N_MC_FILES];
+  TString runDirMC = "20Feb2022/";
+  TString runDirData = "20Feb2022/";
+
+  getMCTrees(mcTrees, labels, runDirMC, year);
+  getDataTrees(dataTrees, runDirData, year);
+ 
+  TString trigNames[7] = {"HLT_Ele25_eta2p1_WPTight_Gsf", "HLT_Ele27_WPTight_Gsf",
+  "HLT_Ele32_WPTight_Gsf", "HLT_Ele32_WPTight_Gsf_L1DoubleEG", "HLT_Ele35_WPTight_Gsf",
+  "HLT_Ele38_WPTight_Gsf", "HLT_Ele40_WPTight_Gsf"};
+   
+  TCut anyTrig = TCut("ElTrig_elTrig"); 
+  
+  int nAnyTrigMC = 0;
+  int nAnyTrigData = 0;
+  int nTimesTrigMC[7] = {0};
+  int nTimesTrigData[7] = {0};
+
+  cout << "Entering loops" << endl;
+  for (int i = 0; i < N_MC_FILES; i++)
+  {
+    TTree* tree = mcTrees[i];
+    nAnyTrigMC += tree->GetEntries(anyTrig);
+    //cout << "Got tree for mc i = " << i << endl;
+    for (int j = 0; j < 7; j++)
+    {
+      TCut thisTrigCut = TCut("ElTrig_" + trigNames[j] + ">0");
+      nTimesTrigMC[j] += tree->GetEntries(anyTrig + thisTrigCut); 
+    }
+  }
+
+  for (int i = 0; i < N_DATA_FILES; i++)
+  {
+    TTree* tree = dataTrees[i];
+    nAnyTrigData += tree->GetEntries(anyTrig);
+    for (int j = 0; j < 7; j++)
+    {
+      TCut thisTrigCut = TCut("ElTrig_" + trigNames[j] + ">0");
+      nTimesTrigData[j] += tree->GetEntries(anyTrig + thisTrigCut); 
+    }
+  }
+
+  cout << "\nTrigger Counting:" << endl;
+  cout << "Total triggered MC events using OR of all triggers = " << nAnyTrigMC << endl;
+  cout << "Total triggered MC events using OR of all triggers = " << nAnyTrigData << endl;
+  cout << "Trigger |\t nData |\t nData % |\t nMC |\t nMC % |\t (nData / nMC) * (nAnyTrigMC / nAnyTrigData)" << endl;
+  for (int i = 0; i < 7; i++)
+  {
+     cout << trigNames[i] << " |\t" << nTimesTrigData[i] << " |\t" << 100.0 * nTimesTrigData[i] / (float) nAnyTrigData << " |\t" <<
+     nTimesTrigMC[i] << " |\t" << 100.0 * nTimesTrigMC[i] / (float) nAnyTrigMC << "|\t" <<
+     nTimesTrigData[i] / (float) nTimesTrigMC[i] * nAnyTrigMC /(float) nAnyTrigData << endl;
+  }
 }
