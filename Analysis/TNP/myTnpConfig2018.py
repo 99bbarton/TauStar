@@ -58,18 +58,18 @@ if not samplesDef['tagSel'] is None:
     samplesDef['tagSel'].set_cut('abs(tag_Ele_eta) <= 2.1') 
 
 ## set MC weight, simple way (use tree weight) 
-#weightName = 'totWeight'
-#if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_weight(weightName)
-#if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_weight(weightName)
-#if not samplesDef['tagSel' ] is None: samplesDef['tagSel' ].set_weight(weightName)
-
-weightName = 'weights_2018_runABCD.totWeight'
+weightName = 'totWeight'
 if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_weight(weightName)
 if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_weight(weightName)
-if not samplesDef['tagSel'] is None: samplesDef['tagSel'].set_weight(weightName)
-if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2018_MINIAOD_Nm1/PU_Trees/DY_madgraph_pho.pu.puTree.root')
-if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2018_MINIAOD_Nm1/PU_Trees/DY_amcatnloext_pho.pu.puTree.root')
-if not samplesDef['tagSel'] is None: samplesDef['tagSel'].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2018_MINIAOD_Nm1/PU_Trees/DY_madgraph_pho.pu.puTree.root')
+if not samplesDef['tagSel' ] is None: samplesDef['tagSel' ].set_weight(weightName)
+
+#weightName = 'weights_2018_runABCD.totWeight'
+#if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_weight(weightName)
+#if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_weight(weightName)
+#if not samplesDef['tagSel'] is None: samplesDef['tagSel'].set_weight(weightName)
+#if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2018_MINIAOD_Nm1/PU_Trees/DY_madgraph_pho.pu.puTree.root')
+#if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2018_MINIAOD_Nm1/PU_Trees/DY_amcatnloext_pho.pu.puTree.root')
+#if not samplesDef['tagSel'] is None: samplesDef['tagSel'].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2018_MINIAOD_Nm1/PU_Trees/DY_madgraph_pho.pu.puTree.root')
 
 
 
@@ -86,7 +86,7 @@ biningDef = [
 ########## Cuts definition for all samples
 #############################################################
 ### cut
-cutBase   = 'el_sc_abseta < 2.5 && el_sc_et > 5'
+cutBase   = 'abs(el_sc_eta) < 2.5 && el_sc_et > 5'
 
 
 #### or remove any additional cut (default)

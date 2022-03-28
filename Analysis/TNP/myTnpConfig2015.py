@@ -8,7 +8,7 @@
 #############################################################
 # flag to be Tested
 flags = {
-    'passing_HLT_Ele27_WPTight_Gsf' : '(passHltEle27WPTightGsf == 1)',
+    'passHltEle27WPTightGsf' : '(passHltEle27WPTightGsf == 1)',
 #    'passing_HLT_Ele25_eta2p1_WPTight_Gsf' : '(passing_HLT_Ele25_eta2p1_WPTight_Gsf == 1)',
 #    'passing_HLT_Ele32_WPTight_Gsf_L1DoubleEG' : '(passing_HLT_Ele32_WPTight_Gsf_L1DoubleEG == 1)',
 #    'passing_HLT_Ele35_WPTight_Gsf' : '(passing_HLT_Ele35_WPTight_Gsf == 1)',
@@ -28,17 +28,17 @@ import etc.inputs.myTnpSampleDef as tnpSamples
 tnpTreeDir = 'tnpEleTrig'
 
 samplesDef = {
-    'data'   : tnpSamples.UL2016_preVFP['data_Run2016B'].clone(),
-    'mcNom'  : tnpSamples.UL2016_preVFP['DY_madgraph'].clone(),
-    'mcAlt'  : tnpSamples.UL2016_preVFP['DY_amcatnloext'].clone(),
-    'tagSel' : tnpSamples.UL2016_preVFP['DY_madgraph'].clone(),
+    'data'   : tnpSamples.UL2016_preVFP['data_Run2016B_ver2'].clone(),
+    'mcNom'  : tnpSamples.UL2016_preVFP['DY_LO'].clone(),
+    'mcAlt'  : tnpSamples.UL2016_preVFP['DY_NLO'].clone(),
+    'tagSel' : tnpSamples.UL2016_preVFP['DY_LO'].clone(),
 }
 
 ## Add remaining data samples
-samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016B_ver2'] )
 samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016C'] )
 samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016D'] )
 samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016E'] )
+samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016F'] )
 
 
 
@@ -61,17 +61,17 @@ if not samplesDef['tagSel'] is None:
     samplesDef['tagSel'].set_cut('abs(tag_Ele_eta) <= 2.1') 
 
 ## set MC weight, simple way (use tree weight) 
-#weightName = 'totWeight'
-#if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_weight(weightName)
-#if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_weight(weightName)
-#if not samplesDef['tagSel' ] is None: samplesDef['tagSel' ].set_weight(weightName)
-weightName = 'weights_2016_run2016.totWeight'
+weightName = 'totWeight'
 if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_weight(weightName)
 if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_weight(weightName)
-if not samplesDef['tagSel'] is None: samplesDef['tagSel'].set_weight(weightName)
-if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016/PU_Trees/preVFP/DY_madgraph_ele.pu.puTree.root')
-if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016/PU_Trees/preVFP/DY_amcatnloext_ele.pu.puTree.root')
-if not samplesDef['tagSel'] is None: samplesDef['tagSel'].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016/PU_Trees/preVFP/DY_madgraph_ele.pu.puTree.root')
+if not samplesDef['tagSel' ] is None: samplesDef['tagSel' ].set_weight(weightName)
+#weightName = 'weights_2016_run2016.totWeight'
+#if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_weight(weightName)
+#if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_weight(weightName)
+#if not samplesDef['tagSel'] is None: samplesDef['tagSel'].set_weight(weightName)
+#if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016/PU_Trees/preVFP/DY_madgraph_ele.pu.puTree.root')
+#if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016/PU_Trees/preVFP/DY_amcatnloext_ele.pu.puTree.root')
+#if not samplesDef['tagSel'] is None: samplesDef['tagSel'].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016/PU_Trees/preVFP/DY_madgraph_ele.pu.puTree.root')
 
 #############################################################
 ########## bining definition  [can be nD bining]
@@ -85,7 +85,7 @@ biningDef = [
 ########## Cuts definition for all samples
 #############################################################
 ### cut
-cutBase   = 'el_sc_abseta < 2.5 && el_sc_et > 5'
+cutBase   = 'abs(el_sc_eta) < 2.5 && el_sc_et > 5'
 
 
 #### or remove any additional cut (default)

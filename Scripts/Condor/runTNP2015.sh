@@ -18,9 +18,9 @@ echo $CMSSW_BASE "is the CMSSW we have on the local worker node"
 
 cd EgammaAnalysis/egm_tnp_analysis/
 
-python tnpEGM_fitter.py etc/config/myTnpConfig2015.py --flag passHltEle32WPTightGsf --checkBins
-python tnpEGM_fitter.py etc/config/myTnpConfig2015.py --flag passHltEle32WPTightGsf --createBins
-python tnpEGM_fitter.py etc/config/myTnpConfig2015.py --flag passHltEle32WPTightGsf --createHists
+python tnpEGM_fitter.py etc/config/myTnpConfig2015.py --flag passHltEle27WPTightGsf --checkBins
+python tnpEGM_fitter.py etc/config/myTnpConfig2015.py --flag passHltEle27WPTightGsf --createBins
+python tnpEGM_fitter.py etc/config/myTnpConfig2015.py --flag passHltEle27WPTightGsf --createHists
 
 #Copy files to eos area
 cd Fits/2015/passHltEle27WPTightGsf/
