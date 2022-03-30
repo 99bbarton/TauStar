@@ -32,11 +32,11 @@ UL2017 = {
                                        isMC = True, nEvts =  -1 ),
 
 
-    'data_Run2017B' : tnpSample('data_Run2017B' , pogTnpTreePath2017 + 'SingleEle_RunB.root' , lumi = 4.793961427),
-    'data_Run2017C' : tnpSample('data_Run2017C' , pogTnpTreePath2017 + 'SingleEle_RunC.root' , lumi = 9.631214821 ),
-    'data_Run2017D' : tnpSample('data_Run2017D' , pogTnpTreePath2017 + 'SingleEle_RunD.root' , lumi = 4.247682053 ),
-    'data_Run2017E' : tnpSample('data_Run2017E' , pogTnpTreePath2017 + 'SingleEle_RunE.root' , lumi = 9.313642402 ),
-    'data_Run2017F' : tnpSample('data_Run2017F' , pogTnpTreePath2017 + 'SingleEle_RunF.root' , lumi = 13.510934811),
+    'data_Run2017B' : tnpSample('data_Run2017B' , pogTnpTreePath2017 + 'Run2017B.root' , lumi = 4.793961427),
+    'data_Run2017C' : tnpSample('data_Run2017C' , pogTnpTreePath2017 + 'Run2017C.root' , lumi = 9.631214821 ),
+    'data_Run2017D' : tnpSample('data_Run2017D' , pogTnpTreePath2017 + 'Run2017D.root' , lumi = 4.247682053 ),
+    'data_Run2017E' : tnpSample('data_Run2017E' , pogTnpTreePath2017 + 'Run2017E.root' , lumi = 9.313642402 ),
+    'data_Run2017F' : tnpSample('data_Run2017F' , pogTnpTreePath2017 + 'Run2017F.root' , lumi = 13.510934811),
 
     }
 
