@@ -17,7 +17,7 @@ flags = {
 
 #baseOutDir = "root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/TNP_Fits/"
 #baseOutDir = "/uscms/home/bbarton/nobackup/CMSSW_10_6_13/src/EgammaAnalysis/egm_tnp_analysis/Fits/"
-baseOutDir = "Fits/2018/"
+baseOutDir = "Fits/2018/PassMVAID/"
 
 #############################################################
 ########## samples definition  - preparing the samples
@@ -86,7 +86,7 @@ biningDef = [
 ########## Cuts definition for all samples
 #############################################################
 ### cut
-cutBase   = 'abs(el_sc_eta) < 2.5 && el_sc_et > 5'
+cutBase   = 'abs(el_sc_eta) < 2.5 && el_sc_et > 5 && passingMVA94Xwp90isoV2 == 1'
 
 
 #### or remove any additional cut (default)
