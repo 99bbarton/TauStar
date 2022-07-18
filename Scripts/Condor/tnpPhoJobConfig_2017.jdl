@@ -1,0 +1,8 @@
+universe = vanilla
+Executable = runTNP2017_pho.sh
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+Output = condor_TNP_$(Cluster)_$(Process).stdout
+Error = condor_TNP_$(Cluster)_$(Process).stderr
+Log = condor_TNP_$(Cluster)_$(Process).log
+Queue 1
