@@ -10,7 +10,7 @@ from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collect
 from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import Module
 
 class PhoEffProducer(Module):
-    noIso = False
+    elVeto = False
     def __init__(self, elVeto=False):
         self.elVeto = elVeto
     def beginJob(self):
@@ -21,8 +21,15 @@ class PhoEffProducer(Module):
         self.out = wrappedOutputTree
         self.out.branch("PhoID_passID", "I")
         self.out.branch("PhoID_elVeto", "I")
+        self.out.brancg("PhoID_pixelVeto", "I")
         self.out.branch("PhoID_phoPt", "F")
         self.out.branch("PhoID_phoEta", "F")
+        self.out.branch("PhoID_isScEtaEB", "I")
+        self.out.branch("PhoID_isScEtaEE", "I")
+        self.out.branch("PhoID_phoIdx", "I")
+        self.out.branch("PhoID_mvaScore", "F") 
+        self.out.branch("PhoID_cutBased", "I") #0 fail, 1 loose, 2 medium, 3 tight
+        
 
 
     def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
@@ -36,7 +43,7 @@ class PhoEffProducer(Module):
         if len(photons) < 1:
             return False
 
-        phoIdx = 0
+        phoIdx = -1
         phoPT= -1
         for i, photon in enumerate(photons):
             photonID = photon.isScEtaEB or photon.isScEtaEE
@@ -44,20 +51,30 @@ class PhoEffProducer(Module):
                 photonID = photonID and photon.electronVeto
             else:
                 photonID = photonID and not photon.pixelSeed
-            photonID = photonID and photon.pt>=20. and abs(photon.eta)<2.5 
+            photonID = photonID and photon.pt>=20. and abs(photon.eta)<2.5
+	        photonID = photonID and photon.genPartFlav == 1 
 
             if photon.pt > phoPT:
                 phoPT = photon.pt
                 phoIdx = i
 
-	
+	    if phoIdx < 0:
+	        return False
+            
         thePhoton = photons[phoIdx]
         
 
         self.out.fillBranch("PhoID_passID", thePhoton.mvaID_WP90)
-        self.out.fillBranch("PhoID_elVeto", self.elVeto)
+        self.out.fillBranch("PhoID_elVeto", thePhoton.electronVeto)
+        self.out.fillBranch("PhoID_pixelVeto", not thePhoton.pixelSeed)
         self.out.fillBranch("PhoID_phoPt", thePhoton.pt)
         self.out.fillBranch("PhoID_phoEta", thePhoton.eta)
+        self.out.fillBranch("PhoID_isScEtaEB", thePhoton.isScEtaEB)
+        self.out.fillBranch("PhoID_isScEtaEE", thePhoton.isScEtaEE)
+        self.out.branch("PhoID_phoIdx", phoIdx)
+        self.out.branch("PhoID_mvaScore", thePhoton.mvaID)
+        self.out.branch("PhoID_cutBased", thePhoton.cutBased)
+
 
         return True
 

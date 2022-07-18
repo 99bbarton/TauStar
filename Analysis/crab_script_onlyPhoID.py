@@ -30,8 +30,8 @@ print "chosen year: %d " % year
 from PhysicsTools.NanoAODTools.postprocessing.framework.crabhelper import inputFiles
 from PhysicsTools.NanoAODTools.postprocessing.framework.crabhelper import runsAndLumis
 
-elVeto = True
-#elVeto = False
+#elVeto = True
+elVeto = False
 
 bkgdFiles = ["root://cmsxrootd.fnal.gov//store/user/fojensen/excitedTau_01052022/DY01234JetsToLL_2018.root",
 "root://cmsxrootd.fnal.gov//store/user/fojensen/excitedTau_01052022/DYJetsToLLM10_2018.root",
@@ -71,7 +71,7 @@ mcSigFiles = ["root://cmsxrootd.fnal.gov//store/user/fojensen/excitedTau_0105202
 "root://cmsxrootd.fnal.gov//store/user/fojensen/excitedTau_01052022/Taustar_m750_2018.root"
 ]
 
-testfiles = ["root://cmsxrootd.fnal.gov//store/user/fojensen/excitedTau_01052022/Taustar_m4000_2018.root"]
+testfiles = ["root://cmsxrootd.fnal.gov//store/user/fojensen/excitedTau_01052022/ZGToLLG_2018.root"]
 #testfiles = mcSigFiles
 
 
@@ -81,11 +81,11 @@ modules_ = [PhoEffProducerConstr(elVeto)]
 
 p=PostProcessor(
     outputDir = "./",
-    #inputFiles = inputFiles(),
-    inputFiles = testfiles,
+    inputFiles = inputFiles(),
+    #inputFiles = testfiles,
     cut = "",
     modules = modules_,
-    #maxEntries = 100000,
+    maxEntries = 500000,
     provenance = True,
     fwkJobReport = True,
     #haddFileName = "ran_m1000_f1_fprime0p1.root",
