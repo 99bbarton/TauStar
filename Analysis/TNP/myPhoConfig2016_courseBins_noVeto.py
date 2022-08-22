@@ -3,53 +3,51 @@
 
 # flag to be Tested
 flags = {
-    'passingMVA94XV2wp80' : '(passingMVA94XV2wp80 == 1)',
     'passingMVA94XV2wp90' : '(passingMVA94XV2wp90 == 1)',
     }
 
-baseOutDir = 'Fits/2015/PhoID/FineBins/PixelVeto/OneHighBin/AbsEta/'
+baseOutDir = 'Fits/2016/PhoID/CourseBins/NoVeto/HighBin/'
 
 import etc.inputs.myPhoTnpSampleDef as tnpSamples
 tnpTreeDir = 'tnpPhoIDs'
 
 samplesDef = {
-    'data'   : tnpSamples.UL2016_preVFP['data_Run2016B'].clone(),
-    'mcNom'  : tnpSamples.UL2016_preVFP['DY_LO'].clone(),
-    'mcAlt'  : tnpSamples.UL2016_preVFP['DY_NLO'].clone(),
-    'tagSel' : tnpSamples.UL2016_preVFP['DY_LO'].clone(),
+    'data'   : tnpSamples.UL2016_postVFP['data_Run2016F_postVFP'].clone(),
+    'mcNom'  : tnpSamples.UL2016_postVFP['DY_LO'].clone(),
+    'mcAlt'  : tnpSamples.UL2016_postVFP['DY_NLO'].clone(),
+    'tagSel' : tnpSamples.UL2016_postVFP['DY_LO'].clone(),
 }
-## Define samples
-#samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016B_ver2'] )
-samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016C'] )
-samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016D'] )
-samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016E'] )
-samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016F'] )
 
+## Add remaining data samples
+samplesDef['data'].add_sample( tnpSamples.UL2016_postVFP['data_Run2016G'] )
+samplesDef['data'].add_sample( tnpSamples.UL2016_postVFP['data_Run2016H'] )
+
+
+## some sample-based cuts... general cuts defined here after
+## require mcTruth on MC DY samples and additional cuts
+## all the samples MUST have different names (i.e. sample.name must be different for all)
+## if you need to use 2 times the same sample, then rename the second one
 samplesDef['data' ].set_tnpTree(tnpTreeDir)
-if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_tnpTree(tnpTreeDir)
-if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_tnpTree(tnpTreeDir)
-if not samplesDef['tagSel'] is None: samplesDef['tagSel'].set_tnpTree(tnpTreeDir)
+if not samplesDef['mcNom' ] is None: samplesDef['mcNom'].set_tnpTree(tnpTreeDir)
+if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt'].set_tnpTree(tnpTreeDir)
+if not samplesDef['tagSel' ] is None: samplesDef['tagSel'].set_tnpTree(tnpTreeDir)
+if not samplesDef['mcNom' ] is None: samplesDef['mcNom'].set_mcTruth()
+if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt'].set_mcTruth()
+if not samplesDef['tagSel' ] is None: samplesDef['tagSel'].set_mcTruth(tnpTreeDir)
 
-if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_mcTruth()
-if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_mcTruth()
-if not samplesDef['tagSel'] is None: samplesDef['tagSel'].set_mcTruth()
-
-if not samplesDef['tagSel'] is None: samplesDef['tagSel'].rename('mcAltSel_DY_madgraph')
-
-## Set weights
+#set weights
 weightName = 'totWeight'
 if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_weight(weightName)
 if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_weight(weightName)
-if not samplesDef['tagSel'] is None: samplesDef['tagSel'].set_weight(weightName)
-
+if not samplesDef['tagSel' ] is None: samplesDef['tagSel' ].set_weight(weightName)
 ## Set binning
 biningDef = [
    { 'var' : 'abs(ph_sc_eta)' , 'type': 'float', 'bins': [0.0, 0.8, 1.4442, 1.566, 2.0, 2.5] },
-   { 'var' : 'ph_et' , 'type': 'float', 'bins': [20, 35, 50, 75, 100, 200, 1000] },
+   { 'var' : 'ph_et' , 'type': 'float', 'bins': [20, 35, 50, 75, 100, 200, 500, 1000] },
 ]
 
 ### cuts
-cutBase   = 'tag_Ele_pt > 35 && abs(tag_sc_eta) < 2.5 && ph_hasPixelSeed == 0'
+cutBase   = 'tag_Ele_pt > 35 && abs(tag_sc_eta) < 2.5'
 
 #### or remove any additional cut
 additionalCuts = None

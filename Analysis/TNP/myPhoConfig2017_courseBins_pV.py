@@ -7,9 +7,9 @@ flags = {
     'passingMVA94XV2wp90' : '(passingMVA94XV2wp90 == 1)',
     }
 
-baseOutDir = 'Fits/2017/PhoID/CourseBins/PixelVeto/'
+baseOutDir = 'Fits/2017/PhoID/CourseBins/PixelVeto/OneHighBin/AbsEta/'
 
-import etc.inputs.tnpSampleDef as tnpSamples
+import etc.inputs.myPhoTnpSampleDef as tnpSamples
 tnpTreeDir = 'tnpPhoIDs'
 
 samplesDef = {
@@ -46,15 +46,15 @@ if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_weight(weightName)
 if not samplesDef['tagSel' ] is None: samplesDef['tagSel' ].set_weight(weightName)
 ## Set binning
 biningDef = [
-   { 'var' : 'ph_sc_eta' , 'type': 'float', 'bins': [-2.5, -1.566, -1.4442, 0.0, 1.4442, 1.566, 2.5] },
-   { 'var' : 'ph_et' , 'type': 'float', 'bins': [20, 35, 50, 75, 100, 200, 500, 1000, 2000] },
+   { 'var' : 'abs(ph_sc_eta)' , 'type': 'float', 'bins': [0.0, 1.4442, 1.566, 2.5] },
+   { 'var' : 'ph_et' , 'type': 'float', 'bins': [20, 35, 50, 75, 100, 200, 1000] },
 ]
 
 ### cuts
-cutBase   = 'tag_Ele_pt > 35 && abs(tag_sc_eta) < 2.5'
+cutBase   = 'tag_Ele_pt > 35 && abs(tag_sc_eta) < 2.5 && ph_hasPixelSeed == 0'
 
 #### or remove any additional cut
-additionalCuts = 'ph_hasPixelSeed == 0'
+additionalCuts = None
 
 #############################################################
 ########## fitting params to tune fit by hand if necessary
