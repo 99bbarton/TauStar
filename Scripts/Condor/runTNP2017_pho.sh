@@ -3,24 +3,34 @@ set -x
 # Run tnp analyzer as a condor job
 
 FLAG=passingMVA94XV2wp90
+#FLAG=passingMVA94XV2wp80
 
 ###############################
 ###   Choose which config file an associated path you want to run with ####
 ## ------------------------------------------------------------------------------
-TNP_CONFIG=myPhoConfig2017.py
-MAIN_DIR=2017/PhoID/FineBins/PassElVeto/
+#TNP_CONFIG=myPhoConfig2017.py
+#MAIN_DIR=2017/PhoID/FineBins/PassElVeto/OneHighBin/AbsEta/
 
-#$TNP_CONFIG=myPhoConfig2017_courseBins.py
-#MAIN_DIR=2017/PhoID/CourseBins/PassElVeto/
+#TNP_CONFIG=myPhoConfig2017_courseBins.py
+#MAIN_DIR=2017/PhoID/CourseBins/PassElVeto/OneHighBin/AbsEta/
 
-#$TNP_CONFIG=myPhoConfig2017_pV.py
-#MAIN_DIR=2017/PhoID/FineBins/PixelVeto/
+#TNP_CONFIG=myPhoConfig2017_pV.py
+#MAIN_DIR=2017/PhoID/FineBins/PixelVeto/OneHighBin/AbsEta/
 
-#$TNP_CONFIG=myPhoConfig2017_courseBins_pV.py
-#MAIN_DIR=2017/PhoID/CourseBins/PixelVeto/
+#TNP_CONFIG=myPhoConfig2017_courseBins_pV.py
+#MAIN_DIR=2017/PhoID/CourseBins/PixelVeto/OneHighBin/AbsEta/
+
+#TNP_CONFIG=myPhoConfig2017_noVeto.py
+#MAIN_DIR=2017/PhoID/FineBins/NoVeto/HighBin/
+
+TNP_CONFIG=myPhoConfig2017_courseBins_noVeto.py
+MAIN_DIR=2017/PhoID/CourseBins/NoVeto/HighBin/
+
+#TNP_CONFIG=myPhoConfig2017_stat.py
+#MAIN_DIR=2017/PhoID/StatBins/
 
 ## ------------------------------------------------------------------------------------------------------
-OUTDIR=root://cmseos.fnal.gov//store/user/bbarton/TrigEffStudies/TNP_Fits/$MAIN_DIR
+OUTDIR=/store/user/bbarton/TrigEffStudies/TNP_Fits/$MAIN_DIR
 
 echo "Starting job on " `date` #Date/time of start of job
 echo "Running on: `uname -a`" #Condor job is running on this node
@@ -47,31 +57,17 @@ python tnpEGM_fitter.py etc/config/$TNP_CONFIG --flag $FLAG --doFit --altBkg
 python tnpEGM_fitter.py etc/config/$TNP_CONFIG --flag $FLAG --sumUp
 
 #Copy files to eos area
-cd Fits/$MAIN_DIR/$FLAG/
-echo "pwd"
-pwd
-echo "List all root files = "
-ls *.root
-echo "List all files"
-ls -alh
  
 echo "*******************************************"
 echo "xrdcp output for condor to "
 echo $OUTDIR
-for FILE in *.root
-do
-  echo "xrdcp -f ${FILE} ${OUTDIR}/${FILE}"
-  echo "${FILE}" 
-  echo "${OUTDIR}"
- xrdcp -f ${FILE} ${OUTDIR}/${FILE} 2>&1
-  XRDEXIT=$?
-  if [[ $XRDEXIT -ne 0 ]]; then
-    rm *.root
-    echo "exit code $XRDEXIT, failure in xrdcp"
-    exit $XRDEXIT
-  fi
-  rm ${FILE}
-done
+
+xrdcp -rf Fits/${MAIN_DIR}${FLAG} root://cmseos.fnal.gov/${OUTDIR}
+XRDEXIT=$?
+if [[ $XRDEXIT -ne 0 ]]; then
+  echo "exit code $XRDEXIT, failure in xrdcp"
+  exit $XRDEXIT
+fi
 
 hostname
 date
