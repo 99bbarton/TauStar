@@ -17,7 +17,7 @@ flags = {
 
 #baseOutDir = "root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/TNP_Fits/"
 #baseOutDir = "/uscms/home/bbarton/nobackup/CMSSW_10_6_13/src/EgammaAnalysis/egm_tnp_analysis/Fits/"
-baseOutDir = "Fits/2015/"
+baseOutDir = "Fits/2015/PassMVAID/AbsEtaBinning/"
 
 #############################################################
 ########## samples definition  - preparing the samples
@@ -78,14 +78,14 @@ if not samplesDef['tagSel' ] is None: samplesDef['tagSel' ].set_weight(weightNam
 #############################################################
 biningDef = [
    { 'var' : 'el_sc_eta' , 'type': 'float', 'bins': [0, 1.4442, 1.566, 2.5] },
-   { 'var' : 'el_pt' , 'type': 'float', 'bins':  [0, 27, 32, 50, 75, 100, 150, 200, 500] },
+   { 'var' : 'el_pt' , 'type': 'float', 'bins':  [27, 32, 50, 75, 100, 150, 200, 500] },
 ]
 
 #############################################################
 ########## Cuts definition for all samples
 #############################################################
 ### cut
-cutBase   = 'abs(el_sc_eta) < 2.5 && el_sc_et > 5'
+cutBase   = 'abs(el_sc_eta) < 2.5 && el_sc_et > 5 && passingMVA94Xwp90isoV2 == 1'
 
 
 #### or remove any additional cut (default)
