@@ -23,7 +23,7 @@ python tnpEGM_fitter.py etc/config/myTnpConfig2016.py --flag passHltEle27WPTight
 python tnpEGM_fitter.py etc/config/myTnpConfig2016.py --flag passHltEle27WPTightGsf --createHists
 
 #Copy files to eos area
-cd Fits/2016/passHltEle27WPTightGsf/
+cd Fits/2016/PassMVAID/passHltEle27WPTightGsf/
 echo "pwd"
 pwd
 echo "List all root files = "
@@ -32,7 +32,7 @@ echo "List all files"
 ls -alh
  
 echo "*******************************************"
-OUTDIR=root://cmseos.fnal.gov//store/user/bbarton/TrigEffStudies/TNP_Fits/2016/
+OUTDIR=root://cmseos.fnal.gov//store/user/bbarton/TrigEffStudies/TNP_Fits/2016/PassMVAID/
 echo "xrdcp output for condor to "
 echo $OUTDIR
 for FILE in *.root

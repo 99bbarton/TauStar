@@ -12,12 +12,11 @@ flags = {
 #    'passing_HLT_Ele25_eta2p1_WPTight_Gsf' : '(passing_HLT_Ele25_eta2p1_WPTight_Gsf == 1)',
 #    'passing_HLT_Ele32_WPTight_Gsf_L1DoubleEG' : '(passing_HLT_Ele32_WPTight_Gsf_L1DoubleEG == 1)',
 #    'passing_HLT_Ele35_WPTight_Gsf' : '(passing_HLT_Ele35_WPTight_Gsf == 1)',
-    'passHltEle32WPTightGsf' : '(passHltEle32WPTightGsf == 1)',
+#    'passHltEle32WPTightGsf' : '(passHltEle32WPTightGsf == 1)',
+     'passHltEle32DoubleEGWPTightGsf' : '(passHltEle32DoubleEGWPTightGsf == 1)'
     }
 
-#baseOutDir = "root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/TNP_Fits/"
-#baseOutDir = "/uscms/home/bbarton/nobackup/CMSSW_10_6_13/src/EgammaAnalysis/egm_tnp_analysis/Fits/"
-baseOutDir = "Fits/2017/"
+baseOutDir = "Fits/2017/PassMVAID/AbsEtaBinning/"
 
 #############################################################
 ########## samples definition  - preparing the samples
@@ -56,7 +55,7 @@ if not samplesDef['tagSel' ] is None: samplesDef['tagSel'].set_mcTruth(tnpTreeDi
 if not samplesDef['tagSel'] is None:
     samplesDef['tagSel'].rename('mcAltSel_DY_LO')
     samplesDef['tagSel'].set_cut('tag_Ele_pt > 35')
-    samplesDef['tagSel'].set_cut('abs(tag_Ele_eta) <= 2.1')  
+    samplesDef['tagSel'].set_cut('abs(tag_Ele_eta) <= 2.1') 
 
 ## set MC weight, simple way (use tree weight) 
 weightName = 'totWeight'
@@ -75,15 +74,15 @@ if not samplesDef['tagSel' ] is None: samplesDef['tagSel' ].set_weight(weightNam
 ########## bining definition  [can be nD bining]
 #############################################################
 biningDef = [
-   { 'var' : 'el_sc_eta' , 'type': 'float', 'bins': [0, 1.4442, 1.566, 2.5] },
-   { 'var' : 'el_pt' , 'type': 'float', 'bins': [0, 27, 32, 50, 75, 100, 150, 200, 500]  },
+   { 'var' : 'abs(el_sc_eta)' , 'type': 'float', 'bins': [0, 1.4442, 1.566, 2.5] },
+   { 'var' : 'el_pt' , 'type': 'float', 'bins': [32, 50, 75, 100, 150, 200, 500]  },
 ]
 
 #############################################################
 ########## Cuts definition for all samples
 #############################################################
 ### cut
-cutBase   = 'abs(el_sc_eta) < 2.5 && el_sc_et > 5'
+cutBase   = 'abs(el_sc_eta) < 2.5 && el_sc_et > 5 && passingMVA94Xwp90isoV2 == 1'
 
 
 #### or remove any additional cut (default)
