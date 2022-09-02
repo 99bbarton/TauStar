@@ -131,9 +131,12 @@ elif 'UL2017' in options['era']:
   options['TnPPATHS']           = cms.vstring("HLT_Ele32_WPTight_Gsf_L1DoubleEG_v*")
   options['TnPHLTTagFilters']   = cms.vstring("hltEle32L1DoubleEGWPTightGsfTrackIsoFilter","hltEGL1SingleEGOrFilter")
   options['TnPHLTProbeFilters'] = cms.vstring()
-  options['HLTFILTERSTOMEASURE']= {"passHltEle32DoubleEGWPTightGsf" :                   cms.vstring("hltEle32L1DoubleEGWPTightGsfTrackIsoFilter"),
+  options['HLTFILTERSTOMEASURE']= {"passHltEle32DoubleEGWPTightGsf" : cms.vstring("hltEle32L1DoubleEGWPTightGsfTrackIsoFilter"),
+                                   "passL1Seeds" : cms.vstring("hltEGL1SingleEGOrFilter"),
+                                   "passHltEle32DoubleEGandL1Seeds" : cms.vstring("hltEle32L1DoubleEGWPTightGsfTrackIsoFilter&&hltEGL1SingleEGOrFilter"),
+                                   "passHltEle35WPTightGsf" : cms.vstring("hltEle32WPTightGsfTrackIsoFilter"),
                                    "passHltPhoton200" : cms.vstring("hltPhoton200"),
-                                   "passTriggerOR" : cms.vstring("hltEle32L1DoubleEGWPTightGsfTrackIsoFilter||hltPhoton200"),
+                                   "passTriggerOR" : cms.vstring("(hltEle32L1DoubleEGWPTightGsfTrackIsoFilter&&hltEGL1SingleEGOrFilter)||hltPhoton200"),
                                   }
 
 elif 'UL2018'  in options['era']:

@@ -2,7 +2,8 @@ from libPython.tnpClassUtils import tnpSample
 
 #Paths to my tag tuples
 myTnpTreePath2018 = "root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/TNP_TagTuples/UL2018/Merged/"
-myTnpTreePath2017 = "root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/TNP_TagTuples/UL2017/Merged/"
+#myTnpTreePath2017 = "root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/TNP_TagTuples/UL2017/Merged/"
+myTnpTreePath2017 = "root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/TNP_TagTuples/31Aug22/UL2017/Merged/" #Added HLT_Ele35 L1 seeds
 myTnpTreePath2016 = "root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/TNP_TagTuples/UL2016postVFP/Merged/"
 myTnpTreePath2015 = "root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/TNP_TagTuples/UL2016preVFP/Merged/"
 
@@ -25,32 +26,32 @@ UL2018 = {
 UL2017 = {
     ### MiniAOD TnP for IDs scale factors
     'DY_LO'              : tnpSample('DY_LO',
-                                       myTnpTreePath2017 + 'UL2017_DY_LO.ROOT ',
+                                       myTnpTreePath2017 + 'UL2017_DY_LO.root ',
                                        isMC = True, nEvts =  -1 ),
     'DY_NLO'                 : tnpSample('DY_NLO',
-                                       myTnpTreePath2017 + 'UL2017_DY_NLO.ROOT',
+                                       myTnpTreePath2017 + 'UL2017_DY_NLO.root',
                                        isMC = True, nEvts =  -1 ),
 
 
-    'data_Run2017B' : tnpSample('data_Run2017B' , myTnpTreePath2017 + 'UL2017_runB.ROOT' , lumi = 4.793961427),
+    'data_Run2017B' : tnpSample('data_Run2017B' , myTnpTreePath2017 + 'UL2017_runB.root' , lumi = 4.793961427),
     'data_Run2017C' : tnpSample('data_Run2017C' , myTnpTreePath2017 + 'UL2017_runC.root' , lumi = 9.631214821 ),
     'data_Run2017D' : tnpSample('data_Run2017D' , myTnpTreePath2017 + 'UL2017_runD.root' , lumi = 4.247682053 ),
     'data_Run2017E' : tnpSample('data_Run2017E' , myTnpTreePath2017 + 'UL2017_runE.root' , lumi = 9.313642402 ),
-    'data_Run2017F' : tnpSample('data_Run2017F' , myTnpTreePath2017 + 'UL2017_runF.ROOT' , lumi = 13.510934811),
+    'data_Run2017F' : tnpSample('data_Run2017F' , myTnpTreePath2017 + 'UL2017_runF.root' , lumi = 13.510934811),
 
     }
 
 UL2016_postVFP = {
     ### MiniAOD TnP for IDs scale factors
     'DY_LO'              : tnpSample('DY_LO',
-                                       myTnpTreePath2016 + 'UL2016_DY_LO.ROOT',
+                                       myTnpTreePath2016 + 'UL2016_DY_LO.root',
                                        isMC = True, nEvts =  -1 ),
     'DY_NLO'                 : tnpSample('DY_amcatnloext',
-                                       myTnpTreePath2016 + 'UL2016_DY_NLO.ROOT',
+                                       myTnpTreePath2016 + 'UL2016_DY_NLO.root',
                                        isMC = True, nEvts =  -1 ),
 
 
-    'data_Run2016F_postVFP' : tnpSample('data_Run2016F_postVFP' , myTnpTreePath2016 + 'UL2016_runF.ROOT' , lumi = 0.414987426),
+    'data_Run2016F_postVFP' : tnpSample('data_Run2016F_postVFP' , myTnpTreePath2016 + 'UL2016_runF.root' , lumi = 0.414987426),
     'data_Run2016G' : tnpSample('data_Run2016G' , myTnpTreePath2016 + 'UL2016_runG.root' , lumi = 7.634508755),
     'data_Run2016H' : tnpSample('data_Run2016H' , myTnpTreePath2016 + 'UL2016_runH.root' , lumi = 8.802242522),
     }

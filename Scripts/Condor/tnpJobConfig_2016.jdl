@@ -1,5 +1,5 @@
 universe = vanilla
-Executable = runTNP2016.sh
+Executable = runTNP2016_el.sh
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 Output = condor_TNP_$(Cluster)_$(Process).stdout
