@@ -6,11 +6,27 @@ void plotSigMC(TString mass, TString year);
 void plotBkgdMC(TString year);
 TString getPath(TString whatPath);
 void plotAll();
+TString makeMCWeight(const TString channel, const bool havePair=true, const bool haveTriplet=true);
+
+const int N_BKGD_FILES = 14;
 
 
+//Return a file system path corresponding to whatPath
+TString getPath(TString whatPath)
+{
+  if (whatPath == "input")
+    return "root://cmsxrootd.fnal.gov//store/user/fojensen/excitedTau_09082022/";
+  else if (whatPath == "output")
+    return "../Plots/PhoPtDists/";
+  else
+    {
+      cout << "WARNING: Path specifier is unrecognized" << endl;
+      exit(1);
+    }
+}
 
 //Make signal and background plots for all taustar mass hypothesis and years
-void plotAll()
+void plotAll(bool doSig = true, bool doBkgd = true)
 {
    const int NUM_MASSES = 17;
    const int NUM_YEARS = 4;
@@ -19,12 +35,15 @@ void plotAll()
 
    for (int y = 0; y < NUM_YEARS; y++)
    {
-      plotBkgdMC(years[y]);
-      for (int m = 0; m < NUM_MASSES; m++)
-      {
-         plotSigMC(masses[m], years[y]);
-      }
-
+      if (doBkgd)
+	plotBkgdMC(years[y]);
+      if (doSig)
+	{
+	  for (int m = 0; m < NUM_MASSES; m++)
+	    {
+	      plotSigMC(masses[m], years[y]);
+	    }
+	}
    }
 }
 
@@ -47,16 +66,17 @@ void plotSigMC(TString mass, TString year)
 
    //Setup histograms
    TH1F* h_pt = new TH1F("h_pt", "Signal Photons m#tau*=" + mass + "GeV;photon Pt [GeV];Events", 50, 0, 5000);
-   TH1F* h_ptFrac = new TH1F("h_ptFrac", "Signal Photons m#tau*=" + mass + "GeV;photon Pt [GeV];Fraction of Total Events", 5, 0, 5000)
+   TH1F* h_ptFrac = new TH1F("h_ptFrac", "Signal Photons m#tau*=" + mass + "GeV;photon Pt [GeV];Fraction of Total Events", 5, 0, 5000);
    
    //Cuts
+   int intYear = atoi(year);
    TString channels[3] = {"ETau", "MuTau", "TauTau"};
    TCut cuts4[4]; //Dummy arrays to hold cuts for the four ABCD regions
    TCut cuts8[8]; //Sim as above
    TCut cuts[3];  //Actual cuts to be used, same order as channels
-   cuts[0] = loadCuts("ETau", year, cuts4, cuts8)
-   cuts[1] = loadCuts("MuTau", year, cuts4, cuts8)
-   cuts[2] = loadCuts("TauTau", year, cuts4, cuts8)
+   cuts[0] = loadCuts("ETau", intYear, cuts4, cuts8);
+   cuts[1] = loadCuts("MuTau", intYear, cuts4, cuts8);
+   cuts[2] = loadCuts("TauTau", intYear, cuts4, cuts8);
 
    //Fill the histograms
    for (int i = 0; i < 3; i++)
@@ -64,8 +84,8 @@ void plotSigMC(TString mass, TString year)
       TH1F* temp = new TH1F("temp"+channels[i], "", 50, 0, 5000);
       TH1F* tempFrac = new TH1F("tempFrac"+channels[i], "", 5, 0, 5000);
 
-      tree->Draw("Photon.pt>>+temp"+channels[i], cuts[i]);
-      tree->Draw("Photon.pt>>+tempFrac"+channels[i], cuts[i]);
+      tree->Draw("Photon_pt>>+temp"+channels[i], cuts[i]);
+      tree->Draw("Photon_pt>>+tempFrac"+channels[i], cuts[i]);
 
       h_pt->Add(temp);
       h_ptFrac->Add(tempFrac);
@@ -97,10 +117,11 @@ void plotSigMC(TString mass, TString year)
 //@param year : The year to plot
 void plotBkgdMC(TString year)
 {
+   cout << "Plotting background MC photon pT" << endl;
    //Get data
    TTree* trees[N_BKGD_FILES];
    TString labels[N_BKGD_FILES];
-   getBkgdTrees(trees, labels);
+   getBkgdTrees(trees, labels, year);
 
    //Graphics
    TCanvas* bkgdCanv = new TCanvas("bkgdCanv", "MC Background Plots", 1200, 800);
@@ -108,28 +129,54 @@ void plotBkgdMC(TString year)
    gStyle->SetPalette(kDarkRainBow);
 
    //Cuts
+   int intYear = atoi(year);
    TCut cuts4[4]; //Dummy arrays to hold cuts for the four ABCD regions
    TCut cuts8[8]; //Sim as above
-   TCut elCuts = loadCuts("ETau", year, cuts4, cuts8)
-   TCut muCuts = loadCuts("MuTau", year, cuts4, cuts8)
-   TCut tauCuts = loadCuts("TauTau", year, cuts4, cuts8)
+   TCut elCuts = loadCuts("ETau", intYear, cuts4, cuts8);
+   TCut muCuts = loadCuts("MuTau", intYear, cuts4, cuts8);
+   TCut tauCuts = loadCuts("TauTau", intYear, cuts4, cuts8);
+   TCut photonStitchCut_ZG = TCut("PhotonStitch_n>0");
+   TCut photonStitchCut_DY = TCut("PhotonStitch_n==0");
+   
+   //MC Event weights
+   TString weightStr_el = makeMCWeight("ETau");
+   TString weightStr_mu = makeMCWeight("MuTau");
+   TString weightStr_tau = makeMCWeight("TauTau");
+
 
    //Fill histogram stacks
    THStack* elStack = new THStack("elStack","Photon pT: e+#tau Channel;photon pT [GeV]; Events");
    THStack* muStack = new THStack("muStack","Photon pT: #mu+#tau Channel;photon pT [GeV]; Events");
    THStack* tauStack = new THStack("tauStack","Photon pT: #tau+#tau Channel;photon pT [GeV]; Events");
-   int nPtBins = 4;
-   float ptBins = [0, 1000, 2000, 3000, 4000]
+   int nPtBins = 6;
+   float ptBins[7] = {0, 200, 400, 600, 800, 1000, 1200};
    for (int fileN = 0; fileN < N_BKGD_FILES; fileN++)
    {  
+      cout << "\t..Filling hists from file " << fileN + 1 << "/" << N_BKGD_FILES << endl;
+      
       TH1F* h_tempEl = new TH1F(labels[fileN]+"_el", labels[fileN], nPtBins, ptBins);
       TH1F* h_tempMu = new TH1F(labels[fileN]+"_mu", labels[fileN], nPtBins, ptBins);
       TH1F* h_tempTau = new TH1F(labels[fileN]+"_tau", labels[fileN], nPtBins, ptBins);
 
-      trees[fileN]->Draw("Photon.pt>>+"+labels[fileN]+"_el", elCuts);
-      trees[fileN]->Draw("Photon.pt>>+"+labels[fileN]+"_mu", muCuts);
-      trees[fileN]->Draw("Photon.pt>>+"+labels[fileN]+"_tau", tauCuts);
-
+      if (labels[fileN] == "ZGToLLG")
+	{
+	  trees[fileN]->Draw("Photon_pt*" + weightStr_el + ">>+"+labels[fileN]+"_el", elCuts + photonStitchCut_ZG);
+	  trees[fileN]->Draw("Photon_pt*" + weightStr_mu + ">>+"+labels[fileN]+"_mu", muCuts + photonStitchCut_ZG);
+	  trees[fileN]->Draw("Photon_pt*" + weightStr_tau + ">>+"+labels[fileN]+"_tau", tauCuts + photonStitchCut_ZG);
+	}
+      else if (labels[fileN] == "DYJetsToLL" || labels[fileN] == "DYJetsToLL_M10-50")
+	{
+	  trees[fileN]->Draw("Photon_pt*" + weightStr_el + ">>+"+labels[fileN]+"_el", elCuts + photonStitchCut_DY);
+	  trees[fileN]->Draw("Photon_pt*" + weightStr_mu + ">>+"+labels[fileN]+"_mu", muCuts + photonStitchCut_DY);
+	  trees[fileN]->Draw("Photon_pt*" + weightStr_tau + ">>+"+labels[fileN]+"_tau", tauCuts + photonStitchCut_DY);
+	}
+      else
+	{
+	  trees[fileN]->Draw("Photon_pt*" + weightStr_el + ">>+"+labels[fileN]+"_el", elCuts);
+	  trees[fileN]->Draw("Photon_pt*" + weightStr_mu + ">>+"+labels[fileN]+"_mu", muCuts);
+	  trees[fileN]->Draw("Photon_pt*" + weightStr_tau + ">>+"+labels[fileN]+"_tau", tauCuts);
+	}
+ 
       elStack->Add((TH1F*) h_tempEl->Clone());
       muStack->Add((TH1F*) h_tempMu->Clone());
       tauStack->Add((TH1F*) h_tempTau->Clone());
@@ -161,7 +208,7 @@ void plotBkgdMC(TString year)
    bkgdCanv->Modified();
    gPad->BuildLegend(0.7, 0.5, 0.9, 0.9);
 
-   bkgdCanv->Update():
+   bkgdCanv->Update();
    bkgdCanv->SaveAs(getPath("output") + "photonPt_bkgd_" + year + ".png");
 }
 
@@ -169,11 +216,10 @@ void plotBkgdMC(TString year)
 //Get the trees and labels from all the background MC files
 void getBkgdTrees(TTree **treesArr, TString labels[], TString year)
 {
-   const int N_BKGD_FILES = 15;
    TFile* files[N_BKGD_FILES];
    TTree* trees[N_BKGD_FILES];
 
-   TString dir = getPath("input");
+   TString baseDir = getPath("input");
    
    files[0] = TFile::Open(baseDir + "WJetsToLNu_" + year + ".root");
    labels[0] = "WJetsToLNu"; 
@@ -185,7 +231,7 @@ void getBkgdTrees(TTree **treesArr, TString labels[], TString year)
    labels[3] = "ZZ";
    files[4] = TFile::Open(baseDir + "DYJetsToLL_" + year + ".root");
    labels[4] = "DYJetsToLL";
-   files[5] = TFile::Open(baseDir + "DYJetsToLL_M10_" + year + ".root");
+   files[5] = TFile::Open(baseDir + "DYJetsToLLM10_" + year + ".root");
    labels[5] = "DYJetsToLL_M10-50";
    files[6] = TFile::Open(baseDir + "ST_tW_top_" + year + ".root");
    labels[6] = "ST_tW_top";
@@ -195,38 +241,20 @@ void getBkgdTrees(TTree **treesArr, TString labels[], TString year)
    labels[8] = "ST_t_channel_antitop";
    files[9] = TFile::Open(baseDir + "ST_t_channel_top_" + year + ".root");
    labels[9] = "ST_t_channel_top";
-   files[10] = TFile::Open(baseDir + "TTTo2L2Nu_" + year + ".root");
-   labels[10] = "TTTo2L2Nu";
-   files[11] = TFile::Open(baseDir + "TTToSemiLeptonic_" + year + ".root");
-   labels[11] = "TTToSemiLeptonic";
-   files[12] = TFile::Open(baseDir + "ST_s_channel_" + year + ".root")
-   labels[12] = "ST_s_channel";
-   files[13] = TFile::Open(baseDir + "DY01234JetsToLL_" + year + ".root");
-   labels[13] = "DY01234JetsToLL";
-   files[14] = TFile::Open(baseDir + "W01234JetsToLNu_" + year + ".root");
-   labels[14] = "W01234JetsToLNu"; 
+   files[10] = TFile::Open(baseDir + "ST_s_channel_" + year + ".root");
+   labels[10] = "ST_s_channel";
+   files[11] = TFile::Open(baseDir + "TTTo2L2Nu_" + year + ".root");
+   labels[11] = "TTTo2L2Nu";
+   files[12] = TFile::Open(baseDir + "TTToSemiLeptonic_" + year + ".root");
+   labels[12] = "TTToSemiLeptonic";
+   files[13] = TFile::Open(baseDir + "ZGToLLG_" + year + ".root");
+   labels[13] = "ZGToLLG";
 
    for (int i = 0; i < N_BKGD_FILES; i++)
    {
    treesArr[i] = (TTree*) files[i]->Get("Events");
    if (treesArr[i] == NULL) cout << "WARNING: Tree" << i << "is NULL" << endl;
    }  
-}
-
-
-//Return a file system path corresponding to whatPath
-TString getPath(TString whatPath)
-{
-   if (whatPath == "input")
-      return "root://cmsxrootd.fnal.gov//store/user/fojensen/excitedTau_09082022/";
-   else if (whatPath = "output")
-      return "../Plots/PhotonPtDists/"
-   else
-   {
-      cout << "WARNING: Path specifier is unrecognized" << endl;
-      exit(1);
-
-   }
 }
 
 
@@ -503,4 +531,172 @@ TCut loadCuts(const TString channel, const int year, TCut cuts4[4], TCut cuts8[8
    }
    return cuts4[0];
    //return cuts4[2];
+}
+
+//Function to return the event weight, taken from Frank's histProducerWrapper.c
+TString makeMCWeight(const TString channel, const bool havePair=true, const bool haveTriplet=true)
+//TString makeMCWeight(const TString channel, const bool doweights=true)
+{
+  //const bool havePair=true;
+  //const bool haveTriplet=true;
+  //std::cout << "makeMCWeight: " << channel << std::endl;
+
+  TString weightTag = "lumiWeight[1] * xsWeight";
+  //return weightTag;
+  //if (isSignal) return weightTag;
+
+  //weightTag += " * puWeightDown";
+  weightTag += " * puWeight";
+  //weightTag += " * puWeightUp";
+
+  //weightTag += " * L1PreFiringWeight_ECAL_Dn";
+  weightTag += " * L1PreFiringWeight_ECAL_Nom";
+  //weightTag += " * L1PreFiringWeight_ECAL_Up";
+
+  if (channel=="EMu" || channel=="MuMu" || channel=="MuTau" || channel=="MuTauLowPt") {
+    //weightTag += " * L1PreFiringWeight_Muon_SystDn";
+    weightTag += " * L1PreFiringWeight_Muon_Nom";
+    //weightTag += " * L1PreFiringWeight_Muon_SystUp";
+  }
+
+  weightTag += " * (genWeight<0?-1.:+1.)";
+  if (!havePair) return weightTag;
+
+  if (channel=="EE") {
+    //ereco
+    weightTag += " * EE_SFE0_reco[1] * EE_SFE1_reco[1]";
+    //eid
+    weightTag += " * EE_SFE0_id[1] * EE_SFE1_id[1]";
+    //eetrigger
+    weightTag += " * EE_TriggerEff[1]";
+    if (haveTriplet) {
+      //photonid
+      weightTag += " * EE_SFPhoton_id[1]";
+      //pv
+      weightTag += " * EE_SFPhoton_pv[1]";
+    }
+  }
+  if (channel=="MuMu") {
+    //mureco
+    weightTag += " * MuMu_SFMu0_reco[1] * MuMu_SFMu1_reco[1]";
+    //muid
+    weightTag += " * MuMu_SFMu0_id[1] * MuMu_SFMu1_id[1]";
+    //muiso
+    weightTag += " * MuMu_SFMu0_iso[1] * MuMu_SFMu1_iso[1]";
+    //mumutrigger
+    weightTag += " * MuMu_TriggerEff[1]";
+    if (haveTriplet) {
+      //photonid
+      weightTag += " * MuMu_SFPhoton_id[1]";
+      //csev
+      weightTag += " * MuMu_SFPhoton_csev[1]";
+    }
+  }
+  if (channel=="EMu") {
+    //ereco
+    weightTag += " * EMu_SFE_reco[1]";
+    //eid
+    weightTag += " * EMu_SFE_id[1]";
+    //mureco
+    weightTag += " * EMu_SFMu_reco[1]";
+    //muid
+    weightTag += " * EMu_SFMu_id[1]";
+    //muiso
+    weightTag += " * EMu_SFMu_iso[1]";
+    //emutrigger
+    weightTag += " * EMu_SFEMu_trigger[1]";
+    if (haveTriplet) {
+      //photonid
+      weightTag += " * EMu_SFPhoton_id[1]";
+      //pv
+      weightTag += " * EMu_SFPhoton_pv[1]";
+    }
+  }
+  if (channel=="ETau"||channel=="ETauLowPt") {
+    //antie
+    weightTag += " * ETau_SFTau_e[1]";
+    //antimu
+    weightTag += " * ETau_SFTau_mu[1]";
+    //antijet
+    weightTag += " * ((32&Tau_idDeepTau2017v2p1VSjet[ETau_TauIdx] && Tau_pt[ETau_TauIdx]>=40.) ? ETau_SFTau_jetdm_tight[1] : 1.)";
+    weightTag += " * ((32&Tau_idDeepTau2017v2p1VSjet[ETau_TauIdx] && Tau_pt[ETau_TauIdx]<40.)  ? ETau_SFTau_jetpt_tight[1] : 1.)";
+    weightTag += " * ((!32&Tau_idDeepTau2017v2p1VSjet[ETau_TauIdx] && Tau_pt[ETau_TauIdx]>=40.) ? ETau_SFTau_jetdm_vvvloose[1] : 1.)";
+    weightTag += " * ((!32&Tau_idDeepTau2017v2p1VSjet[ETau_TauIdx] && Tau_pt[ETau_TauIdx]<40.)  ? ETau_SFTau_jetpt_vvvloose[1] : 1.)";
+    //ereco
+    weightTag += " * ETau_SFE_reco[1]";
+    //eid
+    weightTag += " * ETau_SFE_id[1]";
+    //etrigger
+    weightTag += " * ETau_SFE_trigger[1]";
+    //btaglight
+    weightTag += " * JetETau_bTagWeight_light[1]";
+    //btaglightcorr
+    //weightTag += " * JetETau_bTagWeight_lightcorr[1]";
+    //btagbc
+    weightTag += " * JetETau_bTagWeight_bc[1]";
+    //btagbccorr
+    //weightTag += " * JetETau_bTagWeight_bccorr[1]";
+    if (haveTriplet) {
+      //photonid
+      weightTag += " * ETau_SFPhoton_id[1]";
+      //pv
+      weightTag += " * ETau_SFPhoton_pv[1]";
+    }
+  }
+  if (channel=="MuTau"||channel=="MuTauLowPt") {
+    //antie
+    weightTag += " * MuTau_SFTau_e[1]";
+    //antimu
+    weightTag += " * MuTau_SFTau_mu[1]";
+    //antijet
+    weightTag += " * ((32&Tau_idDeepTau2017v2p1VSjet[MuTau_TauIdx] && Tau_pt[MuTau_TauIdx]>=40.) ? MuTau_SFTau_jetdm_tight[1] : 1.)";
+    weightTag += " * ((32&Tau_idDeepTau2017v2p1VSjet[MuTau_TauIdx] && Tau_pt[MuTau_TauIdx]<40.)  ? MuTau_SFTau_jetpt_tight[1] : 1.)";
+    weightTag += " * ((!32&Tau_idDeepTau2017v2p1VSjet[MuTau_TauIdx] && Tau_pt[MuTau_TauIdx]>=40.) ? MuTau_SFTau_jetdm_vvvloose[1] : 1.)";
+    weightTag += " * ((!32&Tau_idDeepTau2017v2p1VSjet[MuTau_TauIdx] && Tau_pt[MuTau_TauIdx]<40.)  ? MuTau_SFTau_jetpt_vvvloose[1] : 1.)";
+    //mureco
+    weightTag += " * MuTau_SFMu_reco[1]";
+    //muid
+    weightTag += " * MuTau_SFMu_id[1]";
+    //muiso
+    weightTag += " * MuTau_SFMu_iso[1]";
+    //mutrigger
+    weightTag += " * MuTau_SFMu_trigger[1]";
+    //btaglight
+    weightTag += " * JetMuTau_bTagWeight_light[1]";
+    //btaglightcorr
+    //weightTag += " * JetMuTau_bTagWeight_lightcorr[1]";
+    //btagbc
+    weightTag += " * JetMuTau_bTagWeight_bc[1]";
+    //btagbccorr
+    //weightTag += " * JetMuTau_bTagWeight_bccorr[1]";
+    if (haveTriplet) {
+      //photonid
+      weightTag += " * MuTau_SFPhoton_id[1]";
+      //csev
+      weightTag += " * MuTau_SFPhoton_csev[1]";
+    }
+  }
+  if (channel=="TauTau"||channel=="TauTauLowPt") {
+    //antie
+    weightTag += " * TauTau_SFTau0_e[1] * TauTau_SFTau1_e[1]";
+    //antimu
+    weightTag += " * TauTau_SFTau0_mu[1] * TauTau_SFTau1_mu[1]";
+    //antijet
+    weightTag += " * ((16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau0Idx]) ? TauTau_SFTau0_jetdm_medium[1] : 1.)";
+    weightTag += " * ((!16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau0Idx]) ? TauTau_SFTau0_jetdm_vvvloose[1] : 1.)";
+    weightTag += " * ((16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau1Idx]) ? TauTau_SFTau1_jetdm_medium[1] : 1.)";
+    weightTag += " * ((!16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau1Idx]) ? TauTau_SFTau1_jetdm_vvvloose[1] : 1.)";
+    //tautrigger
+    weightTag += " * ((16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau0Idx]) ? TauTau_SFTau0_trigger_medium[1] : 1.)";
+    weightTag += " * ((!16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau0Idx]) ? TauTau_SFTau0_trigger_vvvloose[1] : 1.)";
+    weightTag += " * ((16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau1Idx]) ? TauTau_SFTau1_trigger_medium[1] : 1.)";
+    weightTag += " * ((!16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau1Idx]) ? TauTau_SFTau1_trigger_vvvloose[1] : 1.)";
+      if (haveTriplet) {
+         //photonid
+         weightTag += " * TauTau_SFPhoton_id[1]";
+         //csev
+         weightTag += " * TauTau_SFPhoton_csev[1]";
+      }
+   }
+   return weightTag;
 }
