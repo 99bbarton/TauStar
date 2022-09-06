@@ -132,12 +132,24 @@ void plotBkgdMC(TString year)
    int intYear = atoi(year);
    TCut cuts4[4]; //Dummy arrays to hold cuts for the four ABCD regions
    TCut cuts8[8]; //Sim as above
+   
    TCut elCuts = loadCuts("ETau", intYear, cuts4, cuts8);
    TCut muCuts = loadCuts("MuTau", intYear, cuts4, cuts8);
    TCut tauCuts = loadCuts("TauTau", intYear, cuts4, cuts8);
    TCut photonStitchCut_ZG = TCut("PhotonStitch_n>0");
    TCut photonStitchCut_DY = TCut("PhotonStitch_n==0");
    
+   TString elCutStr = TString(elCuts);
+   TString muCutStr = TString(muCuts);
+   TString tauCutStr = TString(tauCuts);
+   TString elCutStr_ZG = TString(TCut(elCuts + photonStitchCut_ZG));
+   TString muCutStr_ZG = TString(TCut(muCuts + photonStitchCut_ZG));
+   TString tauCutStr_ZG = TString(TCut(tauCuts + photonStitchCut_ZG));
+   TString elCutStr_DY = TString(TCut(elCuts + photonStitchCut_DY));
+   TString muCutStr_DY = TString(TCut(muCuts + photonStitchCut_DY));
+   TString tauCutStr_DY = TString(TCut(tauCuts + photonStitchCut_DY));
+ 
+
    //MC Event weights
    TString weightStr_el = makeMCWeight("ETau");
    TString weightStr_mu = makeMCWeight("MuTau");
@@ -148,8 +160,8 @@ void plotBkgdMC(TString year)
    THStack* elStack = new THStack("elStack","Photon pT: e+#tau Channel;photon pT [GeV]; Events");
    THStack* muStack = new THStack("muStack","Photon pT: #mu+#tau Channel;photon pT [GeV]; Events");
    THStack* tauStack = new THStack("tauStack","Photon pT: #tau+#tau Channel;photon pT [GeV]; Events");
-   int nPtBins = 6;
-   float ptBins[7] = {0, 200, 400, 600, 800, 1000, 1200};
+   int nPtBins = 8;
+   float ptBins[9] = {0, 75, 100, 200, 400, 600, 800, 1000, 1200};
    for (int fileN = 0; fileN < N_BKGD_FILES; fileN++)
    {  
       cout << "\t..Filling hists from file " << fileN + 1 << "/" << N_BKGD_FILES << endl;
@@ -160,21 +172,21 @@ void plotBkgdMC(TString year)
 
       if (labels[fileN] == "ZGToLLG")
 	{
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_el + ">>+"+labels[fileN]+"_el", elCuts + photonStitchCut_ZG);
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_mu + ">>+"+labels[fileN]+"_mu", muCuts + photonStitchCut_ZG);
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_tau + ">>+"+labels[fileN]+"_tau", tauCuts + photonStitchCut_ZG);
+	  trees[fileN]->Draw("Photon_pt[ETau_PhotonIdx]>>+"+labels[fileN]+"_el", weightStr_el + "*(" + elCutStr_ZG + ")", "goff");
+	  trees[fileN]->Draw("Photon_pt[MuTau_PhotonIdx]>>+"+labels[fileN]+"_mu", weightStr_mu + "*(" + muCutStr_ZG + ")", "goff");
+	  trees[fileN]->Draw("Photon_pt[TauTau_PhotonIdx]>>+"+labels[fileN]+"_tau", weightStr_tau + "*(" + tauCutStr_ZG + ")", "goff");
 	}
       else if (labels[fileN] == "DYJetsToLL" || labels[fileN] == "DYJetsToLL_M10-50")
 	{
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_el + ">>+"+labels[fileN]+"_el", elCuts + photonStitchCut_DY);
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_mu + ">>+"+labels[fileN]+"_mu", muCuts + photonStitchCut_DY);
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_tau + ">>+"+labels[fileN]+"_tau", tauCuts + photonStitchCut_DY);
+	  trees[fileN]->Draw("Photon_pt[ETau_PhotonIdx]>>+"+labels[fileN]+"_el", weightStr_el + "*(" + elCutStr_DY + ")", "goff");
+	  trees[fileN]->Draw("Photon_pt[MuTau_PhotonIdx]>>+"+labels[fileN]+"_mu", weightStr_mu + "*(" + muCutStr_DY + ")", "goff");
+	  trees[fileN]->Draw("Photon_pt[TauTau_PhotonIdx]>>+"+labels[fileN]+"_tau", weightStr_tau + "*(" +tauCutStr_DY + ")", "goff");
 	}
       else
 	{
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_el + ">>+"+labels[fileN]+"_el", elCuts);
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_mu + ">>+"+labels[fileN]+"_mu", muCuts);
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_tau + ">>+"+labels[fileN]+"_tau", tauCuts);
+	  trees[fileN]->Draw("Photon_pt[ETau_PhotonIdx]>>+"+labels[fileN]+"_el", weightStr_el + "*(" + elCutStr + ")");
+	  trees[fileN]->Draw("Photon_pt[MuTau_PhotonIdx]>>+"+labels[fileN]+"_mu", weightStr_mu + "*(" + muCutStr + ")");
+	  trees[fileN]->Draw("Photon_pt[TauTau_PhotonIdx]>>+"+labels[fileN]+"_tau", weightStr_tau + "*(" + tauCutStr+")");
 	}
  
       elStack->Add((TH1F*) h_tempEl->Clone());
@@ -191,19 +203,19 @@ void plotBkgdMC(TString year)
    bkgdCanv->Divide(2, 2);
 
    bkgdCanv->cd(1);
-   elStack->Draw("pfc");
+   elStack->Draw("PFC PLC HIST");
    gPad->SetLogy();
    bkgdCanv->Modified();
    gPad->BuildLegend(0.7, 0.5, 0.9, 0.9);
 
    bkgdCanv->cd(2);
-   muStack->Draw("pfc");
+   muStack->Draw("PFC PLC HIST");
    gPad->SetLogy();
    bkgdCanv->Modified();
    gPad->BuildLegend(0.7, 0.5, 0.9, 0.9);
 
    bkgdCanv->cd(3);
-   tauStack->Draw("pfc");
+   tauStack->Draw("PFC PLC HIST");
    gPad->SetLogy();
    bkgdCanv->Modified();
    gPad->BuildLegend(0.7, 0.5, 0.9, 0.9);
