@@ -8,14 +8,10 @@
 #############################################################
 # flag to be Tested
 flags = {
-#    'passing_HLT_Ele27_WPTight_Gsf' : '(passing_HLT_Ele27_WPTight_Gsf == 1)',
-#    'passing_HLT_Ele25_eta2p1_WPTight_Gsf' : '(passing_HLT_Ele25_eta2p1_WPTight_Gsf == 1)',
-#    'passing_HLT_Ele32_WPTight_Gsf_L1DoubleEG' : '(passing_HLT_Ele32_WPTight_Gsf_L1DoubleEG == 1)',
-#    'passing_HLT_Ele35_WPTight_Gsf' : '(passing_HLT_Ele35_WPTight_Gsf == 1)',
     'passHltEle32WPTightGsf' : '(passHltEle32WPTightGsf == 1)',
     }
 
-baseOutDir = "Fits/2018/PassMVAID/AbsEtaBinning/"
+baseOutDir = "Fits/2018/PassMVAID/Pt20/"
 
 #############################################################
 ########## samples definition  - preparing the samples
@@ -76,15 +72,15 @@ if not samplesDef['tagSel' ] is None: samplesDef['tagSel' ].set_weight(weightNam
 ########## bining definition  [can be nD bining]
 #############################################################
 biningDef = [
-   { 'var' : 'abs(el_sc_eta)' , 'type': 'float', 'bins': [0, 1.4442, 1.566, 2.5] },
-   { 'var' : 'el_pt' , 'type': 'float', 'bins': [32, 50, 75, 100, 150, 200, 500]  },
+   { 'var' : 'el_sc_eta' , 'type': 'float', 'bins': [-2.5, -2, -1.566, -1.4442, -0.8, 0, 0.8, 1.4442, 1.566, 2, 2.5] },
+   { 'var' : 'el_pt' , 'type': 'float', 'bins': [20, 34, 50, 75, 100, 150, 200, 500]  },
 ]
 
 #############################################################
 ########## Cuts definition for all samples
 #############################################################
 ### cut
-cutBase   = 'abs(el_sc_eta) < 2.5 && el_sc_et > 5 && passingMVA94Xwp90isoV2 == 1'
+cutBase   = 'abs(el_sc_eta) <= 2.5 && el_sc_et > 5 && passingMVA94Xwp90isoV2 == 1'
 
 
 #### or remove any additional cut (default)

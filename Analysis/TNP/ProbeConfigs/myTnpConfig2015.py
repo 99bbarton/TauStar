@@ -1,5 +1,5 @@
 #Settings configuration for TNP fitter analyzing performance of the Single-Electron Trigger
-#Configured for UL2017 samples
+#Currently configured for UL2016 Pre VFP samples
 #Based off https://github.com/cms-egamma/egm_tnp_analysis/blob/master/etc/config/settings_pho_UL2018.py
 
 
@@ -8,15 +8,12 @@
 #############################################################
 # flag to be Tested
 flags = {
-#    'passing_HLT_Ele27_WPTight_Gsf' : '(passing_HLT_Ele27_WPTight_Gsf == 1)',
-#    'passing_HLT_Ele25_eta2p1_WPTight_Gsf' : '(passing_HLT_Ele25_eta2p1_WPTight_Gsf == 1)',
-#    'passing_HLT_Ele32_WPTight_Gsf_L1DoubleEG' : '(passing_HLT_Ele32_WPTight_Gsf_L1DoubleEG == 1)',
-#    'passing_HLT_Ele35_WPTight_Gsf' : '(passing_HLT_Ele35_WPTight_Gsf == 1)',
-#    'passHltEle32WPTightGsf' : '(passHltEle32WPTightGsf == 1)',
-     'passHltEle32DoubleEGWPTightGsf' : '(passHltEle32DoubleEGWPTightGsf == 1)'
+    'passHltEle27WPTightGsf' : '(passHltEle27WPTightGsf == 1)',
     }
 
-baseOutDir = "Fits/2017/PassMVAID/AbsEtaBinning/"
+#baseOutDir = "root://cmsxrootd.fnal.gov//store/user/bbarton/TrigEffStudies/TNP_Fits/"
+#baseOutDir = "/uscms/home/bbarton/nobackup/CMSSW_10_6_13/src/EgammaAnalysis/egm_tnp_analysis/Fits/"
+baseOutDir = "Fits/2015/PassMVAID/Pt20/"
 
 #############################################################
 ########## samples definition  - preparing the samples
@@ -27,17 +24,19 @@ import etc.inputs.myTnpSampleDef as tnpSamples
 tnpTreeDir = 'tnpEleTrig'
 
 samplesDef = {
-    'data'   : tnpSamples.UL2017['data_Run2017B'].clone(),
-    'mcNom'  : tnpSamples.UL2017['DY_LO'].clone(),
-    'mcAlt'  : tnpSamples.UL2017['DY_NLO'].clone(),
-    'tagSel' : tnpSamples.UL2017['DY_LO'].clone()
+    'data'   : tnpSamples.UL2016_preVFP['data_Run2016B_ver2'].clone(),
+    'mcNom'  : tnpSamples.UL2016_preVFP['DY_LO'].clone(),
+    'mcAlt'  : tnpSamples.UL2016_preVFP['DY_NLO'].clone(),
+    'tagSel' : tnpSamples.UL2016_preVFP['DY_LO'].clone(),
 }
 
 ## Add remaining data samples
-samplesDef['data'].add_sample( tnpSamples.UL2017['data_Run2017C'] )
-samplesDef['data'].add_sample( tnpSamples.UL2017['data_Run2017D'] )
-samplesDef['data'].add_sample( tnpSamples.UL2017['data_Run2017E'] )
-samplesDef['data'].add_sample( tnpSamples.UL2017['data_Run2017F'] )
+samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016C'] )
+samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016D'] )
+samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016E'] )
+samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016F'] )
+
+
 
 ## some sample-based cuts... general cuts defined here after
 ## require mcTruth on MC DY samples and additional cuts
@@ -53,8 +52,8 @@ if not samplesDef['tagSel' ] is None: samplesDef['tagSel'].set_mcTruth(tnpTreeDi
 
 
 if not samplesDef['tagSel'] is None:
-    samplesDef['tagSel'].rename('mcAltSel_DY_LO')
-    samplesDef['tagSel'].set_cut('tag_Ele_pt > 35')
+    samplesDef['tagSel'].rename('mcAltSel_DY_madgraph')
+    samplesDef['tagSel'].set_cut('tag_Ele_pt > 30') 
     samplesDef['tagSel'].set_cut('abs(tag_Ele_eta) <= 2.1') 
 
 ## set MC weight, simple way (use tree weight) 
@@ -62,27 +61,27 @@ weightName = 'totWeight'
 if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_weight(weightName)
 if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_weight(weightName)
 if not samplesDef['tagSel' ] is None: samplesDef['tagSel' ].set_weight(weightName)
-#weightName = 'weights_2017_runBCDEF.totWeight'
+#weightName = 'weights_2016_run2016.totWeight'
 #if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_weight(weightName)
 #if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_weight(weightName)
 #if not samplesDef['tagSel'] is None: samplesDef['tagSel'].set_weight(weightName)
-#if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_puTree('/eos/cms/store/group/phys_egamma/swmukher/UL2017/PU_miniAOD/DY_madgraph_ele.pu.puTree.root')
-#if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_puTree('/eos/cms/store/group/phys_egamma/swmukher/UL2017/PU_miniAOD/DY_amcatnloext_ele.pu.puTree.root')
-#if not samplesDef['tagSel'] is None: samplesDef['tagSel'].set_puTree('/eos/cms/store/group/phys_egamma/swmukher/UL2017/PU_miniAOD/DY_madgraph_ele.pu.puTree.root')
+#if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016/PU_Trees/preVFP/DY_madgraph_ele.pu.puTree.root')
+#if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016/PU_Trees/preVFP/DY_amcatnloext_ele.pu.puTree.root')
+#if not samplesDef['tagSel'] is None: samplesDef['tagSel'].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016/PU_Trees/preVFP/DY_madgraph_ele.pu.puTree.root')
 
 #############################################################
 ########## bining definition  [can be nD bining]
 #############################################################
 biningDef = [
-   { 'var' : 'abs(el_sc_eta)' , 'type': 'float', 'bins': [0, 1.4442, 1.566, 2.5] },
-   { 'var' : 'el_pt' , 'type': 'float', 'bins': [32, 50, 75, 100, 150, 200, 500]  },
+   { 'var' : 'el_sc_eta' , 'type': 'float', 'bins': [-2.5, -2, -1.566, -1.4442, -0.8, 0, 0.8, 1.4442, 1.566, 2, 2.5] },
+   { 'var' : 'el_pt' , 'type': 'float', 'bins':  [20, 29, 32, 50, 75, 100, 150, 200, 500] },
 ]
 
 #############################################################
 ########## Cuts definition for all samples
 #############################################################
 ### cut
-cutBase   = 'abs(el_sc_eta) < 2.5 && el_sc_et > 5 && passingMVA94Xwp90isoV2 == 1'
+cutBase   = 'abs(el_sc_eta) <= 2.5 && el_sc_et > 5 && passingMVA94Xwp90isoV2 == 1'
 
 
 #### or remove any additional cut (default)
