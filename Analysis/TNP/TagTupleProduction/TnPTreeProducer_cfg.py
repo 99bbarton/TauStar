@@ -128,7 +128,7 @@ if 'UL2016preVFP' in options['era'] or 'UL2016postVFP' in options['era']:
   options['TnPHLTProbeFilters'] = cms.vstring()
   options['HLTFILTERSTOMEASURE']= {"passHltEle27WPTightGsf" :                           cms.vstring("hltEle27WPTightGsfTrackIsoFilter"),
                                    "passHltPhoton175" : cms.vstring("hltEG175HEFilter"),
-                                   "passTriggerOR" : cms.vstring("hltEle27WPTightGsfTrackIsoFilter||hltEG175HEFilter"),
+                                   "passTriggerOR" : cms.vstring("hltEle27WPTightGsfTrackIsoFilter", "hltEG175HEFilter"),
                                   } # Some examples, you can add multiple filters (or OR's of filters, note the vstring) here, each of them will be added to the tuple
 
 elif 'UL2017' in options['era']:
@@ -137,10 +137,10 @@ elif 'UL2017' in options['era']:
   options['TnPHLTProbeFilters'] = cms.vstring()
   options['HLTFILTERSTOMEASURE']= {"passHltEle32DoubleEGWPTightGsf" : cms.vstring("hltEle32L1DoubleEGWPTightGsfTrackIsoFilter"),
                                    "passL1Seeds" : cms.vstring("hltEGL1SingleEGOrFilter"),
-                                   "passHltEle32DoubleEGandL1Seeds" : cms.vstring("hltEle32L1DoubleEGWPTightGsfTrackIsoFilter&&hltEGL1SingleEGOrFilter"),
-                                   "passHltEle35WPTightGsf" : cms.vstring("hltEle32WPTightGsfTrackIsoFilter"),
+                                   #"passHltEle32DoubleEGandL1Seeds" : cms.vstring("hltEle32L1DoubleEGWPTightGsfTrackIsoFilter && hltEGL1SingleEGOrFilter"),
+                                   "passHltEle35WPTightGsf" : cms.vstring("hltEle35noerWPTightGsfTrackIsoFilter"),
                                    "passHltPhoton200" : cms.vstring("hltEG200HEFilter"),
-                                   "passTriggerOR" : cms.vstring("(hltEle32L1DoubleEGWPTightGsfTrackIsoFilter&&hltEGL1SingleEGOrFilter)||hltEG200HEFilter"),
+                                   "passTriggerOR" : cms.vstring("hltEle35noerWPTightGsfTrackIsoFilter","hltEG200HEFilter"),
                                   }
 
 elif 'UL2018'  in options['era']:
@@ -149,7 +149,7 @@ elif 'UL2018'  in options['era']:
   options['TnPHLTProbeFilters'] = cms.vstring()
   options['HLTFILTERSTOMEASURE']= {"passHltEle32WPTightGsf" : cms.vstring("hltEle32WPTightGsfTrackIsoFilter"),
                                    "passHltPhoton200" : cms.vstring("hltEG200HEFilter"),
-                                   "passTriggerOR" : cms.vstring("hltEle32WPTightGsfTrackIsoFilter||hltEG200HEFilter"),
+                                   "passTriggerOR" : cms.vstring("hltEle32WPTightGsfTrackIsoFilter","hltEG200HEFilter"),
                                   }
 
 # Apply L1 matching (using L1Threshold) when flag contains "L1match" in name
