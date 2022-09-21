@@ -13,7 +13,7 @@ flags = {
     'passTriggerOR' : '(passTriggerOR == 1)',
     }
 
-baseOutDir = "Fits/2015/PassMVAID/PhotonOR/"
+baseOutDir = "Fits/2015/PassMVAID/PhotonOR/HighPt/"
 
 #############################################################
 ########## samples definition  - preparing the samples
@@ -74,7 +74,7 @@ if not samplesDef['tagSel' ] is None: samplesDef['tagSel' ].set_weight(weightNam
 #############################################################
 biningDef = [
    { 'var' : 'el_sc_eta' , 'type': 'float', 'bins': [-2.5, -2, -1.566, -1.4442, -0.8, 0, 0.8, 1.4442, 1.566, 2, 2.5] },
-   { 'var' : 'el_pt' , 'type': 'float', 'bins':  [29, 32, 50, 75, 100, 150, 200, 500] },
+   { 'var' : 'el_pt' , 'type': 'float', 'bins':  [29, 34, 50, 75, 100, 150, 200, 500, 1000] },
 ]
 
 #############################################################
