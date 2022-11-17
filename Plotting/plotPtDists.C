@@ -1,12 +1,16 @@
 //Plotting functions to plot pT distributions in signal MC and MC backgrounds
 
-TCut loadCuts(const TString channel, const int year, TCut cuts4[4], TCut cuts8[8], const bool applyTrigger=true, const int mass=0);
-void getBkgdTrees(TTree **treesArr, TString labels[], TString year);
+#include "rootPalettes.C"
+
+
+TString getPath(TString whatPath);
+void checkPhoTrigMatching();
+void plotAll(bool doSig = true, bool doBkgd = true);
 void plotSigMC(TString mass, TString year);
 void plotBkgdMC(TString year);
-TString getPath(TString whatPath);
-void plotAll();
+void getBkgdTrees(TTree **treesArr, TString labels[], TString year);
 TString makeMCWeight(const TString channel, const bool havePair=true, const bool haveTriplet=true);
+TCut loadCuts(const TString channel, const int year, TCut cuts4[4], TCut cuts8[8], const bool applyTrigger=true, const int mass=0);
 
 const int N_BKGD_FILES = 14;
 
@@ -25,6 +29,91 @@ TString getPath(TString whatPath)
     }
 }
 
+//For e+tau events where the HLT_Photon* trigger fires, check what object fired the trigger
+//Prints fraction of events where the object firing the Photon Trigger is, the electron, a photon (from taustar if sig, bkgd otherwise), other   
+void checkPhoTrigMatching()
+{
+   const int NUM_YEARS = 4; //Years to consider
+   TString years[NUM_YEARS] = {"2015", "2016", "2017", "2018"};
+   const int NUM_MASSES = 17; //Taustar masses
+   TString masses[NUM_MASSES] = {"175", "250", "375", "500", "625", "750", "1000", "1250", "1500", "1750", "2000", "2500", "3000", "3500", "4000", "4500", "5000"};
+      
+   TString dir = getPath("input"); //Get location of input files 
+
+   TCut cuts4[4]; //Dummy arrays to hold cuts for the four ABCD regions
+   TCut cuts8[8]; //Sim as above
+   TCut phoTrigCut; //Did the HLT_Photon* trigger fire
+   
+   int yN = 0;
+   for (int intYear = 2015; intYear <= 2018; intYear++)
+   {
+      cout << "\n\n" << endl;
+      TString year = years[yN];
+     
+      //Set cuts to be used
+      /*Use mutau channel since that requires that there are no reconstructed electrons and we don't use the HLT_Photon* trigger
+      We can therefore test if that trigger fire and assume to quite good approximation that the photon is the only object that
+      might have fired the trigger*/
+      TCut cuts = loadCuts("MuTau", intYear, cuts4, cuts8);  
+      TCut realPho = TCut("Photon_genPartFlav[MuTau_PhotonIdx] == 1");
+      cuts = cuts + realPho;
+
+      if (intYear < 2017)
+         phoTrigCut = TCut("HLT_Photon175");
+      else
+         phoTrigCut = TCut("HLT_Photon200");
+      
+
+      //Check signal
+      int numEvents_phoTrig;
+      int numEvents;
+      float frac;
+      float avgFrac = 0;
+      for (int mN = 0; mN < NUM_MASSES; mN++)
+      {
+	      TString mass = masses[mN];
+         TString filename = "Taustar_m" + mass + "_" + year + ".root"; 
+         TFile* file = TFile::Open(dir + filename, "READ");
+         TTree* tree = (TTree*) file->Get("Events");
+
+         numEvents_phoTrig = tree->GetEntries(cuts + phoTrigCut);
+         numEvents = tree->GetEntries(cuts);
+	      if (numEvents == 0)
+	         continue;
+         frac = (float) numEvents_phoTrig / (float) numEvents;
+         avgFrac += frac;
+         //cout << "In " << year << ", for tau* mass=" << mass << ", the tau* decay photon triggered the HLT_Photon* trigger in " << frac << " fraction of events" << endl;
+	      cout << year << "," << mass << "," << frac << endl;
+      }
+      avgFrac /= NUM_MASSES;
+      //cout << "In " << year << ", on avg for all tau* masses, the tau* decay photon triggered the HLT_Photon* trigger in " << frac << " fraction of events\n" << endl;
+
+      //Check background
+      avgFrac=0;
+      TTree* trees[N_BKGD_FILES];
+      TString labels[N_BKGD_FILES];
+      getBkgdTrees(trees, labels, year);
+      for (int fN=0; fN < N_BKGD_FILES; fN++)
+      {
+         numEvents_phoTrig = trees[fN]->GetEntries(cuts + phoTrigCut);
+         numEvents = trees[fN]->GetEntries(cuts);
+	      if (numEvents == 0)
+	         continue;
+         frac = (float) numEvents_phoTrig / (float) numEvents;
+         avgFrac += frac;
+         //cout << "In " << year << ", for " << labels[fN] << ", the photon triggered the HLT_Photon* trigger in " << frac << " fraction of events" << endl;
+	      cout << year << "," << labels[fN] << "," << frac << endl;
+      }
+      avgFrac /= N_BKGD_FILES;
+      //cout << "In " << year << ", on avg for all MC backgrounds, the photon triggered the HLT_Photon* trigger in " << frac << " fraction of events\n\n" << endl;
+      
+      yN++;
+   }
+   
+   cout << "\n\n" << endl;
+}
+
+
 //Make signal and background plots for all taustar mass hypothesis and years
 void plotAll(bool doSig = true, bool doBkgd = true)
 {
@@ -36,14 +125,14 @@ void plotAll(bool doSig = true, bool doBkgd = true)
    for (int y = 0; y < NUM_YEARS; y++)
    {
       if (doBkgd)
-	plotBkgdMC(years[y]);
+	      plotBkgdMC(years[y]);
       if (doSig)
-	{
-	  for (int m = 0; m < NUM_MASSES; m++)
-	    {
-	      plotSigMC(masses[m], years[y]);
-	    }
-	}
+	   {
+	      for (int m = 0; m < NUM_MASSES; m++)
+         {
+            plotSigMC(masses[m], years[y]);
+         }
+	   }
    }
 }
 
@@ -126,18 +215,33 @@ void plotBkgdMC(TString year)
    //Graphics
    TCanvas* bkgdCanv = new TCanvas("bkgdCanv", "MC Background Plots", 1200, 800);
    gStyle->SetOptStat(0);
-   gStyle->SetPalette(kDarkRainBow);
+   int palette[N_BKGD_FILES]; //Use a custom palette of colors so stack is clear
+   fillPalette("stack", N_BKGD_FILES, palette);
+   gStyle->SetPalette(N_BKGD_FILES, palette);
+
 
    //Cuts
    int intYear = atoi(year);
    TCut cuts4[4]; //Dummy arrays to hold cuts for the four ABCD regions
    TCut cuts8[8]; //Sim as above
+   
    TCut elCuts = loadCuts("ETau", intYear, cuts4, cuts8);
    TCut muCuts = loadCuts("MuTau", intYear, cuts4, cuts8);
    TCut tauCuts = loadCuts("TauTau", intYear, cuts4, cuts8);
    TCut photonStitchCut_ZG = TCut("PhotonStitch_n>0");
    TCut photonStitchCut_DY = TCut("PhotonStitch_n==0");
    
+   TString elCutStr = TString(elCuts);
+   TString muCutStr = TString(muCuts);
+   TString tauCutStr = TString(tauCuts);
+   TString elCutStr_ZG = TString(TCut(elCuts + photonStitchCut_ZG));
+   TString muCutStr_ZG = TString(TCut(muCuts + photonStitchCut_ZG));
+   TString tauCutStr_ZG = TString(TCut(tauCuts + photonStitchCut_ZG));
+   TString elCutStr_DY = TString(TCut(elCuts + photonStitchCut_DY));
+   TString muCutStr_DY = TString(TCut(muCuts + photonStitchCut_DY));
+   TString tauCutStr_DY = TString(TCut(tauCuts + photonStitchCut_DY));
+ 
+
    //MC Event weights
    TString weightStr_el = makeMCWeight("ETau");
    TString weightStr_mu = makeMCWeight("MuTau");
@@ -148,8 +252,8 @@ void plotBkgdMC(TString year)
    THStack* elStack = new THStack("elStack","Photon pT: e+#tau Channel;photon pT [GeV]; Events");
    THStack* muStack = new THStack("muStack","Photon pT: #mu+#tau Channel;photon pT [GeV]; Events");
    THStack* tauStack = new THStack("tauStack","Photon pT: #tau+#tau Channel;photon pT [GeV]; Events");
-   int nPtBins = 6;
-   float ptBins[7] = {0, 200, 400, 600, 800, 1000, 1200};
+   int nPtBins = 8;
+   float ptBins[9] = {0, 75, 100, 200, 400, 600, 800, 1000, 1200};
    for (int fileN = 0; fileN < N_BKGD_FILES; fileN++)
    {  
       cout << "\t..Filling hists from file " << fileN + 1 << "/" << N_BKGD_FILES << endl;
@@ -160,21 +264,21 @@ void plotBkgdMC(TString year)
 
       if (labels[fileN] == "ZGToLLG")
 	{
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_el + ">>+"+labels[fileN]+"_el", elCuts + photonStitchCut_ZG);
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_mu + ">>+"+labels[fileN]+"_mu", muCuts + photonStitchCut_ZG);
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_tau + ">>+"+labels[fileN]+"_tau", tauCuts + photonStitchCut_ZG);
+	  trees[fileN]->Draw("Photon_pt[ETau_PhotonIdx]>>+"+labels[fileN]+"_el", weightStr_el + "*(" + elCutStr_ZG + ")", "goff");
+	  trees[fileN]->Draw("Photon_pt[MuTau_PhotonIdx]>>+"+labels[fileN]+"_mu", weightStr_mu + "*(" + muCutStr_ZG + ")", "goff");
+	  trees[fileN]->Draw("Photon_pt[TauTau_PhotonIdx]>>+"+labels[fileN]+"_tau", weightStr_tau + "*(" + tauCutStr_ZG + ")", "goff");
 	}
       else if (labels[fileN] == "DYJetsToLL" || labels[fileN] == "DYJetsToLL_M10-50")
 	{
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_el + ">>+"+labels[fileN]+"_el", elCuts + photonStitchCut_DY);
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_mu + ">>+"+labels[fileN]+"_mu", muCuts + photonStitchCut_DY);
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_tau + ">>+"+labels[fileN]+"_tau", tauCuts + photonStitchCut_DY);
+	  trees[fileN]->Draw("Photon_pt[ETau_PhotonIdx]>>+"+labels[fileN]+"_el", weightStr_el + "*(" + elCutStr_DY + ")", "goff");
+	  trees[fileN]->Draw("Photon_pt[MuTau_PhotonIdx]>>+"+labels[fileN]+"_mu", weightStr_mu + "*(" + muCutStr_DY + ")", "goff");
+	  trees[fileN]->Draw("Photon_pt[TauTau_PhotonIdx]>>+"+labels[fileN]+"_tau", weightStr_tau + "*(" +tauCutStr_DY + ")", "goff");
 	}
       else
 	{
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_el + ">>+"+labels[fileN]+"_el", elCuts);
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_mu + ">>+"+labels[fileN]+"_mu", muCuts);
-	  trees[fileN]->Draw("Photon_pt*" + weightStr_tau + ">>+"+labels[fileN]+"_tau", tauCuts);
+	  trees[fileN]->Draw("Photon_pt[ETau_PhotonIdx]>>+"+labels[fileN]+"_el", weightStr_el + "*(" + elCutStr + ")");
+	  trees[fileN]->Draw("Photon_pt[MuTau_PhotonIdx]>>+"+labels[fileN]+"_mu", weightStr_mu + "*(" + muCutStr + ")");
+	  trees[fileN]->Draw("Photon_pt[TauTau_PhotonIdx]>>+"+labels[fileN]+"_tau", weightStr_tau + "*(" + tauCutStr+")");
 	}
  
       elStack->Add((TH1F*) h_tempEl->Clone());
@@ -191,20 +295,20 @@ void plotBkgdMC(TString year)
    bkgdCanv->Divide(2, 2);
 
    bkgdCanv->cd(1);
-   elStack->Draw("pfc");
-   gPad->SetLogy();
+   elStack->Draw("PFC PLC HIST");
+   //gPad->SetLogy();
    bkgdCanv->Modified();
    gPad->BuildLegend(0.7, 0.5, 0.9, 0.9);
 
    bkgdCanv->cd(2);
-   muStack->Draw("pfc");
-   gPad->SetLogy();
+   muStack->Draw("PFC PLC HIST");
+   //gPad->SetLogy();
    bkgdCanv->Modified();
    gPad->BuildLegend(0.7, 0.5, 0.9, 0.9);
 
    bkgdCanv->cd(3);
-   tauStack->Draw("pfc");
-   gPad->SetLogy();
+   tauStack->Draw("PFC PLC HIST");
+   //gPad->SetLogy();
    bkgdCanv->Modified();
    gPad->BuildLegend(0.7, 0.5, 0.9, 0.9);
 
@@ -229,26 +333,26 @@ void getBkgdTrees(TTree **treesArr, TString labels[], TString year)
    labels[2] = "WZ";
    files[3] = TFile::Open(baseDir + "ZZ_" + year + ".root");
    labels[3] = "ZZ";
-   files[4] = TFile::Open(baseDir + "DYJetsToLL_" + year + ".root");
-   labels[4] = "DYJetsToLL";
-   files[5] = TFile::Open(baseDir + "DYJetsToLLM10_" + year + ".root");
-   labels[5] = "DYJetsToLL_M10-50";
-   files[6] = TFile::Open(baseDir + "ST_tW_top_" + year + ".root");
-   labels[6] = "ST_tW_top";
-   files[7] = TFile::Open(baseDir + "ST_tW_antitop_" + year + ".root");
-   labels[7] = "ST_tW_antitop";
-   files[8] = TFile::Open(baseDir + "ST_t_channel_antitop_" + year + ".root");
-   labels[8] = "ST_t_channel_antitop";
-   files[9] = TFile::Open(baseDir + "ST_t_channel_top_" + year + ".root");
-   labels[9] = "ST_t_channel_top";
-   files[10] = TFile::Open(baseDir + "ST_s_channel_" + year + ".root");
-   labels[10] = "ST_s_channel";
-   files[11] = TFile::Open(baseDir + "TTTo2L2Nu_" + year + ".root");
-   labels[11] = "TTTo2L2Nu";
-   files[12] = TFile::Open(baseDir + "TTToSemiLeptonic_" + year + ".root");
-   labels[12] = "TTToSemiLeptonic";
-   files[13] = TFile::Open(baseDir + "ZGToLLG_" + year + ".root");
-   labels[13] = "ZGToLLG";
+   files[4] = TFile::Open(baseDir + "ZGToLLG_" + year + ".root");
+   labels[4] = "ZGToLLG";
+   files[5] = TFile::Open(baseDir + "DYJetsToLL_" + year + ".root");
+   labels[5] = "DYJetsToLL";
+   files[6] = TFile::Open(baseDir + "DYJetsToLLM10_" + year + ".root");
+   labels[6] = "DYJetsToLL_M10-50";
+   files[7] = TFile::Open(baseDir + "ST_tW_top_" + year + ".root");
+   labels[7] = "ST_tW_top";
+   files[8] = TFile::Open(baseDir + "ST_tW_antitop_" + year + ".root");
+   labels[8] = "ST_tW_antitop";
+   files[9] = TFile::Open(baseDir + "ST_t_channel_antitop_" + year + ".root");
+   labels[9] = "ST_t_channel_antitop";
+   files[10] = TFile::Open(baseDir + "ST_t_channel_top_" + year + ".root");
+   labels[10] = "ST_t_channel_top";
+   files[11] = TFile::Open(baseDir + "ST_s_channel_" + year + ".root");
+   labels[11] = "ST_s_channel";
+   files[12] = TFile::Open(baseDir + "TTTo2L2Nu_" + year + ".root");
+   labels[12] = "TTTo2L2Nu";
+   files[13] = TFile::Open(baseDir + "TTToSemiLeptonic_" + year + ".root");
+   labels[13] = "TTToSemiLeptonic";
 
    for (int i = 0; i < N_BKGD_FILES; i++)
    {
