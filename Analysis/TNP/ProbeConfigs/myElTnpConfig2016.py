@@ -1,5 +1,5 @@
 #Settings configuration for TNP fitter analyzing performance of the Single-Electron Trigger
-#Configured for UL2016 Pre VFP samples
+#Configured for UL2016 Post VFP samples
 #Based off https://github.com/cms-egamma/egm_tnp_analysis/blob/master/etc/config/settings_pho_UL2018.py
 
 
@@ -13,7 +13,7 @@ flags = {
     'passTriggerOR' : '(passTriggerOR == 1)',
     }
 
-baseOutDir = "Fits/2015/PassMVAID/PhotonOR/"
+baseOutDir = "Fits/2016/PassMVAID/PhotonOR/HighPt/"
 
 #############################################################
 ########## samples definition  - preparing the samples
@@ -24,18 +24,15 @@ import etc.inputs.myPhoTnpSampleDef as tnpSamples
 tnpTreeDir = 'tnpEleTrig'
 
 samplesDef = {
-    'data'   : tnpSamples.UL2016_preVFP['data_Run2016B'].clone(),
-    'mcNom'  : tnpSamples.UL2016_preVFP['DY_LO'].clone(),
-    'mcAlt'  : tnpSamples.UL2016_preVFP['DY_NLO'].clone(),
-    'tagSel' : tnpSamples.UL2016_preVFP['DY_LO'].clone(),
+    'data'   : tnpSamples.UL2016_postVFP['data_Run2016F_postVFP'].clone(),
+    'mcNom'  : tnpSamples.UL2016_postVFP['DY_LO'].clone(),
+    'mcAlt'  : tnpSamples.UL2016_postVFP['DY_NLO'].clone(),
+    'tagSel' : tnpSamples.UL2016_postVFP['DY_LO'].clone(),
 }
 
 ## Add remaining data samples
-samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016C'] )
-samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016D'] )
-samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016E'] )
-samplesDef['data'].add_sample( tnpSamples.UL2016_preVFP['data_Run2016F'] )
-
+samplesDef['data'].add_sample( tnpSamples.UL2016_postVFP['data_Run2016G'] )
+samplesDef['data'].add_sample( tnpSamples.UL2016_postVFP['data_Run2016H'] )
 
 
 ## some sample-based cuts... general cuts defined here after
@@ -65,16 +62,16 @@ if not samplesDef['tagSel' ] is None: samplesDef['tagSel' ].set_weight(weightNam
 #if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_weight(weightName)
 #if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_weight(weightName)
 #if not samplesDef['tagSel'] is None: samplesDef['tagSel'].set_weight(weightName)
-#if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016/PU_Trees/preVFP/DY_madgraph_ele.pu.puTree.root')
-#if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016/PU_Trees/preVFP/DY_amcatnloext_ele.pu.puTree.root')
-#if not samplesDef['tagSel'] is None: samplesDef['tagSel'].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016/PU_Trees/preVFP/DY_madgraph_ele.pu.puTree.root')
+#if not samplesDef['mcNom' ] is None: samplesDef['mcNom' ].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016/PU_Trees/postVFP/DY_madgraph_pho.pu.puTree.root')
+#if not samplesDef['mcAlt' ] is None: samplesDef['mcAlt' ].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016/PU_Trees/postVFP/DY_amcatnloext_pho.pu.puTree.root')
+#if not samplesDef['tagSel'] is None: samplesDef['tagSel'].set_puTree('/eos/cms/store/group/phys_egamma/asroy/Tag-and-Probe_Tree/UL2016/PU_Trees/postVFP/DY_madgraph_pho.pu.puTree.root')
 
 #############################################################
 ########## bining definition  [can be nD bining]
 #############################################################
 biningDef = [
    { 'var' : 'el_sc_eta' , 'type': 'float', 'bins': [-2.5, -2, -1.566, -1.4442, -0.8, 0, 0.8, 1.4442, 1.566, 2, 2.5] },
-   { 'var' : 'el_pt' , 'type': 'float', 'bins':  [29, 32, 50, 75, 100, 150, 200, 500] },
+   { 'var' : 'el_pt' , 'type': 'float', 'bins': [29, 34, 50, 75, 100, 150, 200, 500, 1000]  },
 ]
 
 #############################################################
