@@ -1,30 +1,19 @@
-// Macro to add PDF weights to nanoAODtrees. Note: Files will be modified in place.
+// Macro to add PDF weights to nanoAODtrees
 // calcAlphas, calcRenomrmWeight, and calcFacorizeWeight lightly modified from versions sent by Carlos at https://cms-pub-talk.web.cern.ch/t/comments-on-anv7/6774/3
-// Prescriptions for calculation and use of weights can be found at:
-/*
-    https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopSystematics#Factorization_and_renormalizatio
-    https://indico.cern.ch/event/494682/contributions/1172505/attachments/1223578/1800218/mcaod-Feb15-2016.pdf
-    https://arxiv.org/pdf/2203.05506.pdf
-    https://lhapdf.hepforge.org/index.html
-*/
 
-
-//// Compilation  and execution instuctions:
+// Compilation instuctions:
 /*
   This macro requires both ROOT and the LHAPDF library so must be compiled against both.
   To compile using ROOT on LPC:
-  - First, check the fillFileList() function and N_FILES parameter to ensure they match the desired action
   - Set up a CMS env (>= CMSSW_10_6_X )
   - run:  lhapdf-config --cflags --ldflags     to get the paths necessary for compilation
       and linking against LHAPDF
   - start root:    root
-  - in root, run : gSystem->AddIncludePath(" -I/cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/lhapdf/6.2.1-pafccj3/include ")     where the path matches the include path from the lhapdf-config
+  - in root, run :  gSystem->AddIncludePath(" -I/cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/lhapdf/6.2.1-pafccj3/include ")     where the path matches the include path from the lhapdf-config
   - in root, run : gSystem->AddLinkedLibs("-L/cvmfs/cms.cern.ch/slc7_amd64_gcc820/external/lhapdf/6.2.1-pafccj3/lib -lLHAPDF")   where the path matches the include path from the lhapdf-config
   - in root, compile this script:    .L pdfWeightAdder.C+
   - The functions below can now be run
-    e.g.
-    setFilepathBase("MyPathToFiles/")
-    pdfWeightAdder("2015")
+
 */
 
 #include "LHAPDF/LHAPDF.h"
@@ -36,9 +25,10 @@
 #include "TBranch.h"
 
 using namespace LHAPDF;
+//using namespace std;
 
-
-TString FILEPATH_BASE = "../Data/PdfWeights/ExcitedTau_01112022/"; //The path to the directory containing files to be used. Change programmatically with setFilepathBase
+//TString FILEPATH_BASE = "root://cmsxrootd.fnal.gov//store/user/fojensen/excitedTau_01112022/"; //The path to the directory containing files to be used
+TString FILEPATH_BASE = "../Data/PdfWeights/ExcitedTau_20112022/";
 const int N_FILES = 17; //Number of files to be read, if this is changed, fillFileList() must also be updated - 41 for all samples, 17 for just taustar signal MC
 
 const int LHAPDF_NOM = 303600; // nominal PDF used to generate the sample. This should also be used for e.g. the muF uncertainty below
@@ -48,7 +38,6 @@ const int LHAPDF_VAR_HIGH = 303700; //The LHAPDF number of the last variation
 int nVars = 100; //The number of variations (MC Replicas // WARNING /// this is assumed to be 100 in the branch defs below
 int nVarsUD = 2 * nVars; //doubled to include up and down   ///// WARNING //// this is assumed to be 200 in the branch defs below
 
-
 void setFilepathBase(TString newFilepath);
 void fillFileList(TString filenames[], int nQCDs[], TString year);
 void addPDFWeights(TString filename, int nQCD, PDF* nomPDF, PDF* varPDFs[]);
@@ -56,8 +45,7 @@ double calcAlphas(double q2);
 double calcRenormWeight(double q2, int up_or_dn, int nQCD);
 double calcFactorizWeight(LHAPDF::PDF* pdf, double id1, double id2, double x1, double x2, double q2, int up_or_dn);
 
-
-//Main/driver function. Adds PDF weights to the files retrieved by fillFileList for the given year
+//Add PDF weights to the files retrieved by fillFileList for the given year
 // TString year : the year to fill files for
 void pdfWeightAdder(TString year)
 {   
@@ -221,8 +209,6 @@ void fillFileList(TString filenames[], int nQCDs[], TString year)
 /* Reads in nominal weighting information from the Events tree in filename and calculates and stores new weights in the tree
     TString filename : the name of the root file to be read, relative to FILEPATH_BASE. This file will be updated in place
     int nQCD : the number of QCD vertices (i.e. ggq, qqgg, etc) in the diagram
-    NB: Currently, only the RMS and error values are written to the tree. Commented-out lines will write all weights from the 100 replicas 
-    but at significant execution time costs.
 */
 void addPDFWeights(TString filename, int nQCD, PDF* nomPDF, PDF* varPDFs[])
 {
@@ -279,23 +265,20 @@ void addPDFWeights(TString filename, int nQCD, PDF* nomPDF, PDF* varPDFs[])
             factorizWeights[varN] = calcFactorizWeight(varPDFs[varN], id1, id2, x1, x2, scalePDF, VAR_UP); 
             factorizWeights[varN+1] = calcFactorizWeight(varPDFs[varN], id1, id2, x1, x2, scalePDF, VAR_DOWN); 
 
-            factWeightsRMSs[0] += factorizWeights[varN];
-            factWeightsRMSs[1] += factorizWeights[varN+1];
+            factWeightsRMSs[0] += (factorizWeights[varN] * factorizWeights[varN]);
+            factWeightsRMSs[1] += (factorizWeights[varN+1] * factorizWeights[varN+1]);
 
             // weight using https://lhapdf.hepforge.org/group__reweight__double.html, one per replica.
             weightsForVar[varN] = LHAPDF::weightxxQ(id1, id2, x1, x2, scalePDF, nomPDF, varPDFs[varN]); 
-            varWeightsRMS += weightsForVar[varN];
+            varWeightsRMS += (weightsForVar[varN] * weightsForVar[varN]);
         }
 
         //Calculate the RMS's
         factWeightsRMSs[0] /= nVars;
         factWeightsRMSs[1] /= nVars; 
-        factWeightsRMSs[0] *= factWeightsRMSs[0];
-        factWeightsRMSs[1] *= factWeightsRMSs[1];
         factWeightsRMSs[0] = sqrt(factWeightsRMSs[0]);
         factWeightsRMSs[1] = sqrt(factWeightsRMSs[1]);
         varWeightsRMS /= nVars;
-        varWeightsRMS *= varWeightsRMS;
         varWeightsRMS = sqrt(varWeightsRMS);
 
         //Calculated the error on the varWeightsRMS according to eqn 6.4 from https://arxiv.org/pdf/2203.05506.pdf
@@ -335,8 +318,7 @@ double calcAlphas(double q2)
     return alphas_mZ / (1 + alphas_mZ * b0 * std::log(q2 / std::pow(mZ,2))); // alphas evolution
 }
 
-// Calculate the mu_R or renormalization weight
-//    Will always be 1 for electroweak processes at LO
+// Will always be 1 for electroweak processes at LO
 // number of QCD vertices (including both cubic and quartic e.g. qqg, ggqq, etc) 
 double calcRenormWeight(double q2, int up_or_dn, int nQCD) 
 { 
@@ -358,7 +340,7 @@ double calcRenormWeight(double q2, int up_or_dn, int nQCD)
     return std::pow(alphas_new / alphas_old, nQCD);
 }
 
-//Calculate the mu_F or factorization weight
+
 double calcFactorizWeight(LHAPDF::PDF* pdf, double id1, double id2, double x1, double x2, double q2, int up_or_dn) 
 {
     double k2;
