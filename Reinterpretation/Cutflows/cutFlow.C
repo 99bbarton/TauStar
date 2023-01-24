@@ -93,6 +93,7 @@ TCut returnCuts(const TString channel, const int year, const int idx, const bool
    return theCut;
 }
 
+
 void cutFlow_HEPData()
 {
   cout << "\n\nProducing signal process cut flow..." << endl;
@@ -107,7 +108,7 @@ void cutFlow_HEPData()
 
   char infile[100];
 
-  printf("year\tmass\tchannel\tnPassCut0, nErrPassCut0, ... nPassCutN, nErrPassCutN");
+  printf("year,mass,channel,numLeps,numLepsErr,havePair,havePairErr,trigger,triggerErr,m_vis,m_visErr,Zveto,ZvetoErr,bVeto,bVetoErr,gamma20GeV,gamma20GeVErr,gamma100GeV,gamma100GeVErr,tauGenMatch,tauGenMatchErr");
 
   for (int year = 2015; year <=2018; year++)
     {
@@ -120,7 +121,7 @@ void cutFlow_HEPData()
 
 	  for (int chN = 0; chN < 3; chN++)
 	    {
-	      printf("\n%d\t%s\t%s", year, masses[massN].Data(), channels[chN].Data());
+	      printf("\n%d,%s,%s", year, masses[massN].Data(), channels[chN].Data());
 
 	      for (int cutN = 0; cutN < nCuts; cutN++)
 		{
@@ -137,7 +138,7 @@ void cutFlow_HEPData()
 		  tree->Project("+hist", "1.", numCuts);
 		  count = hist.IntegralAndError(1, 1, countErr);
 
-		  printf("\t%4.2lf\t%4.2lf", count, countErr);
+		  printf(",%4.2lf,%4.2lf", count, countErr);
 		}
 	    }
 	  file->Close();
