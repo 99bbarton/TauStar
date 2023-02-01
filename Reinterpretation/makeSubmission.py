@@ -35,7 +35,7 @@ def makeCutFlowTable(filepath):
        
         cutVar = Variable(dataframe.columns[colN], is_independent=False, is_binned=False, units="Expected Events")
         cutVar.values = dataframe[dataframe.columns[colN]]
-        cutErr = Uncertainty(dataframe.columns[colN+1], is_symmetric = True, units "Expected Events")
+        cutErr = Uncertainty(dataframe.columns[colN+1], is_symmetric = True, units = "Expected Events")
         cutErr.values = dataframe[dataframe.columns[colN+1]]
         cutVar.add_uncertainty(cutErr)
 
@@ -81,7 +81,7 @@ def makeCovarianceTables(dirPath, includeSignalRegion=False):
 
         #Initialize the variables which will be added to the table
         var_mass = Variable("TauStar Hypothesis Mass", is_independent=True, is_binned=False, units="GeV")
-        var_ch = Variable(channels[chNum], is_independent=True, is_binned=False)
+        var_ch = Variable("Analysis Channel", is_independent=True, is_binned=False)
         var_reg = Variable("Region", is_independent = True, is_binned=False)
         var_binNumX = Variable("Bin Number X", is_independent=True, is_binned=False)
         var_binNumY = Variable("Bin Number Y", is_independent=True, is_binned=False)
@@ -99,7 +99,7 @@ def makeCovarianceTables(dirPath, includeSignalRegion=False):
                     if includeSignalRegion:
                         regions.insert(0, "A")
                 elif chCount < 6:
-                    regions = ["A1", "A2", "B1", "B3", "C1", "C3", "D1", "D3"]
+                    regions = ["A1", "A3", "B1", "B3", "C1", "C3", "D1", "D3"]
                 else:
                     regions = ""
                     
@@ -128,31 +128,20 @@ def makeCovarianceTables(dirPath, includeSignalRegion=False):
 
     return tables
 
-
-
-
-
-                
-
-            
-    
-    
-
-    
-
-
-
-
-
 ##--------------------------------------------------------------------------------------------------------------------------------
+
 # Create the HEPData submission
 def makeSubmission():
     submission = Submission()
-    submission.add_image("Graphics/fitRegions.pdf")
 
-    table_cutFlow = makeCutFlowTable("Cutflows/signalCutflow_24Jan23.txt")
-    submission.add_table(table_cutFlow)
+    #Add cutflow table
+    #table_cutFlow = makeCutFlowTable("Cutflows/signalCutflow_24Jan23.txt")
+    #submission.add_table(table_cutFlow)
 
+    #Add covariance matrice tables
+    tables_covar = makeCovarianceTables(dirPath="CovarianceMatrices/")
+    for table in tables_covar:
+        submission.add_table(table)
 
 
 if __name__ == "__main__":

@@ -33,3 +33,11 @@
 
 #Root Files
 *.root
+
+#Python virtual environments
+Reinterpretation/HEPDataEnv/
+Reinterpretation/__pycache__/
+
+#Data files
+Reinterpretation/Cutflows/*.txt
+Reinterpretation/Graphics/*
