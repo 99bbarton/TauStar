@@ -29,13 +29,13 @@ def makeCutFlowTable(filepath):
     table.add_variable(channel)
 
     #Add the cut flow to the table
-    for colN in range(len(dataframe.columns - 1)):
+    for colN in range(len(dataframe.columns) - 1):
         if colN < 4: #First three colums were added above
             continue
        
         cutVar = Variable(dataframe.columns[colN], is_independent=False, is_binned=False, units="Expected Events")
         cutVar.values = dataframe[dataframe.columns[colN]]
-        cutErr = Uncertainty(dataframe.columns[colN+1], is_symmetric = True, units = "Expected Events")
+        cutErr = Uncertainty(dataframe.columns[colN+1], is_symmetric = True)
         cutErr.values = dataframe[dataframe.columns[colN+1]]
         cutVar.add_uncertainty(cutErr)
 
@@ -135,8 +135,8 @@ def makeSubmission():
     submission = Submission()
 
     #Add cutflow table
-    #table_cutFlow = makeCutFlowTable("Cutflows/signalCutflow_24Jan23.txt")
-    #submission.add_table(table_cutFlow)
+    table_cutFlow = makeCutFlowTable("Cutflows/signalCutflow_24Jan23.txt")
+    submission.add_table(table_cutFlow)
 
     #Add covariance matrice tables
     tables_covar = makeCovarianceTables(dirPath="CovarianceMatrices/")
