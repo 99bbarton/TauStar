@@ -6,7 +6,7 @@ from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import Module
 from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collection
 from PhysicsTools.NanoAODTools.postprocessing.tools import deltaR
 
-class MuTrigMatchProducer(Module):
+class MuTrigProducer(Module):
     def __init__(self):
         pass
     def beginJob(self):
@@ -55,6 +55,7 @@ class MuTrigMatchProducer(Module):
         MuMu_Mu1_t2018 = [False, False]
 
         if event.MuTau_HavePair or event.EMu_HavePair or event.MuMu_HavePair:
+            trigObjs = Collection(event, "TrigObj")
             muons = Collection(event, "Muon")
             goodMuons = {}
             if event.MuTau_HavePair:
@@ -71,7 +72,10 @@ class MuTrigMatchProducer(Module):
             t2017 = ["HLT_IsoMu27", ["Iso", "SingleMuon"], [2, 8], 10]
             t2018 = ["HLT_IsoMu24", ["Iso", "SingleMuon"], [2, 8], 10]
 
-            conditResult_2016_0, conditResult_2016_1, conditResult_2017, conditResult_2018 = False
+            conditResult_2016_0 = False
+            conditResult_2016_1 = False
+            conditResult_2017 = False
+            conditResult_2018 = False
             if hasattr(event, t2016_0[0]):
                 condit = "event.%s"%t2016_0[0]
                 conditResult_2016_0 = eval(condit)
@@ -108,25 +112,25 @@ class MuTrigMatchProducer(Module):
                     muMatch_2018   = conditResult_2018 and (trigObj.filterBits & t2018[3])
 
                     if muCh == "MuTau":
-                        MuTau_t2016_0 = muMatch_2016_0
-                        MuTau_t2016_1 = muMatch_2016_1
-                        MuTau_t2017 = muMatch_2017
-                        MuTau_t2018 = muMatch_2018
+                        MuTau_t2016_0[1] = muMatch_2016_0
+                        MuTau_t2016_1[1] = muMatch_2016_1
+                        MuTau_t2017[1] = muMatch_2017
+                        MuTau_t2018[1] = muMatch_2018
                     elif muCh == "EMu":
-                        EMu_1Mu_t2016_0 = muMatch_2016_0
-                        EMu_1Mu_t2016_1 = muMatch_2016_1
-                        EMu_1Mu_t2017 = muMatch_2017
-                        EMu_1Mu_t2018 = muMatch_2018
+                        EMu_1Mu_t2016_0[1] = muMatch_2016_0
+                        EMu_1Mu_t2016_1[1] = muMatch_2016_1
+                        EMu_1Mu_t2017[1] = muMatch_2017
+                        EMu_1Mu_t2018[1] = muMatch_2018
                     elif muCh == "MuMu_0":
-                        MuMu_Mu0_t2016_0 = muMatch_2016_0
-                        MuMu_Mu0_t2016_1 = muMatch_2016_1
-                        MuMu_Mu0_t2017 = muMatch_2017
-                        MuMu_Mu0_t2018 = muMatch_2018
+                        MuMu_Mu0_t2016_0[1] = muMatch_2016_0
+                        MuMu_Mu0_t2016_1[1] = muMatch_2016_1
+                        MuMu_Mu0_t2017[1] = muMatch_2017
+                        MuMu_Mu0_t2018[1] = muMatch_2018
                     elif muCh == "MuMu_1":
-                        MuMu_Mu1_t2016_0 = muMatch_2016_0
-                        MuMu_Mu1_t2016_1 = muMatch_2016_1
-                        MuMu_Mu1_t2017 = muMatch_2017
-                        MuMu_Mu1_t2018 = muMatch_2018
+                        MuMu_Mu1_t2016_0[1] = muMatch_2016_0
+                        MuMu_Mu1_t2016_1[1] = muMatch_2016_1
+                        MuMu_Mu1_t2017[1] = muMatch_2017
+                        MuMu_Mu1_t2018[1] = muMatch_2018
 
         self.out.fillBranch("MuTau_t2016_0", MuTau_t2016_0)
         self.out.fillBranch("MuTau_t2016_1", MuTau_t2016_1)
@@ -149,5 +153,4 @@ class MuTrigMatchProducer(Module):
 
 # define modules using the syntax 'name = lambda : constructor' to avoid having them loaded when not needed
 
-MuTrigMatchProducerConstr = lambda : MuTrigMatchProducer(
-)
+MuTrigProducerConstr = lambda : MuTrigProducer()
