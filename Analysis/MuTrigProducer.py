@@ -37,20 +37,6 @@ class MuTrigMatchProducer(Module):
     def analyze(self, event):
         """process event, return True (go to next module) or False (fail, go to next event)"""
         
-        if not (event.MuTau_HavePair or event.EMu_HavePair or event.MuMu_HavePair):
-            return False
-
-        muons = Collection(event, "Muon")
-        goodMuons = {}
-        if event.MuTau_HavePair:
-            goodMuons["MuTau"] = event.MuTau_MuIdx
-        if event.EMu_HavePair:
-            goodMuons["EMu"] = event.EMu_MuIdx
-        if event.MuMu_HavePair:
-            goodMuons["MuMu_0"] = event.MuMu_Mu0Idx
-            goodMuons["MuMu_1"] = event.MuMu_Mu1Idx 
-
-    
         MuTau_t2016_0 = [False, False]
         MuTau_t2016_1 = [False, False]
         MuTau_t2017 = [False, False]
@@ -68,68 +54,79 @@ class MuTrigMatchProducer(Module):
         MuMu_Mu1_t2017 = [False, False]
         MuMu_Mu1_t2018 = [False, False]
 
-        #Format [TriggerName, FilterName(s), filterBits, sum(filterBits)]
-        t2016_0 = ["HLT_IsoMu24", "Iso", 2, 2]
-        t2016_1 = ["HLT_IsoTkMu24", "IsoTkMu", 8, 8]
-        t2017 = ["HLT_IsoMu27", ["Iso", "SingleMuon"], [2, 8], 10]
-        t2018 = ["HLT_IsoMu24", ["Iso", "SingleMuon"], [2, 8], 10]
+        if event.MuTau_HavePair or event.EMu_HavePair or event.MuMu_HavePair:
+            muons = Collection(event, "Muon")
+            goodMuons = {}
+            if event.MuTau_HavePair:
+                goodMuons["MuTau"] = event.MuTau_MuIdx
+            if event.EMu_HavePair:
+                goodMuons["EMu"] = event.EMu_MuIdx
+            if event.MuMu_HavePair:
+                goodMuons["MuMu_0"] = event.MuMu_Mu0Idx
+                goodMuons["MuMu_1"] = event.MuMu_Mu1Idx 
 
-        conditResult_2016_0, conditResult_2016_1, conditResult_2017, conditResult_2018 = False
-        if hasattr(event, t2016_0[0]):
-            condit = "event.%s"%t2016_0[0]
-            conditResult_2016_0 = eval(condit)
-            MuTau_t2016_0[0] = EMu_1Mu_t2016_0[0] = MuMu_Mu0_t2016_0[0] = MuMu_Mu1_t2016_0[0] = conditResult_2016_0
+            #Format [TriggerName, FilterName(s), filterBits, sum(filterBits)]
+            t2016_0 = ["HLT_IsoMu24", "Iso", 2, 2]
+            t2016_1 = ["HLT_IsoTkMu24", "IsoTkMu", 8, 8]
+            t2017 = ["HLT_IsoMu27", ["Iso", "SingleMuon"], [2, 8], 10]
+            t2018 = ["HLT_IsoMu24", ["Iso", "SingleMuon"], [2, 8], 10]
 
-        if hasattr(event, t2016_1[0]):
-            condit = "event.%s"%t2016_1[0] 
-            conditResult_2016_1 = eval(condit)
-            MuTau_t2016_1[0] = EMu_1Mu_t2016_1[0] = MuMu_Mu0_t2016_1[0] = MuMu_Mu1_t2016_1[0] = conditResult_2016_1
+            conditResult_2016_0, conditResult_2016_1, conditResult_2017, conditResult_2018 = False
+            if hasattr(event, t2016_0[0]):
+                condit = "event.%s"%t2016_0[0]
+                conditResult_2016_0 = eval(condit)
+                MuTau_t2016_0[0] = EMu_1Mu_t2016_0[0] = MuMu_Mu0_t2016_0[0] = MuMu_Mu1_t2016_0[0] = conditResult_2016_0
 
-        if hasattr(event, t2017[0]):
-            condit_2017 = "event.%s"%t2017[0]
-            conditResult_2017 = eval(condit)
-            MuTau_t2017[0] = EMu_1Mu_t2017[0] = MuMu_Mu0_t2017[0] = MuMu_Mu1_t2017[0] = conditResult_2017
-        
-        if hasattr(event, t2018[0]):
-            condit_2018 = "event.%s"%t2018[0]
-            conditResult_2018 = eval(condit)
-            MuTau_t2018[0] = EMu_1Mu_t2018[0] = MuMu_Mu0_t2018[0] = MuMu_Mu1_t2018[0] = conditResult_2018
+            if hasattr(event, t2016_1[0]):
+                condit = "event.%s"%t2016_1[0] 
+                conditResult_2016_1 = eval(condit)
+                MuTau_t2016_1[0] = EMu_1Mu_t2016_1[0] = MuMu_Mu0_t2016_1[0] = MuMu_Mu1_t2016_1[0] = conditResult_2016_1
 
-        for trigObj in trigObjs:
-            muMatch = False
-            for muCh in goodMuons.keys():
-                muIdx = goodMuons[muCh]
-                muon = muons[muIdx]
+            if hasattr(event, t2017[0]):
+                condit_2017 = "event.%s"%t2017[0]
+                conditResult_2017 = eval(condit)
+                MuTau_t2017[0] = EMu_1Mu_t2017[0] = MuMu_Mu0_t2017[0] = MuMu_Mu1_t2017[0] = conditResult_2017
+            
+            if hasattr(event, t2018[0]):
+                condit_2018 = "event.%s"%t2018[0]
+                conditResult_2018 = eval(condit)
+                MuTau_t2018[0] = EMu_1Mu_t2018[0] = MuMu_Mu0_t2018[0] = MuMu_Mu1_t2018[0] = conditResult_2018
 
-                #https://indico.cern.ch/event/742871/contributions/3068139/attachments/1683609/2706137/2018-07-03-trigger_object_matching_for_offline.pdf
-                if deltaR(trigObj, muon) > 0.15:
-                    continue
-                   
-                muMatch_2016_0 = conditResult_2016_0 and (trigObj.filterBits & t2016_0[3]) #bit comp is only what we expect if trig is present
-                muMatch_2016_1 = conditResult_2016_1 and (trigObj.filterBits & t2016_1[3])
-                muMatch_2017   = conditResult_2017 and (trigObj.filterBits & t2017[3])
-                muMatch_2018   = conditResult_2018 and (trigObj.filterBits & t2018[3])
+            for trigObj in trigObjs:
+                muMatch = False
+                for muCh in goodMuons.keys():
+                    muIdx = goodMuons[muCh]
+                    muon = muons[muIdx]
 
-                if muCh == "MuTau":
-                    MuTau_t2016_0 = muMatch_2016_0
-                    MuTau_t2016_1 = muMatch_2016_1
-                    MuTau_t2017 = muMatch_2017
-                    MuTau_t2018 = muMatch_2018
-                elif muCh == "EMu":
-                    EMu_1Mu_t2016_0 = muMatch_2016_0
-                    EMu_1Mu_t2016_1 = muMatch_2016_1
-                    EMu_1Mu_t2017 = muMatch_2017
-                    EMu_1Mu_t2018 = muMatch_2018
-                elif muCh == "MuMu_0":
-                    MuMu_Mu0_t2016_0 = muMatch_2016_0
-                    MuMu_Mu0_t2016_1 = muMatch_2016_1
-                    MuMu_Mu0_t2017 = muMatch_2017
-                    MuMu_Mu0_t2018 = muMatch_2018
-                elif muCh == "MuMu_1":
-                    MuMu_Mu1_t2016_0 = muMatch_2016_0
-                    MuMu_Mu1_t2016_1 = muMatch_2016_1
-                    MuMu_Mu1_t2017 = muMatch_2017
-                    MuMu_Mu1_t2018 = muMatch_2018
+                    #https://indico.cern.ch/event/742871/contributions/3068139/attachments/1683609/2706137/2018-07-03-trigger_object_matching_for_offline.pdf
+                    if deltaR(trigObj, muon) > 0.15:
+                        continue
+                    
+                    muMatch_2016_0 = conditResult_2016_0 and (trigObj.filterBits & t2016_0[3]) #bit comp is only what we expect if trig is present
+                    muMatch_2016_1 = conditResult_2016_1 and (trigObj.filterBits & t2016_1[3])
+                    muMatch_2017   = conditResult_2017 and (trigObj.filterBits & t2017[3])
+                    muMatch_2018   = conditResult_2018 and (trigObj.filterBits & t2018[3])
+
+                    if muCh == "MuTau":
+                        MuTau_t2016_0 = muMatch_2016_0
+                        MuTau_t2016_1 = muMatch_2016_1
+                        MuTau_t2017 = muMatch_2017
+                        MuTau_t2018 = muMatch_2018
+                    elif muCh == "EMu":
+                        EMu_1Mu_t2016_0 = muMatch_2016_0
+                        EMu_1Mu_t2016_1 = muMatch_2016_1
+                        EMu_1Mu_t2017 = muMatch_2017
+                        EMu_1Mu_t2018 = muMatch_2018
+                    elif muCh == "MuMu_0":
+                        MuMu_Mu0_t2016_0 = muMatch_2016_0
+                        MuMu_Mu0_t2016_1 = muMatch_2016_1
+                        MuMu_Mu0_t2017 = muMatch_2017
+                        MuMu_Mu0_t2018 = muMatch_2018
+                    elif muCh == "MuMu_1":
+                        MuMu_Mu1_t2016_0 = muMatch_2016_0
+                        MuMu_Mu1_t2016_1 = muMatch_2016_1
+                        MuMu_Mu1_t2017 = muMatch_2017
+                        MuMu_Mu1_t2018 = muMatch_2018
 
         self.out.fillBranch("MuTau_t2016_0", MuTau_t2016_0)
         self.out.fillBranch("MuTau_t2016_1", MuTau_t2016_1)
@@ -147,17 +144,6 @@ class MuTrigMatchProducer(Module):
         self.out.fillBranch("MuMu_Mu1_t2016_1", MuMu_Mu1_t2016_1)
         self.out.fillBranch("MuMu_Mu1_t2017", MuMu_Mu1_t2017)
         self.out.fillBranch("MuMu_Mu1_t2018", MuMu_Mu1_t2018)
-
-
-       fillBfillB       
-fillB        fillB   
-
-
-                
-                
-
-           
-
 
         return True
 
