@@ -73,28 +73,40 @@ class MuTrigProducer(Module):
             t2018 = ["HLT_IsoMu24", ["Iso", "SingleMuon"], [2, 8], 10]
 
             conditResult_2016_0 = False
-            conditResult_2016_1 = False
-            conditResult_2017 = False
-            conditResult_2018 = False
             if hasattr(event, t2016_0[0]):
                 condit = "event.%s"%t2016_0[0]
                 conditResult_2016_0 = eval(condit)
-                MuTau_t2016_0[0] = EMu_1Mu_t2016_0[0] = MuMu_Mu0_t2016_0[0] = MuMu_Mu1_t2016_0[0] = conditResult_2016_0
+                MuTau_t2016_0[0] = conditResult_2016_0
+                EMu_1Mu_t2016_0[0] = conditResult_2016_0
+                MuMu_Mu0_t2016_0[0] = conditResult_2016_0
+                MuMu_Mu1_t2016_0[0] = conditResult_2016_0
 
+            conditResult_2016_1 = False
             if hasattr(event, t2016_1[0]):
                 condit = "event.%s"%t2016_1[0] 
                 conditResult_2016_1 = eval(condit)
-                MuTau_t2016_1[0] = EMu_1Mu_t2016_1[0] = MuMu_Mu0_t2016_1[0] = MuMu_Mu1_t2016_1[0] = conditResult_2016_1
+                MuTau_t2016_1[0] = conditResult_2016_1
+                EMu_1Mu_t2016_1[0] = conditResult_2016_1
+                MuMu_Mu0_t2016_1[0] = conditResult_2016_1
+                MuMu_Mu1_t2016_1[0] = conditResult_2016_1
 
+            conditResult_2017 = False
             if hasattr(event, t2017[0]):
                 condit_2017 = "event.%s"%t2017[0]
                 conditResult_2017 = eval(condit)
-                MuTau_t2017[0] = EMu_1Mu_t2017[0] = MuMu_Mu0_t2017[0] = MuMu_Mu1_t2017[0] = conditResult_2017
+                MuTau_t2017[0] = conditResult_2017
+                EMu_1Mu_t2017[0] = conditResult_2017
+                MuMu_Mu0_t2017[0] = conditResult_2017
+                MuMu_Mu1_t2017[0] = conditResult_2017
             
+            conditResult_2018 = False
             if hasattr(event, t2018[0]):
                 condit_2018 = "event.%s"%t2018[0]
                 conditResult_2018 = eval(condit)
-                MuTau_t2018[0] = EMu_1Mu_t2018[0] = MuMu_Mu0_t2018[0] = MuMu_Mu1_t2018[0] = conditResult_2018
+                MuTau_t2018[0] = conditResult_2018
+                EMu_1Mu_t2018[0] = conditResult_2018
+                MuMu_Mu0_t2018[0] = conditResult_2018
+                MuMu_Mu1_t2018[0] = conditResult_2018
 
             for trigObj in trigObjs:
                 muMatch = False
@@ -106,10 +118,10 @@ class MuTrigProducer(Module):
                     if deltaR(trigObj, muon) > 0.15:
                         continue
                     
-                    muMatch_2016_0 = conditResult_2016_0 and (trigObj.filterBits & t2016_0[3]) #bit comp is only what we expect if trig is present
-                    muMatch_2016_1 = conditResult_2016_1 and (trigObj.filterBits & t2016_1[3])
-                    muMatch_2017   = conditResult_2017 and (trigObj.filterBits & t2017[3])
-                    muMatch_2018   = conditResult_2018 and (trigObj.filterBits & t2018[3])
+                    muMatch_2016_0 = conditResult_2016_0 and ((trigObj.filterBits & t2016_0[3]) > 0) #bit comp is only what we expect if trig is present
+                    muMatch_2016_1 = conditResult_2016_1 and ((trigObj.filterBits & t2016_1[3]) > 0)
+                    muMatch_2017   = conditResult_2017 and ((trigObj.filterBits & t2017[3]) > 0)
+                    muMatch_2018   = conditResult_2018 and ((trigObj.filterBits & t2018[3]) > 0)
 
                     if muCh == "MuTau":
                         MuTau_t2016_0[1] = muMatch_2016_0
