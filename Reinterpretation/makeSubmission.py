@@ -80,7 +80,7 @@ def makeCovarianceTables(dirPath, includeSignalRegion=False):
         tables.append(Table(tableTitle))
 
         #Initialize the variables which will be added to the table
-        var_mass = Variable("TauStar Hypothesis Mass", is_independent=True, is_binned=False, units="GeV")
+        var_mass = Variable("TauStar Hypothesis Mass", is_independent=True, is_binned=False, units="GeV/c^2")
         var_ch = Variable("Analysis Channel", is_independent=True, is_binned=False)
         var_reg = Variable("Region", is_independent = True, is_binned=False)
         var_binNumX = Variable("Bin Number X", is_independent=True, is_binned=False)
@@ -130,6 +130,23 @@ def makeCovarianceTables(dirPath, includeSignalRegion=False):
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
+def makeLBandWidthsTable():
+    table = Table("Signal Region L-Band Widths")
+
+    mass = Variable("TauStar Hypothesis Mass", is_binned = False, is_independent = True, units = "GeV/c^2")
+    mass.values = ["175","250","375","500","625","750","1000","1250","1500","1750","2000","2500","3000","3500","4000","4500","5000"]
+    widths = Variable("Fractional Width of L-Band", is_independent = False, is_binned = False)
+    widths.values = [0.47, 0.35, 0.26, 0.21, 0.19, 0.17, 0.15, 0.13, 0.12, 0.11, 0.11, 0.10, 0.10, 0.10, 0.11, 0.13, 0.16]
+
+    assert len(mass.values) == len(widths.values)
+
+    table.add_variable(mass)
+    table.add_variable(widths)
+
+    return table
+
+##--------------------------------------------------------------------------------------------------------------------------------
+
 # Create the HEPData submission
 def makeSubmission():
     submission = Submission()
@@ -143,6 +160,8 @@ def makeSubmission():
     for table in tables_covar:
         submission.add_table(table)
 
+    table_LBandWidths = makeLBandWidthsTable()
+    submission.add_table(table_LBandWidths)
 
 if __name__ == "__main__":
     makeSubmission()
