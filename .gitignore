@@ -41,3 +41,5 @@ Reinterpretation/__pycache__/
 #Data files
 Reinterpretation/Cutflows/*.txt
 Reinterpretation/Graphics/*
+Reinterpretation/TestOutput/*
+Reinterpretation/*.tar.gz

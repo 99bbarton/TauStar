@@ -14,10 +14,15 @@ from hepdata_lib import Submission, Table, Variable, Uncertainty, RootFileReader
 def makeCutFlowTable(filepath):
     print("Making cutflow table...")
 
-    dataframe = pd.read_csv(filepath, sep=",")
+    dataframe = pd.read_csv(filepath, sep=",", header=0, index_col=False)
+    channelMap = {"ETau" : 1, "MuTau" : 2, "TauTau" : 3} #HEPDatalib variables can only hold numerical values, not strings
+    for ch in channelMap.keys():
+        dataframe.replace(ch, channelMap[ch], inplace = True)
+    print(dataframe.dtypes)
 
     table = Table("Signal Process Cutflow")
-    table.description = "Signal process cutflow for all taustar hypothesis masses, channels, and years considered."
+    table.description = """Signal process cutflow for all taustar hypothesis masses, channels, and years considered.
+    Channel map: {1 = ETau, 2 = MuTau, 3 = TauTau} """
 
     #Add the different signal processes to the table
     year = Variable("Year", is_independent=True, is_binned=False)
@@ -172,17 +177,17 @@ def makeSubmission():
     print("...cutflow table added to submission")
 
     #Add covariance matrice tables
-    tables_covar = makeCovarianceTables(dirPath="CovarianceMatrices/")
-    for table in tables_covar:
-        submission.add_table(table)
-    print("...covariance tables added to submission")
+    #tables_covar = makeCovarianceTables(dirPath="CovarianceMatrices/")
+    #for table in tables_covar:
+    #    submission.add_table(table)
+    #print("...covariance tables added to submission")
 
-    table_LBandWidths = makeLBandWidthsTable()
-    submission.add_table(table_LBandWidths)
-    print("...L-Band widths table added to submission")
+    #table_LBandWidths = makeLBandWidthsTable()
+    #submission.add_table(table_LBandWidths)
+    #print("...L-Band widths table added to submission")
 
-    print("Creating files...")
-    submission.create_files("TestOutput/", remove_old=True)
+    #print("Creating files...")
+    #submission.create_files("TestOutput/", remove_old=True)
 
 if __name__ == "__main__":
     makeSubmission()
