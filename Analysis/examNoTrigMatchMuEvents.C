@@ -10,7 +10,11 @@ void examNoTrigMatchMuEvents(TString filename, int year, TString channel)
     TCut haveTrig;
     TCut matchedTrig;
     TCut notMatchedPassIsoID;
+    TCut notMatchedPassIsoID2;
+    TCut notMatchedPassIsoID3;
+    TCut noSemiLepbs;
     
+
     if (year == 2015 || year == 2016)
     {
         if (channel == "MuTau")
@@ -18,20 +22,26 @@ void examNoTrigMatchMuEvents(TString filename, int year, TString channel)
             qualityCuts = TCut("MuTau_HavePair && nE==0 && nMu==1 && Muon_tightId[MuTau_MuIdx] && Muon_pfIsoId[MuTau_MuIdx]>=4 && Muon_pt[MuTau_MuIdx]>=26.");
             haveTrig = TCut("(MuTau_t2016_0[0] || MuTau_t2016_1[0])");
             matchedTrig = TCut("(MuTau_t2016_0[0] && MuTau_t2016_0[1]) || (MuTau_t2016_1[0] && MuTau_t2016_1[1])");
-            notMatchedPassIsoID = TCut("(Muon_pfIsoId[MuTrig_matchedNonSelMus[0]] >=4 && Muon_tightId[MuTrig_matchedNonSelMus[0]]) || (Muon_pfIsoId[MuTrig_matchedNonSelMus[1]] >=4 && Muon_tightId[MuTrig_matchedNonSelMus[1]]) || (Muon_pfIsoId[MuTrig_matchedNonSelMus[2]] >=4 && Muon_tightId[MuTrig_matchedNonSelMus[2]]) ");
+	    notMatchedPassIsoID = TCut("MuTrig_nMatchedNonSelMus == 1 && (Muon_pfIsoId[MuTrig_matchedNonSelMus[0]] >=4 && Muon_tightId[MuTrig_matchedNonSelMus[0]])");
+	    notMatchedPassIsoID2 = TCut("MuTrig_nMatchedNonSelMus == 2 && ((Muon_pfIsoId[MuTrig_matchedNonSelMus[0]] >=4 && Muon_tightId[MuTrig_matchedNonSelMus[0]]) || (Muon_pfIsoId[MuTrig_matchedNonSelMus[1]] >=4 && Muon_tightId[MuTrig_matchedNonSelMus[1]]))");
+	    notMatchedPassIsoID3 = TCut("MuTrig_nMatchedNonSelMus == 3 && ((Muon_pfIsoId[MuTrig_matchedNonSelMus[0]] >=4 && Muon_tightId[MuTrig_matchedNonSelMus[0]]) || (Muon_pfIsoId[MuTrig_matchedNonSelMus[1]] >=4 && Muon_tightId[MuTrig_matchedNonSelMus[1]]) || (Muon_pfIsoId[MuTrig_matchedNonSelMus[2]] >=4 && Muon_tightId[MuTrig_matchedNonSelMus[2]]))");
+	    noSemiLepbs = TCut("Sum$(Jet_pt_nom>=20. && TMath::Abs(Jet_eta)<2.5 && (4&Jet_jetId) && JetMask_MuTau==1 && JetMask_bL==1)==0");
         }
     }
     cout << "\nExaming events from year= " << year << " and channel= " << channel << endl;
     cout << "\nNum events passing quality cuts = " << tree->GetEntries(qualityCuts) << endl;
     cout << "Num events which have trigs = " << tree->GetEntries(qualityCuts + haveTrig) << endl;
     cout << "Num events which matched trigs = " << tree->GetEntries(qualityCuts + matchedTrig) << endl;
+    
+    cout << "\nNow events where triggers fired but were not matched:" << endl;
+    cout << "Events where the muon matching the trigger object has pfIsoId>4 && tightId>0 = " << tree->GetEntries(notMatchedPassIsoID) << endl;
+    cout << "Events where at least 1/2 muons matching the trigger object has pfIsoId>4 && tightId>0 = " << tree->GetEntries(notMatchedPassIsoID2) << endl;
+    cout << "Events where at least 1/3 muons matching the trigger object has pfIsoId>4 && tightId>0 = " << tree->GetEntries(notMatchedPassIsoID3) << endl;
+    cout << "Further cutting out semi-lep b decays leaves = " << tree->GetEntries(notMatchedPassIsoID + noSemiLepbs) << endl;
 
+    tree->Scan("Muon_pt[MuTrig_matchedNonSelMus[0]]", notMatchedPassIsoID + noSemiLepbs);
 
-    cout << "\nNow for events where triggers fired but were not matched:" << endl;
-    cout << "Events where the muon matching the trigger object has pfIsoId>=4 && tightId>0 = " << tree->GetEntries(notMatchedPassIsoID) << endl;
-    tree->Scan("Muon_pfIsoId[MuTrig_matchedNonSelMus[0]]:Muon_tightId[MuTrig_matchedNonSelMus[0]]" , haveTrig + !matchedTrig + qualityCuts + "MuTrig_matchedNonSelMus[0] >=1");
-    tree->Scan("Muon_pfIsoId[MuTrig_matchedNonSelMus[1]]:Muon_tightId[MuTrig_matchedNonSelMus[1]]" , haveTrig + !matchedTrig + qualityCuts + "MuTrig_matchedNonSelMus[1] >=1");
-    tree->Scan("Muon_pfIsoId[MuTrig_matchedNonSelMus[2]]:Muon_tightId[MuTrig_matchedNonSelMus[2]]" , haveTrig + !matchedTrig + qualityCuts + "MuTrig_matchedNonSelMus[2] >=1");
-
-
+    tree->Scan("Muon_pfIsoId[MuTrig_matchedNonSelMus[0]]:Muon_tightId[MuTrig_matchedNonSelMus[0]]" , haveTrig + !matchedTrig + qualityCuts + "MuTrig_nMatchedNonSelMus == 1");
+    tree->Scan("Muon_pfIsoId[MuTrig_matchedNonSelMus[0]]:Muon_tightId[MuTrig_matchedNonSelMus[0]]:Muon_pfIsoId[MuTrig_matchedNonSelMus[1]]:Muon_tightId[MuTrig_matchedNonSelMus[1]]" , haveTrig + !matchedTrig + qualityCuts + "MuTrig_nMatchedNonSelMus == 2");
+    //tree->Scan("Muon_pfIsoId[MuTrig_matchedNonSelMus[2]]:Muon_tightId[MuTrig_matchedNonSelMus[2]]" , haveTrig + !matchedTrig + qualityCuts + "MuTrig_matchedNonSelMus[2] >=1");
 }
