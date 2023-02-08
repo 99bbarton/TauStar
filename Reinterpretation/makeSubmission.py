@@ -14,14 +14,13 @@ from hepdata_lib import Submission, Table, Variable, Uncertainty, RootFileReader
 def makeCutFlowTable(filepath):
     print("Making cutflow table...")
 
-    dataframe = pd.read_csv(filepath, sep=",", header=0, index_col=False)
+    dataframe = pd.read_csv(filepath, sep=",", header=0,index_col=False)
     channelMap = {"ETau" : 1, "MuTau" : 2, "TauTau" : 3} #HEPDatalib variables can only hold numerical values, not strings
     for ch in channelMap.keys():
         dataframe.replace(ch, channelMap[ch], inplace = True)
-    print(dataframe.dtypes)
 
     table = Table("Signal Process Cutflow")
-    table.description = """Signal process cutflow for all taustar hypothesis masses, channels, and years considered.
+    table.description = """Signal process cutflow for all taustar hypothesis masses, channels, and years.
     Channel map: {1 = ETau, 2 = MuTau, 3 = TauTau} """
 
     #Add the different signal processes to the table
@@ -139,6 +138,8 @@ def makeCovarianceTables(dirPath, includeSignalRegion=False):
         tables[yearN].add_variable(var_binNumX)
         tables[yearN].add_variable(var_binNumY)
         tables[yearN].add_variable(var_cov)
+        tables[yearN].description = """Background-only-fit covariance matrix for all channels and regions. 
+        Values are extracted from the Higgs Combine tool's fitDiagnostics option."""
 
     return tables
 
@@ -173,21 +174,30 @@ def makeSubmission():
 
     #Add cutflow table
     table_cutFlow = makeCutFlowTable("Cutflows/signalCutflow_24Jan23.txt")
+    table_cutFlow.keywords["observables"] = ["N"]
     submission.add_table(table_cutFlow)
     print("...cutflow table added to submission")
 
     #Add covariance matrice tables
-    #tables_covar = makeCovarianceTables(dirPath="CovarianceMatrices/")
-    #for table in tables_covar:
-    #    submission.add_table(table)
-    #print("...covariance tables added to submission")
+    tables_covar = makeCovarianceTables(dirPath="CovarianceMatrices/")
+    for table in tables_covar:
+        submission.add_table(table)
+    print("...covariance tables added to submission")
 
-    #table_LBandWidths = makeLBandWidthsTable()
-    #submission.add_table(table_LBandWidths)
-    #print("...L-Band widths table added to submission")
+    table_LBandWidths = makeLBandWidthsTable()
+    submission.add_table(table_LBandWidths)
+    print("...L-Band widths table added to submission")
 
-    #print("Creating files...")
-    #submission.create_files("TestOutput/", remove_old=True)
+    print("Adding text...")
+    for table in submission.tables:
+        table.keywords["cmenergies"] = ["13000"] 
+    submission.read_abstract("abstract.txt")
+    submission.add_link("CMS CADI", "https://cms.cern.ch/iCMS/analysisadmin/cadilines?line=EXO-22-007")
+    print("...text added to submission") 
+
+
+    print("Creating files...")
+    submission.create_files("TestOutput/", remove_old=True)
 
 if __name__ == "__main__":
     makeSubmission()
