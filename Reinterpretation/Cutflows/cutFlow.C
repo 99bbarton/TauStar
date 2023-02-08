@@ -88,7 +88,10 @@ TCut returnCuts(const TString channel, const int year, const int idx, const bool
    }
 
    TCut theCut = cuts[0];
-   for (int i = 1; i <= idx; ++i) theCut = theCut && cuts[i];
+   for (int i = 1; i <= idx; ++i)
+   {
+      theCut = theCut && cuts[i];
+   }
    //std::cout << theCut << std::endl;
    return theCut;
 }
@@ -103,7 +106,7 @@ void cutFlow_HEPData()
 
   TString channels[3] = {"ETau", "MuTau", "TauTau"};
 
-  const int nCuts = 10;
+  const int nCuts = 9;
   double counts[nCuts], countsErr[nCuts];
 
   char infile[100];
@@ -124,22 +127,22 @@ void cutFlow_HEPData()
 	      printf("\n%d,%s,%s", year, masses[massN].Data(), channels[chN].Data());
 
 	      for (int cutN = 0; cutN < nCuts; cutN++)
-		{
-		  char numCuts[5000];
-		  TCut theCut = returnCuts(channels[chN], year, cutN, true);
-		  TString theWeights;
-		  if (cutN <= 1)                      theWeights = makeMCWeight(channels[chN], false, false, true);
-		  else if (cutN >=2 && cutN <= 6)     theWeights = makeMCWeight(channels[chN], true, false, true);
-		  else                                theWeights = makeMCWeight(channels[chN], true, true, true);
-		  sprintf(numCuts, "(%s) * (%s)", theWeights.Data(), TString(theCut).Data());
+         {
+            char numCuts[5000];
+            TCut theCut = returnCuts(channels[chN], year, cutN, true);
+            TString theWeights;
+            if (cutN <= 1)                      theWeights = makeMCWeight(channels[chN], false, false, true);
+            else if (cutN >=2 && cutN <= 6)     theWeights = makeMCWeight(channels[chN], true, false, true);
+            else                                theWeights = makeMCWeight(channels[chN], true, true, true);
+            sprintf(numCuts, "(%s) * (%s)", theWeights.Data(), TString(theCut).Data());
 
-		  TH1D hist("hist", "", 1, 0.5, 1.5);
-		  double count, countErr;
-		  tree->Project("+hist", "1.", numCuts);
-		  count = hist.IntegralAndError(1, 1, countErr);
+            TH1D hist("hist", "", 1, 0.5, 1.5);
+            double count, countErr;
+            tree->Project("+hist", "1.", numCuts);
+            count = hist.IntegralAndError(1, 1, countErr);
 
-		  printf(",%4.2lf,%4.2lf", count, countErr);
-		}
+            printf(",%4.2lf,%4.2lf", count, countErr);
+         }
 	    }
 	  file->Close();
 	}

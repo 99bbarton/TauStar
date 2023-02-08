@@ -5,6 +5,7 @@
 import numpy as np
 import pandas as pd
 from hepdata_lib import Submission, Table, Variable, Uncertainty, RootFileReader
+from time import sleep
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
@@ -14,7 +15,7 @@ from hepdata_lib import Submission, Table, Variable, Uncertainty, RootFileReader
 def makeCutFlowTable(filepath):
     print("Making cutflow table...")
 
-    dataframe = pd.read_csv(filepath, sep=",", header=0,index_col=False)
+    dataframe = pd.read_csv(filepath, sep=",", header=0, index_col=False)
     channelMap = {"ETau" : 1, "MuTau" : 2, "TauTau" : 3} #HEPDatalib variables can only hold numerical values, not strings
     for ch in channelMap.keys():
         dataframe.replace(ch, channelMap[ch], inplace = True)
@@ -35,9 +36,7 @@ def makeCutFlowTable(filepath):
     table.add_variable(channel)
 
     #Add the cut flow to the table
-    for colN in range(len(dataframe.columns) - 1):
-        if colN < 4: #First three colums were added above
-            continue
+    for colN in range(3,len(dataframe.columns) - 1, 2):
        
         cutVar = Variable(dataframe.columns[colN], is_independent=False, is_binned=False, units="Expected Events")
         cutVar.values = dataframe[dataframe.columns[colN]]
@@ -138,8 +137,12 @@ def makeCovarianceTables(dirPath, includeSignalRegion=False):
         tables[yearN].add_variable(var_binNumX)
         tables[yearN].add_variable(var_binNumY)
         tables[yearN].add_variable(var_cov)
-        tables[yearN].description = """Background-only-fit covariance matrix for all channels and regions. 
-        Values are extracted from the Higgs Combine tool's fitDiagnostics option."""
+        tables[yearN].description = """Background-only-fit total covariance matrix for all channels and regions. 
+        Values are extracted from the Higgs Combine tool's fitDiagnostics option. 
+        Channel map: {1=ETau, 2=MuTau, 3=TauTau, 4=ETauLowPt, 5=MuTauLowPt, 6=TauTauLowPt, 7=EE, 8=MuMu, 9=EMu}
+        Region map: {1=A, 2=A1, 3=A3, 4=B1, 5=B3, 6=C1, 7=C3, 8=D1, 8=D3}
+        Please see associated image (("fitRegions.pdf") for guide on region and channel setup."""
+        tables[yearN].add_image("Inputs/fitRegions.pdf")
 
     return tables
 
@@ -173,7 +176,7 @@ def makeSubmission():
     submission = Submission()
 
     #Add cutflow table
-    table_cutFlow = makeCutFlowTable("Cutflows/signalCutflow_24Jan23.txt")
+    table_cutFlow = makeCutFlowTable("Cutflows/signalCutflow_08Feb23.csv")
     table_cutFlow.keywords["observables"] = ["N"]
     submission.add_table(table_cutFlow)
     print("...cutflow table added to submission")
@@ -191,7 +194,7 @@ def makeSubmission():
     print("Adding text...")
     for table in submission.tables:
         table.keywords["cmenergies"] = ["13000"] 
-    submission.read_abstract("abstract.txt")
+    submission.read_abstract("Inputs/abstract.txt")
     submission.add_link("CMS CADI", "https://cms.cern.ch/iCMS/analysisadmin/cadilines?line=EXO-22-007")
     print("...text added to submission") 
 
