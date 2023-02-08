@@ -22,7 +22,18 @@ def makeCutFlowTable(filepath):
 
     table = Table("Signal Process Cutflow")
     table.description = """Signal process cutflow for all taustar hypothesis masses, channels, and years.
-    Channel map: {1 = ETau, 2 = MuTau, 3 = TauTau} """
+    Channel map: {1 = ETau, 2 = MuTau, 3 = TauTau}
+    Cut descriptions:
+        - numLeps : 1e0mu for ETau, 0e1mu For muTau, 0e0mu for TauTau 
+        - havePair : 1e + 1tauh for ETau, 1mu + 1tauh for MuTau, 2tauh for TauTau
+        - trigger : passed appropriate high level trigger (HLT) for channel and year
+        - m_vis : Visible mass of pair is >= 100 GeV
+        - Zveto : No Z->ee or Z->mumu pairs
+        - bveto : No btagged jets in event (only for ETau and MuTau)
+        - gamma20GeV : have a photon with pt>20GeV
+        - gamma100GeV : have a photon with pt>20GeV
+        - tauGenMatch : tau is matched to a gen particle"""
+
 
     #Add the different signal processes to the table
     year = Variable("Year", is_independent=True, is_binned=False)
@@ -141,7 +152,7 @@ def makeCovarianceTables(dirPath, includeSignalRegion=False):
         Values are extracted from the Higgs Combine tool's fitDiagnostics option. 
         Channel map: {1=ETau, 2=MuTau, 3=TauTau, 4=ETauLowPt, 5=MuTauLowPt, 6=TauTauLowPt, 7=EE, 8=MuMu, 9=EMu}
         Region map: {1=A, 2=A1, 3=A3, 4=B1, 5=B3, 6=C1, 7=C3, 8=D1, 8=D3}
-        Please see associated image (("fitRegions.pdf") for guide on region and channel setup."""
+        Please see associated image ("fitRegions.pdf") for guide on region and channel setup."""
         tables[yearN].add_image("Inputs/fitRegions.pdf")
 
     return tables
