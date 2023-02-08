@@ -122,7 +122,9 @@ class MuTrigProducer(Module):
                     #https://indico.cern.ch/event/742871/contributions/3068139/attachments/1683609/2706137/2018-07-03-trigger_object_matching_for_offline.pdf
                     if deltaR(trigObj, muon) > 0.15:
                         continue
-                    
+                    if abs(muon.pt - trigObj.pt) < (0.2 * muon.pt): #Require pt match within 20%
+                        continue
+
                     muMatch_2016_0 = conditResult_2016_0 and ((trigObj.filterBits & t2016_0[3]) > 0) #bit comp is only what we expect if trig is present
                     muMatch_2016_1 = conditResult_2016_1 and ((trigObj.filterBits & t2016_1[3]) > 0)
                     muMatch_2017   = conditResult_2017 and ((trigObj.filterBits & t2017[3]) > 0)
@@ -173,6 +175,8 @@ class MuTrigProducer(Module):
             
                     for trigObj in trigObjs:
                         if deltaR(trigObj, muon) > 0.15:
+                            continue
+                        if abs(muon.pt - trigObj.pt) < (0.2 * muon.pt): #Require pt match within 20%
                             continue
 
                         muMatch_2016_0 = conditResult_2016_0 and ((trigObj.filterBits & t2016_0[3]) > 0) #bit comp is only what we expect if trig is present
