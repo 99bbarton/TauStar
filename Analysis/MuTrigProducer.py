@@ -122,7 +122,7 @@ class MuTrigProducer(Module):
                     #https://indico.cern.ch/event/742871/contributions/3068139/attachments/1683609/2706137/2018-07-03-trigger_object_matching_for_offline.pdf
                     if deltaR(trigObj, muon) > 0.15:
                         continue
-                    if abs(muon.pt - trigObj.pt) < (0.2 * muon.pt): #Require pt match within 20%
+                    if abs(muon.pt - trigObj.pt) > (0.20 * muon.pt): #Require pt match within 20%
                         continue
 
                     muMatch_2016_0 = conditResult_2016_0 and ((trigObj.filterBits & t2016_0[3]) > 0) #bit comp is only what we expect if trig is present
@@ -172,11 +172,13 @@ class MuTrigProducer(Module):
                 for muIdx, mu in enumerate(muons):
                     if muIdx in goodMuons.values():
                         continue
+                    if not mu.isGlobal:
+                        continue
             
                     for trigObj in trigObjs:
                         if deltaR(trigObj, muon) > 0.15:
                             continue
-                        if abs(muon.pt - trigObj.pt) < (0.2 * muon.pt): #Require pt match within 20%
+                        if abs(muon.pt - trigObj.pt) > (0.20 * muon.pt): #Require pt match within 20%
                             continue
 
                         muMatch_2016_0 = conditResult_2016_0 and ((trigObj.filterBits & t2016_0[3]) > 0) #bit comp is only what we expect if trig is present
@@ -185,10 +187,15 @@ class MuTrigProducer(Module):
                         muMatch_2018   = conditResult_2018 and ((trigObj.filterBits & t2018[3]) > 0)
 
                         if muMatch_2016_0 or muMatch_2016_1 or muMatch_2017 or muMatch_2018: # trigObj matched to a non-reco'd (chosen) muon. store its location
-                            nMatchedNonSelMus += 1
-                            matchedNonSelMus.append(muIdx)
+                            alreadyMatched = False
+                            for prevMuIdx in matchedNonSelMus: #Check if we already found this match
+                                prevMu = muons[prevMuIdx]
+                                if abs(mu.pt - prevMu.pt) <= 0.10 * mu.pt and deltaR(mu, prevMu) <= 0.1:
+                                    alreadyMatched = True
+                            if not alreadyMatched:
+                                nMatchedNonSelMus += 1
+                                matchedNonSelMus.append(muIdx)
         
-
 
         self.out.fillBranch("MuTau_t2016_0", MuTau_t2016_0)
         self.out.fillBranch("MuTau_t2016_1", MuTau_t2016_1)
