@@ -78,8 +78,7 @@ class MuTrigProducer(Module):
 
             conditResult_2016_0 = False
             if hasattr(event, t2016_0[0]):
-                condit = "event.%s"%t2016_0[0]
-                conditResult_2016_0 = eval(condit)
+                conditResult_2016_0 = eval("event.%s"%t2016_0[0])
                 MuTau_t2016_0[0] = conditResult_2016_0
                 EMu_1Mu_t2016_0[0] = conditResult_2016_0
                 MuMu_Mu0_t2016_0[0] = conditResult_2016_0
@@ -87,8 +86,7 @@ class MuTrigProducer(Module):
 
             conditResult_2016_1 = False
             if hasattr(event, t2016_1[0]):
-                condit = "event.%s"%t2016_1[0] 
-                conditResult_2016_1 = eval(condit)
+                conditResult_2016_1 = eval("event.%s"%t2016_1[0])
                 MuTau_t2016_1[0] = conditResult_2016_1
                 EMu_1Mu_t2016_1[0] = conditResult_2016_1
                 MuMu_Mu0_t2016_1[0] = conditResult_2016_1
@@ -96,8 +94,7 @@ class MuTrigProducer(Module):
 
             conditResult_2017 = False
             if hasattr(event, t2017[0]):
-                condit_2017 = "event.%s"%t2017[0]
-                conditResult_2017 = eval(condit)
+                conditResult_2017 = eval("event.%s"%t2017[0])
                 MuTau_t2017[0] = conditResult_2017
                 EMu_1Mu_t2017[0] = conditResult_2017
                 MuMu_Mu0_t2017[0] = conditResult_2017
@@ -105,8 +102,7 @@ class MuTrigProducer(Module):
             
             conditResult_2018 = False
             if hasattr(event, t2018[0]):
-                condit_2018 = "event.%s"%t2018[0]
-                conditResult_2018 = eval(condit)
+                conditResult_2018 = eval("event.%s"%t2018[0])
                 MuTau_t2018[0] = conditResult_2018
                 EMu_1Mu_t2018[0] = conditResult_2018
                 MuMu_Mu0_t2018[0] = conditResult_2018
@@ -122,7 +118,7 @@ class MuTrigProducer(Module):
                     #https://indico.cern.ch/event/742871/contributions/3068139/attachments/1683609/2706137/2018-07-03-trigger_object_matching_for_offline.pdf
                     if deltaR(trigObj, muon) > 0.15:
                         continue
-                    if abs(muon.pt - trigObj.pt) > (0.20 * muon.pt): #Require pt match within 20%
+                    if abs(muon.pt - trigObj.pt) > (0.20 * muon.pt): #Require pt match within 10%
                         continue
 
                     muMatch_2016_0 = conditResult_2016_0 and ((trigObj.filterBits & t2016_0[3]) > 0) #bit comp is only what we expect if trig is present
@@ -178,7 +174,7 @@ class MuTrigProducer(Module):
                     for trigObj in trigObjs:
                         if deltaR(trigObj, muon) > 0.15:
                             continue
-                        if abs(muon.pt - trigObj.pt) > (0.20 * muon.pt): #Require pt match within 20%
+                        if abs(muon.pt - trigObj.pt) > (0.10 * muon.pt): #Require pt match within 10%
                             continue
 
                         muMatch_2016_0 = conditResult_2016_0 and ((trigObj.filterBits & t2016_0[3]) > 0) #bit comp is only what we expect if trig is present
