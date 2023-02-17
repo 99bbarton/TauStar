@@ -59,7 +59,8 @@ class MuTrigProducer(Module):
         matchedNonSelMus = []
 
         if event.MuTau_HavePair or event.EMu_HavePair or event.MuMu_HavePair:
-            trigObjs = Collection(event, "TrigObj")
+            trigObjsRaw = Collection(event, "TrigObj")
+            trigObjs = filter(lambda x: abs(x.id)==13, trigObjsRaw) #Eliminate non-muon trigger objs
             muons = Collection(event, "Muon")
             goodMuons = {}
             if event.MuTau_HavePair:
