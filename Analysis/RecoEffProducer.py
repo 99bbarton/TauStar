@@ -15,8 +15,8 @@ class RecoEffProducer(Module):
         pass
     def beginFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         self.out = wrappedOutputTree
-        self.out.branch("Eff_recoPartsStatus","I", "GenPart_nGenPart", None, None)
-        self.out.branch("Eff_recoVisTausStatus","I", "GenVisTau_nGenVisTau", None, None)
+        self.out.branch("Eff_recoPartsStatus","I", lenVar="nGenPart")
+        self.out.branch("Eff_recoVisTausStatus","I", lenVar="nGenVisTau")
 
     def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         pass
@@ -28,9 +28,10 @@ class RecoEffProducer(Module):
         electrons = Collection(event, "Electron")
         muons = Collection(event, "Muon")
         photons = Collection(event, "Photon")
+        taus = Collection(event, "Tau")
 
-        genPartRecoStatus = [-1] * genParts_nGenPart
-        genVisTauRecoStatus = [0] * genVisTaus.GenVisTau_nGenVisTau
+        genPartRecoStatus = [-1] * event["nGenPart"]
+        genVisTauRecoStatus = [0] * event["nGenVisTau"]
 
         #Loop through genParticles and denote which ones are valid to be matched to for the particles we care about
         pdgIDs = [11, 13, 22] #el, mu, pho
@@ -51,7 +52,11 @@ class RecoEffProducer(Module):
             if genPartRecoStatus[pho.genPartIdx] == 0:
                 genPartRecoStatus[pho.genPartIdx] = 22
         for tau in taus:
-            genVisTauRecoStatus[tau.genPartIdx] == 15
+            if tau.genPartFlav == 5: #If a hadronic tau decay
+                if tau.genPartIdx >= event["nGenVisTau"]:
+                    print("WARNING tau.genPartIdx > nGenVisTau:  genParts[tau.genPartIdx].pdgID= " + str(genParts[tau.genPartIdx].pdgId))
+                else:
+                    genVisTauRecoStatus[tau.genPartIdx] == 15
 
 
         self.out.fillBranch("Eff_recoPartsStatus", genPartRecoStatus)
