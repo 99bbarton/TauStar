@@ -31,9 +31,7 @@ def makeCutFlowTable(filepath):
         - Zveto : No Z->ee or Z->mumu pairs
         - bveto : No btagged jets in event (only for ETau and MuTau)
         - gamma20GeV : have a photon with pt>20GeV
-        - gamma100GeV : have a photon with pt>20GeV
-        - tauGenMatch : tau is matched to a gen particle"""
-
+        - gamma100GeV : have a photon with pt>20GeV"""
 
     #Add the different signal processes to the table
     year = Variable("Year", is_independent=True, is_binned=False)
@@ -47,14 +45,13 @@ def makeCutFlowTable(filepath):
     table.add_variable(channel)
 
     #Add the cut flow to the table
-    for colN in range(3,len(dataframe.columns) - 1, 2):
-       
+    for colN in range(3,len(dataframe.columns) - 3, 2):
         cutVar = Variable(dataframe.columns[colN], is_independent=False, is_binned=False, units="Expected Events")
         cutVar.values = dataframe[dataframe.columns[colN]]
         cutErr = Uncertainty(dataframe.columns[colN+1], is_symmetric = True)
         cutErr.values = dataframe[dataframe.columns[colN+1]]
         cutVar.add_uncertainty(cutErr)
-
+        
         table.add_variable(cutVar)
         
     return table       
