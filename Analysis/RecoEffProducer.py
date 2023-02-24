@@ -33,23 +33,26 @@ class RecoEffProducer(Module):
         genPartRecoStatus = [-1] * event["nGenPart"]
         genVisTauRecoStatus = [0] * event["nGenVisTau"]
 
-        #Loop through genParticles and denote which ones are valid to be matched to for the particles we care about
+        #Loop through genParticles and denote which ones are valid to be matched to for the particles we care about by writing their negative pdgIDs, else 0
         pdgIDs = [11, 13, 22] #el, mu, pho
         for i, genPart in enumerate(genParts):
             if (genPart.pdgId in pdgIDs) and (genPart.statusFlags & 4096) > 0 and (genPart.status == 1): #bit13 = 4098 = isLastCopy, status=1 is stable
-                genPartRecoStatus[i] = 0 #Valid to be matched to later
+                if genPart.pdgId < 0:
+                    genPartRecoStatus[i] = pdgId #Valid to be matched to later
+                else:
+                    genPartRecoStatus[i] = -1*pdgId
             else:
                 genPartRecoStatus[i] = -1 #Not relevant for us
 
         # Iterate through the relevant reco particles, setting the corresponding genParticles reco status to the reco particles pdgID
         for el in electrons:
-            if genPartRecoStatus[el.genPartIdx] == 0:
+            if genPartRecoStatus[el.genPartIdx] == -11:
                 genPartRecoStatus[el.genPartIdx] = 11
         for mu in muons:
-            if genPartRecoStatus[mu.genPartIdx] == 0:
+            if genPartRecoStatus[mu.genPartIdx] == -13:
                 genPartRecoStatus[mu.genPartIdx] = 13
         for pho in photons:
-            if genPartRecoStatus[pho.genPartIdx] == 0:
+            if genPartRecoStatus[pho.genPartIdx] == -22:
                 genPartRecoStatus[pho.genPartIdx] = 22
         for tau in taus:
             if tau.genPartFlav == 5: #If a hadronic tau decay
