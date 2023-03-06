@@ -119,7 +119,7 @@ class MuTrigProducer(Module):
                     #https://indico.cern.ch/event/742871/contributions/3068139/attachments/1683609/2706137/2018-07-03-trigger_object_matching_for_offline.pdf
                     if deltaR(trigObj, muon) > 0.15:
                         continue
-                    if abs(muon.pt - trigObj.pt) > (0.20 * muon.pt): #Require pt match within 10%
+                    if abs(muon.pt - trigObj.pt) > (0.20 * muon.pt): #Require pt match within 20%
                         continue
 
                     muMatch_2016_0 = conditResult_2016_0 and ((trigObj.filterBits & t2016_0[3]) > 0) #bit comp is only what we expect if trig is present
@@ -129,37 +129,37 @@ class MuTrigProducer(Module):
 
                     
                     if muCh == "MuTau":
-                        MuTau_t2016_0[1] = muMatch_2016_0
-                        MuTau_t2016_1[1] = muMatch_2016_1
-                        MuTau_t2017[1] = muMatch_2017
-                        MuTau_t2018[1] = muMatch_2018
+                        MuTau_t2016_0[1] = muMatch_2016_0 or MuTau_t2016_0[1] #OR with self prevents overwriting of previous matches
+                        MuTau_t2016_1[1] = muMatch_2016_1 or MuTau_t2016_1[1]
+                        MuTau_t2017[1] = muMatch_2017 or MuTau_t2017[1]
+                        MuTau_t2018[1] = muMatch_2018 or MuTau_t2018[1]
                         if (MuTau_t2016_0[0] and not MuTau_t2016_0[1]) or (MuTau_t2016_1[0] and not MuTau_t2016_1[1]): #If triggered but not matched, store more info
                             writeNoMatchInfo = True
                         if (MuTau_t2017[0] and not MuTau_t2017[1]) or (MuTau_t2018[0] and not MuTau_t2018[1]):
                             writeNoMatchInfo = True
                     elif muCh == "EMu":
-                        EMu_1Mu_t2016_0[1] = muMatch_2016_0
-                        EMu_1Mu_t2016_1[1] = muMatch_2016_1
-                        EMu_1Mu_t2017[1] = muMatch_2017
-                        EMu_1Mu_t2018[1] = muMatch_2018
+                        EMu_1Mu_t2016_0[1] = muMatch_2016_0 or EMu_1Mu_t2016_0[1]
+                        EMu_1Mu_t2016_1[1] = muMatch_2016_1 or EMu_1Mu_t2016_1[1]
+                        EMu_1Mu_t2017[1] = muMatch_2017 or EMu_1Mu_t2017[1]
+                        EMu_1Mu_t2018[1] = muMatch_2018 or EMu_1Mu_t2018[1]
                         if (EMu_1Mu_t2016_0[0] and not EMu_1Mu_t2016_0[1]) or (EMu_1Mu_t2016_1[0] and not EMu_1Mu_t2016_1[1]):
                             writeNoMatchInfo = True
                         if (EMu_1Mu_t2017[0] and not EMu_1Mu_t2017[1]) or (EMu_1Mu_t2018[0] and not EMu_1Mu_t2018[1]):
                             writeNoMatchInfo = True
                     elif muCh == "MuMu_0":
-                        MuMu_Mu0_t2016_0[1] = muMatch_2016_0
-                        MuMu_Mu0_t2016_1[1] = muMatch_2016_1
-                        MuMu_Mu0_t2017[1] = muMatch_2017
-                        MuMu_Mu0_t2018[1] = muMatch_2018
+                        MuMu_Mu0_t2016_0[1] = muMatch_2016_0 or MuMu_Mu0_t2016_0[1]
+                        MuMu_Mu0_t2016_1[1] = muMatch_2016_1 or MuMu_Mu0_t2016_1[1]
+                        MuMu_Mu0_t2017[1] = muMatch_2017 or MuMu_Mu0_t2017[1]
+                        MuMu_Mu0_t2018[1] = muMatch_2018 or MuMu_Mu0_t2018[1]
                         if (MuMu_Mu0_t2016_0[0] and not MuMu_Mu0_t2016_0[1]) or (MuMu_Mu0_t2016_1[0] and not MuMu_Mu0_t2016_1[1]): 
                             writeNoMatchInfo = True
                         if (MuMu_Mu0_t2017[0] and not MuMu_Mu0_t2017[1]) or (MuMu_Mu0_t2018[0] and not MuMu_Mu0_t2018[1]):
                             writeNoMatchInfo = True
                     elif muCh == "MuMu_1":
-                        MuMu_Mu1_t2016_0[1] = muMatch_2016_0
-                        MuMu_Mu1_t2016_1[1] = muMatch_2016_1
-                        MuMu_Mu1_t2017[1] = muMatch_2017
-                        MuMu_Mu1_t2018[1] = muMatch_2018
+                        MuMu_Mu1_t2016_0[1] = muMatch_2016_0 or MuMu_Mu1_t2016_0[1]
+                        MuMu_Mu1_t2016_1[1] = muMatch_2016_1 or MuMu_Mu1_t2016_1[1]
+                        MuMu_Mu1_t2017[1] = muMatch_2017 or MuMu_Mu1_t2017[1]
+                        MuMu_Mu1_t2018[1] = muMatch_2018 or MuMu_Mu1_t2018[1]
                         if (MuMu_Mu1_t2016_0[0] and not MuMu_Mu1_t2016_0[1]) or (MuMu_Mu1_t2016_1[0] and not MuMu_Mu1_t2016_1[1]): 
                             writeNoMatchInfo = True
                         if (MuMu_Mu1_t2017[0] and not MuMu_Mu1_t2017[1]) or (MuMu_Mu1_t2018[0] and not MuMu_Mu1_t2018[1]):
