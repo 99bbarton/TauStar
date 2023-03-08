@@ -28,7 +28,7 @@ using namespace LHAPDF;
 //using namespace std;
 
 //TString FILEPATH_BASE = "root://cmsxrootd.fnal.gov//store/user/fojensen/excitedTau_01112022/"; //The path to the directory containing files to be used
-TString FILEPATH_BASE = "../Data/PdfWeights/ExcitedTau_20112022/";
+TString FILEPATH_BASE = "../Data/PdfWeights/ExcitedTau_06032023/";
 const int N_FILES = 17; //Number of files to be read, if this is changed, fillFileList() must also be updated - 41 for all samples, 17 for just taustar signal MC
 
 const int LHAPDF_NOM = 303600; // nominal PDF used to generate the sample. This should also be used for e.g. the muF uncertainty below
@@ -85,7 +85,8 @@ void setFilepathBase(TString newFilepath)
 */ 
 void fillFileList(TString filenames[], int nQCDs[], TString year)
 {
-
+    filenames[0] = "Taustar_m1750_" + year + ".root";
+    nQCDs[0] = 0;
     filenames[0] = "Taustar_m1000_" + year + ".root";
     nQCDs[0] = 0;
     filenames[1] = "Taustar_m1250_" + year + ".root";
@@ -120,89 +121,6 @@ void fillFileList(TString filenames[], int nQCDs[], TString year)
     nQCDs[15] = 0;
     filenames[16] = "Taustar_m750_" + year + ".root";
     nQCDs[16] = 0;
-    /*
-    filenames[0] = "DY01234JetsToLL_" + year + ".root";
-    nQCDs[0] = 0;
-    filenames[1] = "DY1JetsToLL_" + year + ".root";
-    nQCDs[1] = 0;
-    filenames[2] = "DY2JetsToLL_" + year + ".root";
-    nQCDs[2] = 0;
-    filenames[3] = "DY3JetsToLL_" + year + ".root";
-    nQCDs[3] = 0;
-    filenames[4] = "DY4JetsToLL_" + year + ".root";
-    nQCDs[4] = 0;
-    filenames[5] = "DYJetsToLLM10_" + year + ".root";
-    nQCDs[5] = 0;
-    filenames[6] = "DYJetsToLL_" + year + ".root";
-    nQCDs[6] = 0;
-    filenames[7] = "ST_s_channel_" + year + ".root";
-    nQCDs[7] = 0;
-    filenames[8] = "ST_tW_antitop_" + year + ".root";
-    nQCDs[8] = 0;
-    filenames[9] = "ST_tW_top_" + year + ".root";
-    nQCDs[9] = 0;
-    filenames[10] = "ST_t_channel_antitop_" + year + ".root";
-    nQCDs[10] = 0;
-    filenames[11] = "ST_t_channel_top_" + year + ".root";
-    nQCDs[11] = 0;
-    filenames[12] = "TTTo2L2Nu_" + year + ".root";
-    nQCDs[12] = 0;
-    filenames[13] = "TTToSemiLeptonic_" + year + ".root";
-    nQCDs[13] = 0;
-    filenames[14] = "Taustar_m1000_" + year + ".root";
-    nQCDs[14] = 0;
-    filenames[15] = "Taustar_m1250_" + year + ".root";
-    nQCDs[15] = 0;
-    filenames[16] = "Taustar_m1500_" + year + ".root";
-    nQCDs[16] = 0;
-    filenames[17] = "Taustar_m1750_" + year + ".root";
-    nQCDs[17] = 0;
-    filenames[18] = "Taustar_m175_" + year + ".root";
-    nQCDs[18] = 0;
-    filenames[19] = "Taustar_m2000_" + year + ".root";
-    nQCDs[19] = 0;
-    filenames[20] = "Taustar_m2500_" + year + ".root";
-    nQCDs[20] = 0;
-    filenames[21] = "Taustar_m250_" + year + ".root";
-    nQCDs[21] = 0;
-    filenames[22] = "Taustar_m3000_" + year + ".root";
-    nQCDs[22] = 0;
-    filenames[23] = "Taustar_m3500_" + year + ".root";
-    nQCDs[23] = 0;
-    filenames[24] = "Taustar_m375_" + year + ".root";
-    nQCDs[24] = 0;
-    filenames[25] = "Taustar_m4000_" + year + ".root";
-    nQCDs[25] = 0;
-    filenames[26] = "Taustar_m4500_" + year + ".root";
-    nQCDs[26] = 0;
-    filenames[27] = "Taustar_m5000_" + year + ".root";
-    nQCDs[27] = 0;
-    filenames[28] = "Taustar_m500_" + year + ".root";
-    nQCDs[28] = 0;
-    filenames[29] = "Taustar_m625_" + year + ".root";
-    nQCDs[29] = 0;
-    filenames[30] = "Taustar_m750_" + year + ".root";
-    nQCDs[30] = 0;
-    filenames[31] = "W01234JetsToLNu_" + year + ".root";
-    nQCDs[31] = 0;
-    filenames[32] = "W1JetsToLNu_" + year + ".root";
-    nQCDs[32] = 0;
-    filenames[33] = "W2JetsToLNu_" + year + ".root";
-    nQCDs[33] = 0;
-    filenames[34] = "W3JetsToLNu_" + year + ".root";
-    nQCDs[34] = 0;
-    filenames[35] = "W4JetsToLNu_" + year + ".root";
-    nQCDs[35] = 0;
-    filenames[36] = "WJetsToLNu_" + year + ".root";
-    nQCDs[36] = 0;
-    filenames[37] = "WW_" + year + ".root";
-    nQCDs[37] = 0;
-    filenames[38] = "WZ_" + year + ".root";
-    nQCDs[38] = 0;
-    filenames[39] = "ZGToLLG_" + year + ".root";
-    nQCDs[39] = 0;
-    filenames[40] = "ZZ_" + year + ".root";
-    nQCDs[40] = 0; */
 }
 
 
@@ -242,6 +160,10 @@ void addPDFWeights(TString filename, int nQCD, PDF* nomPDF, PDF* varPDFs[])
     const int VAR_DOWN = -1;
     float scalePDF, x1, x2; //The existing variables in the tree that we'll need to calc the new weights
     int id1, id2;
+    
+    //Read in only the data we need
+    tree->SetBranchStatus("*", false);
+    tree->SetBranchStatus("Generator_*", true);
     tree->SetBranchAddress("Generator_id1", &id1);
     tree->SetBranchAddress("Generator_id2", &id2);
     tree->SetBranchAddress("Generator_scalePDF", &scalePDF);
@@ -280,6 +202,7 @@ void addPDFWeights(TString filename, int nQCD, PDF* nomPDF, PDF* varPDFs[])
         factWeightsRMSs[1] = sqrt(factWeightsRMSs[1]);
         varWeightsRMS /= nVars;
         varWeightsRMS = sqrt(varWeightsRMS);
+
 
         //Calculated the error on the varWeightsRMS according to eqn 6.4 from https://arxiv.org/pdf/2203.05506.pdf
         //Need the values in sorted order
@@ -356,6 +279,7 @@ double calcFactorizWeight(LHAPDF::PDF* pdf, double id1, double id2, double x1, d
     double pdf2old = pdf->xfxQ2(id2,x2,q2);
     double pdf1new = pdf->xfxQ2(id1,x1,k2*q2);
     double pdf2new = pdf->xfxQ2(id2,x2,k2*q2);
+    double weight = (pdf1new * pdf2new) / (pdf1old * pdf2old);
 
-    return (pdf1new * pdf2new) / (pdf1old * pdf2old);
+    return weight;
 }
