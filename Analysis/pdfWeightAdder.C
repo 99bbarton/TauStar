@@ -161,9 +161,6 @@ void addPDFWeights(TString filename, int nQCD, PDF* nomPDF, PDF* varPDFs[])
     float scalePDF, x1, x2; //The existing variables in the tree that we'll need to calc the new weights
     int id1, id2;
     
-    //Read in only the data we need
-    tree->SetBranchStatus("*", false);
-    tree->SetBranchStatus("Generator_*", true);
     tree->SetBranchAddress("Generator_id1", &id1);
     tree->SetBranchAddress("Generator_id2", &id2);
     tree->SetBranchAddress("Generator_scalePDF", &scalePDF);
