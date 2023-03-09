@@ -34,13 +34,13 @@ class RecoEffProducer(Module):
         genVisTauRecoStatus = [0] * event["nGenVisTau"]
 
         #Loop through genParticles and denote which ones are valid to be matched to for the particles we care about by writing their negative pdgIDs, else 0
-        pdgIDs = [11, 13, 22] #el, mu, pho
+        pdgIDs = [11, -11, 13, -13, 22] #el, mu, pho
         for i, genPart in enumerate(genParts):
-            if (genPart.pdgId in pdgIDs) and (genPart.statusFlags & 4096) > 0 and (genPart.status == 1): #bit13 = 4098 = isLastCopy, status=1 is stable
+            if (genPart.pdgId in pdgIDs) and (genPart.statusFlags & 8192) > 0 and (genPart.status == 1): #8192 = isLastCopy, status=1 is stable
                 if genPart.pdgId < 0:
-                    genPartRecoStatus[i] = pdgId #Valid to be matched to later
+                    genPartRecoStatus[i] = genPart.pdgId #Valid to be matched to later
                 else:
-                    genPartRecoStatus[i] = -1*pdgId
+                    genPartRecoStatus[i] = -1*genPart.pdgId
             else:
                 genPartRecoStatus[i] = -1 #Not relevant for us
 
