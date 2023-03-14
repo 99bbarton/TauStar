@@ -3,7 +3,7 @@
 
 import sys
 import os
-from ROOT import TH2F, TCanvas, gStyle, TFile, TGraph
+from ROOT import TH2F, TCanvas, gStyle, TFile, TGraph, gPad
 from array import array
 from math import sqrt
 
@@ -77,7 +77,6 @@ def addHigherPtBins(filepath=""):
     return outFilePath
     
 
-           
 
 ##Extrapolate SFs and uncertainties to high-pT bins
 # filepath : filename and path of root file containing SFs to extrapolate
@@ -100,10 +99,9 @@ def extrapolateSFs(filepath="", binsToExtrap=[750, 2500]):
     canv.Divide(2,1)
     canv.cd(1)
 
-
     sfCopy= sf2D.Clone()
     sfCopy.Draw("colz texte")
-    canv.SetLogy()
+    gPad.SetLogy(1)
 
     nEtaBins = effData.GetNbinsX()
     etaBins = [-2.125, -1.783, -1.505, -1.122, -0.4, 0.4, 1.122, 1.505, 1.783, 2.125] #Eta bin centers
@@ -111,10 +109,15 @@ def extrapolateSFs(filepath="", binsToExtrap=[750, 2500]):
     ptGraphBins = array("f", ptBinsToFit)
 
     #Find the central (avg) pT value of the fit bins for later use in weighting the extrapolation
-    lowBin = effData.FindBin(etaBins[0], ptBinsToFit[0])
-    highBin = effData.FindBin(etaBins[0], ptBinsToFit[-1])
-    ptAvgInFit = ((effData.GetYaxis().GetBinLowEdge(highBin) + effData.GetYaxis().GetBinWidth(highBin)) - effData.GetYaxis().GetBinLowEdge(lowBin)) / 2
+    lowBin = effData.GetYaxis().FindBin(ptBinsToFit[0])
+    highBin = effData.GetYaxis().FindBin(ptBinsToFit[-1])
+    ptAvgInFit = (effData.GetYaxis().GetBinUpEdge(highBin) - effData.GetYaxis().GetBinLowEdge(lowBin)) / 2
 
+    #Calculate the variance of the bin centers used in the fit
+    varOfFitBins = 0
+    for ptBin in ptBinsToFit:
+        varOfFitBins += (ptBin - ptAvgInFit) * (ptBin - ptAvgInFit)
+    varOfFitBins /= len(ptBinsToFit)
 
     for x, eta in enumerate(etaBins):
         fitBinsData = []
@@ -133,18 +136,18 @@ def extrapolateSFs(filepath="", binsToExtrap=[750, 2500]):
         graphMC = TGraph(len(ptGraphBins), ptGraphBins, fitBinsMC)
         
         #Fit a line to the graphs and extract parameters
-        fitResultData = graphData.Fit("pol1", "SQ", "AP") #Remove the Q option to show fit results
+        fitResultData = graphData.Fit("pol1", "Sq", "AP") #Remove the Q option to show fit results
         fitResultMC = graphMC.Fit("pol1", "SQ", "AP")
 
-        interData = fitResultData.Parameter(0)
-        interDataErr = fitResultData.Error(0)
-        slopeData = fitResultData.Parameter(1)
-        slopeDataErr = fitResultData.Error(1)
+        interData = fitResultData.Parameter(1)
+        interDataErr = fitResultData.Error(1)
+        slopeData = fitResultData.Parameter(0)
+        slopeDataErr = fitResultData.Error(0)
         covData01 = fitResultData.CovMatrix(0,1)
-        interMC = fitResultMC.Parameter(0)
-        interMCErr = fitResultMC.Error(0)
-        slopeMC = fitResultMC.Parameter(1)
-        slopeMCErr = fitResultMC.Error(1)
+        interMC = fitResultMC.Parameter(1)
+        interMCErr = fitResultMC.Error(1)
+        slopeMC = fitResultMC.Parameter(0)
+        slopeMCErr = fitResultMC.Error(0)
         covMC01 = fitResultMC.CovMatrix(0,1)
 
         binToFillY= effData.GetNbinsY() - (len(binsToExtrap) - 1)
@@ -155,10 +158,10 @@ def extrapolateSFs(filepath="", binsToExtrap=[750, 2500]):
             extrapValMC = (binToExtrap * slopeMC) + interMC # Sim for MC
             extrapErrMC = sqrt(((interMC**2) * (interMCErr**2)) + ((slopeMC**2) * (slopeMCErr**2)) + (2 * slopeMC * interMC * covMC01))
             #Weight on error from eqn (2) here: https://w3.pppl.gov/~hammett/work/1999/stderr.pdf
-            extrapBinWidth = effData.GetYaxis().GetBinWidth(effData.FindBin(etaBins[0], binToExtrap)) #The width of bin were extrapolating
-            extrapErrWeight = (binToExtrap - ptAvgInFit) / extrapBinWidth
-            extrapErrWeight = (1 + extrapErrWeight**2) / len(ptBinsToFit)
-        
+            #Essentially, weight the fit uncertainty by (1+lamda^2) 
+            # where lamda is the squared distance between the extrapolated pt bin center and the mean pt included in the fit in units of the std dev of the pt bins in the fit
+            lambdaSqrd = (binToExtrap - ptAvgInFit) * (binToExtrap - ptAvgInFit) / varOfFitBins
+            extrapErrWeight = (1 + lambdaSqrd)
 
             #Set new last bin efficiency contents
             binToFill = effData.GetBin(x, binToFillY)
@@ -192,7 +195,9 @@ def extrapolateSFs(filepath="", binsToExtrap=[750, 2500]):
 
     canv.cd(2)
     sf2D.Draw("colz texte")
-    canv.SetLogy()
+    gPad.SetLogy(1)
+    gPad.Modified()
+    canv.Update()
 
     buff = raw_input("Hit enter to close: ")
 
@@ -211,18 +216,5 @@ if __name__ == "__main__":
         extrapolateSFs(extendedFilePath)
     else:
         print("USAGE: extrapolateSFs.py <input file path>")
-
-
-
-
-
-        
-
-    
-
-
-
-            
-
 
 
