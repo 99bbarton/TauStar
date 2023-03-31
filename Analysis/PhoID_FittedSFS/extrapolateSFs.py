@@ -159,15 +159,15 @@ def extrapolateSFs(filepath="", binsToExtrap=[750, 2500]):
         fitResultData = graphData.Fit("pol1", "SQ", "AP") #Remove the Q option to show fit results
         fitResultMC = graphMC.Fit("pol1", "SQ", "AP")
 
-        interData = fitResultData.Parameter(1)
-        interDataErr = fitResultData.Error(1)
-        slopeData = fitResultData.Parameter(0)
-        slopeDataErr = fitResultData.Error(0)
+        interData = fitResultData.Parameter(0)
+        interDataErr = fitResultData.Error(0)
+        slopeData = fitResultData.Parameter(1)
+        slopeDataErr = fitResultData.Error(1)
         covData01 = fitResultData.CovMatrix(0,1)
-        interMC = fitResultMC.Parameter(1)
-        interMCErr = fitResultMC.Error(1)
-        slopeMC = fitResultMC.Parameter(0)
-        slopeMCErr = fitResultMC.Error(0)
+        interMC = fitResultMC.Parameter(0)
+        interMCErr = fitResultMC.Error(0)
+        slopeMC = fitResultMC.Parameter(1)
+        slopeMCErr = fitResultMC.Error(1)
         covMC01 = fitResultMC.CovMatrix(0,1)
 
         binToFillY= effData.GetNbinsY() - (len(binsToExtrap) - 1)
@@ -176,6 +176,7 @@ def extrapolateSFs(filepath="", binsToExtrap=[750, 2500]):
             extrapValData = (binToExtrap * slopeData) + interData #eff_new = (m_data * x) + b_data
             extrapErrData = ((interData**2) * (interDataErr**2)) + ((slopeData**2) * (slopeDataErr**2)) + (2 * slopeData * interData * covData01) #Fit err (squared)   
             extrapValMC = (binToExtrap * slopeMC) + interMC # Sim for MC
+            print("ExtrapValMC = " + str(extrapValMC))
             extrapErrMC = ((interMC**2) * (interMCErr**2)) + ((slopeMC**2) * (slopeMCErr**2)) + (2 * slopeMC * interMC * covMC01)
             #Weight on error from eqn (2) here: https://w3.pppl.gov/~hammett/work/1999/stderr.pdf
             #Essentially, weight the fit uncertainty by (1+lamda^2) 
