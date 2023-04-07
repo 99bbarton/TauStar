@@ -340,3 +340,97 @@ void calcObjEffs(TString outFilename, bool incReco=true, bool incID=true, bool i
 
     outfile->Close();
 }
+
+
+//Calculate the tau ID efficiencies corresponding to the working points used in signal channels
+//Writes TEfficiency objects for each channel to the file specified by outFilename (file will be created or updated, not overwritten)
+void calcTauIDEff(TString outFilename)
+{
+    //Define our eff plots
+    double etaBins_tau[4] = {0, 1.46, 1.558, 2.3};
+    TString etaBinLabels_tau[3] = {"[0, 1.46)", "[1.46, 1.558)", "[1.558, 2.3)"};
+    double ptBins_tau[6] = {18, 50, 100, 200, 500, 1000};
+    TEfficiency *eff_ETau = new TEfficiency("tauIDeff_ETau", "Tau ID Efficiency: ETau;Tau eta; Tau pT", 3, etaBins_tau, 5, ptBins_tau);
+    TEfficiency *eff_MuTau = new TEfficiency("tauIDeff_MuTau", "Tau ID Efficiency: MuTau;Tau eta; Tau pT", 3, etaBins_tau, 5, ptBins_tau);
+    TEfficiency *eff_TauTau = new TEfficiency("tauIDeff_TauTau", "Tau ID Efficiency: ETau;Tau eta; Tau pT", 3, etaBins_tau, 5, ptBins_tau);
+
+    //Define our data source
+    TChain chain("Events", "MC Background Files");
+    getTreesMCasChain(chain, year);
+    
+    //Read only branches we need
+    int nTau, id_vs_e, id_vs_mu, id_vs_jet;
+    double pt, eta;
+    chain.SetBranchStatus("*", false);
+
+    chain.SetBranchStatus("nTau", true);
+    chain.SetBranchStatus("Tau_idDeepTau2017v2p1VSe", true);
+    chain.SetBranchStatus("Tau_idDeepTau2017v2p1VSjet", true);
+    chain.SetBranchStatus("Tau_idDeepTau2017v2p1VSmu", true);
+    chain.SetBranchStatus("Tau_pt", true);
+    chain.SetBranchStatus("Tau_eta", true);
+
+    chain.SetBranchAddress("nTau", true);
+    chain.SetBranchAddress("Tau_idDeepTau2017v2p1VSe", true);
+    chain.SetBranchAddress("Tau_idDeepTau2017v2p1VSjet", true);
+    chain.SetBranchAddress("Tau_idDeepTau2017v2p1VSmu", true);
+    chain.SetBranchAddress("Tau_pt", true);
+    chain.SetBranchAddress("Tau_eta", true);
+
+
+    for (int eN = 1; eN < chain.GetEntries(); eN++)
+    {
+        chain.GetEntry(eN);
+        
+        //Check each tau for for ID efficiency for each t
+        for (int tauN = 0; tauN < nTau; tauN++)
+        {
+            //ETau: tight vs e, tight vs mu, tight vs jet
+            if(pt > 20 && abs(eta) < 2.3 && (32 & id_vs_e) && (8 & id_vs_mu) && (32 & id_vs_jet) )
+                eff_ETau->Fill(true, abs(eta), pt);
+            else if (pt > 20 && abs(eta) < 2.3 )
+                eff_ETau->Fill(false, abs(eta), pt);
+
+            //MuTau: VVLoose vs e, tight vs mu, tight vs jet
+            if(pt > 20 && abs(eta) < 2.3 && (2 & id_vs_e) && (8 & id_vs_mu) && (32 & id_vs_jet) )
+                eff_MuTau->Fill(true, abs(eta), pt);
+            else if (pt > 20 && abs(eta) < 2.3 )
+                eff_MuTau->Fill(false, abs(eta), pt);
+
+            //TauTau: VVLoose vs e, tight vs mu, medium vs jet
+            else if(pt > 40 && abs(eta) < 2.1 && (2 & id_vs_e) && (8 & id_vs_mu) && (16 & id_vs_jet) )
+                eff_TauTau->Fill(true, abs(eta), pt);
+            else if (pt > 40 && abs(eta) < 2.1) 
+                eff_TauTau->Fill(false, abs(eta), pt);
+        }
+    }
+
+    chain.SetBranchStatus("*", true);
+
+    //Plot our efficiencies and save to a .png and ROOT file
+    gStyle->SetOptStat(0);
+    gStyle->SetPaintTextFormat("4.2f");
+
+    TCanvas* canv = TCanvas("tauIDcanv", "Tau ID Efficiency", 1200, 600);
+    canv->Divide(3,1);
+    
+    canv->cd(1);
+    eff_ETau->Draw("COLZ TEXTE");
+    gPad->Modified();
+    gPad->Update();
+    canv->cd(2);
+    eff_MuTau->Draw("COLZ TEXTE");
+    gPad->Modified();
+    gPad->Update();
+    canv->cd(3);
+    eff_TauTau->Draw("COLZ TEXTE");
+    gPad->Modified();
+    gPad->Update();
+
+    canv->SaveAs("../Plots/tauIDEffs.png");
+
+    TFile* outfile = TFile::Open(outFilename, "UPDATE");
+    eff_ETau->Write();
+    eff_MuTau->Write();
+    eff_TauTau->Write();
+}
