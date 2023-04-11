@@ -344,74 +344,112 @@ void calcObjEffs(TString outFilename, bool incReco=true, bool incID=true, bool i
 
 //Calculate the tau ID efficiencies corresponding to the working points used in signal channels
 //Writes TEfficiency objects for each channel to the file specified by outFilename (file will be created or updated, not overwritten)
-void calcTauIDEff(TString outFilename)
+void calcTauIDEff(TString outFilename, TString year)
 {
+  cout << "Calculating tau ID efficiencies..." << endl;
+
     //Define our eff plots
     double etaBins_tau[4] = {0, 1.46, 1.558, 2.3};
     TString etaBinLabels_tau[3] = {"[0, 1.46)", "[1.46, 1.558)", "[1.558, 2.3)"};
     double ptBins_tau[6] = {18, 50, 100, 200, 500, 1000};
-    TEfficiency *eff_ETau = new TEfficiency("tauIDeff_ETau", "Tau ID Efficiency: ETau;Tau eta; Tau pT", 3, etaBins_tau, 5, ptBins_tau);
-    TEfficiency *eff_MuTau = new TEfficiency("tauIDeff_MuTau", "Tau ID Efficiency: MuTau;Tau eta; Tau pT", 3, etaBins_tau, 5, ptBins_tau);
-    TEfficiency *eff_TauTau = new TEfficiency("tauIDeff_TauTau", "Tau ID Efficiency: ETau;Tau eta; Tau pT", 3, etaBins_tau, 5, ptBins_tau);
+    TH2F* eff_ETau = new TH2F("tauIDeff_ETau_" + year, "Tau ID Efficiency: ETau "+year+";Tau eta; Tau pT", 3, etaBins_tau, 5, ptBins_tau);
+    TH2F* eff_MuTau = new TH2F("tauIDeff_MuTau_" + year, "Tau ID Efficiency: MuTau "+year+";Tau eta; Tau pT", 3, etaBins_tau, 5, ptBins_tau);
+    TH2F* eff_TauTau = new TH2F("tauIDeff_TauTau_" + year, "Tau ID Efficiency: TauTau "+year+";Tau eta; Tau pT", 3, etaBins_tau, 5, ptBins_tau);
+    TH2F* eff_ETauDen = new TH2F("tauIDeff_ETauDen_" + year, "Tau ID Efficiency: ETau "+year+";Tau eta; Tau pT", 3, etaBins_tau, 5, ptBins_tau);
+    TH2F* eff_MuTauDen = new TH2F("tauIDeff_MuTauDen_" + year, "Tau ID Efficiency: MuTau "+year+";Tau eta; Tau pT", 3, etaBins_tau, 5, ptBins_tau);
+    TH2F* eff_TauTauDen = new TH2F("tauIDeff_TauTauDen_" + year, "Tau ID Efficiency: TauTau "+year+";Tau eta; Tau pT", 3, etaBins_tau, 5, ptBins_tau);
 
     //Define our data source
     TChain chain("Events", "MC Background Files");
     getTreesMCasChain(chain, year);
     
     //Read only branches we need
-    int nTau, id_vs_e, id_vs_mu, id_vs_jet;
-    double pt, eta;
+    int nTau;
+    UChar_t genPartFlav[50];
+    int id_vs_e[50];
+    int id_vs_mu[50];
+    int id_vs_jet[50];
+    float pt[50];
+    float eta[50];
     chain.SetBranchStatus("*", false);
 
     chain.SetBranchStatus("nTau", true);
+    chain.SetBranchStatus("Tau_genPartFlav", true);
     chain.SetBranchStatus("Tau_idDeepTau2017v2p1VSe", true);
     chain.SetBranchStatus("Tau_idDeepTau2017v2p1VSjet", true);
     chain.SetBranchStatus("Tau_idDeepTau2017v2p1VSmu", true);
     chain.SetBranchStatus("Tau_pt", true);
     chain.SetBranchStatus("Tau_eta", true);
 
-    chain.SetBranchAddress("nTau", true);
-    chain.SetBranchAddress("Tau_idDeepTau2017v2p1VSe", true);
-    chain.SetBranchAddress("Tau_idDeepTau2017v2p1VSjet", true);
-    chain.SetBranchAddress("Tau_idDeepTau2017v2p1VSmu", true);
-    chain.SetBranchAddress("Tau_pt", true);
-    chain.SetBranchAddress("Tau_eta", true);
+    chain.SetBranchAddress("nTau", &nTau);
+    chain.SetBranchAddress("Tau_genPartFlav", &genPartFlav);
+    chain.SetBranchAddress("Tau_idDeepTau2017v2p1VSe", &id_vs_e);
+    chain.SetBranchAddress("Tau_idDeepTau2017v2p1VSjet", &id_vs_jet);
+    chain.SetBranchAddress("Tau_idDeepTau2017v2p1VSmu", &id_vs_mu);
+    chain.SetBranchAddress("Tau_pt", &pt);
+    chain.SetBranchAddress("Tau_eta", &eta);
 
 
     for (int eN = 1; eN < chain.GetEntries(); eN++)
     {
         chain.GetEntry(eN);
-        
-        //Check each tau for for ID efficiency for each t
+	if (eN % 250000 == 0)
+	  cout << "Processing entry " << eN << "/" << chain.GetEntries() << endl;
+
+        //Check each tau for for ID efficiency for each channels WPs
         for (int tauN = 0; tauN < nTau; tauN++)
         {
+	  if (genPartFlav[tauN] != 5)
+	    continue;
+	  
             //ETau: tight vs e, tight vs mu, tight vs jet
-            if(pt > 20 && abs(eta) < 2.3 && (32 & id_vs_e) && (8 & id_vs_mu) && (32 & id_vs_jet) )
-                eff_ETau->Fill(true, abs(eta), pt);
-            else if (pt > 20 && abs(eta) < 2.3 )
-                eff_ETau->Fill(false, abs(eta), pt);
+            if(pt[tauN] > 20 && abs(eta[tauN]) < 2.3 && (32 & id_vs_e[tauN]) && (8 & id_vs_mu[tauN]) && (32 & id_vs_jet[tauN]) )
+	      {
+		eff_ETau->Fill(abs(eta[tauN]), pt[tauN]);
+		eff_ETauDen->Fill(abs(eta[tauN]), pt[tauN]);
+	      }
+	    else if (pt[tauN] > 20 && abs(eta[tauN]) < 2.3 )
+                eff_ETauDen->Fill(abs(eta[tauN]), pt[tauN]);
 
             //MuTau: VVLoose vs e, tight vs mu, tight vs jet
-            if(pt > 20 && abs(eta) < 2.3 && (2 & id_vs_e) && (8 & id_vs_mu) && (32 & id_vs_jet) )
-                eff_MuTau->Fill(true, abs(eta), pt);
-            else if (pt > 20 && abs(eta) < 2.3 )
-                eff_MuTau->Fill(false, abs(eta), pt);
+            if(pt[tauN] > 20 && abs(eta[tauN]) < 2.3 && (2 & id_vs_e[tauN]) && (8 & id_vs_mu[tauN]) && (32 & id_vs_jet[tauN]) )
+	      {
+                eff_MuTau->Fill(abs(eta[tauN]), pt[tauN]);
+		eff_MuTauDen->Fill(abs(eta[tauN]), pt[tauN]);
+	      }
+            else if (pt[tauN] > 20 && abs(eta[tauN]) < 2.3 )
+                eff_MuTauDen->Fill(abs(eta[tauN]), pt[tauN]);
 
             //TauTau: VVLoose vs e, tight vs mu, medium vs jet
-            else if(pt > 40 && abs(eta) < 2.1 && (2 & id_vs_e) && (8 & id_vs_mu) && (16 & id_vs_jet) )
-                eff_TauTau->Fill(true, abs(eta), pt);
-            else if (pt > 40 && abs(eta) < 2.1) 
-                eff_TauTau->Fill(false, abs(eta), pt);
+            if(pt[tauN] > 40 && abs(eta[tauN]) < 2.1 && (2 & id_vs_e[tauN]) && (8 & id_vs_mu[tauN]) && (16 & id_vs_jet[tauN]) )
+	      {
+                eff_TauTau->Fill(abs(eta[tauN]), pt[tauN]);
+		eff_TauTauDen->Fill(abs(eta[tauN]), pt[tauN]);
+	      }
+            else if (pt[tauN] > 40 && abs(eta[tauN]) < 2.1) 
+                eff_TauTauDen->Fill(abs(eta[tauN]), pt[tauN]);
         }
     }
-
+    
     chain.SetBranchStatus("*", true);
+
+    //Calculate efficiencies and uncertainties
+    eff_ETau->Sumw2();
+    eff_MuTau->Sumw2();
+    eff_TauTau->Sumw2();
+    eff_ETauDen->Sumw2();
+    eff_MuTauDen->Sumw2();
+    eff_TauTauDen->Sumw2();
+
+    eff_ETau->Divide(eff_ETauDen);
+    eff_MuTau->Divide(eff_MuTauDen);
+    eff_TauTau->Divide(eff_TauTauDen);
 
     //Plot our efficiencies and save to a .png and ROOT file
     gStyle->SetOptStat(0);
     gStyle->SetPaintTextFormat("4.2f");
 
-    TCanvas* canv = TCanvas("tauIDcanv", "Tau ID Efficiency", 1200, 600);
+    TCanvas* canv = new TCanvas("tauIDcanv", year + " Tau ID Efficiencies", 1200, 600);
     canv->Divide(3,1);
     
     canv->cd(1);
@@ -427,10 +465,13 @@ void calcTauIDEff(TString outFilename)
     gPad->Modified();
     gPad->Update();
 
-    canv->SaveAs("../Plots/tauIDEffs.png");
+    canv->SaveAs("../Plots/tauIDEffs_" + year + ".png");
 
     TFile* outfile = TFile::Open(outFilename, "UPDATE");
     eff_ETau->Write();
     eff_MuTau->Write();
     eff_TauTau->Write();
+    outfile->Close();
+
+    cout << "...Done calculating tau ID efficiencies" << endl;
 }
