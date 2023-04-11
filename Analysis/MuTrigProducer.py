@@ -31,6 +31,8 @@ class MuTrigProducer(Module):
         self.out.branch("MuMu_Mu1_t2016_1", "O", 2, None, None)
         self.out.branch("MuMu_Mu1_t2017", "O", 2, None, None)
         self.out.branch("MuMu_Mu1_t2018", "O", 2, None, None)
+        self.out.branch("MuTrig_nMatchedNonSelMus", "i")
+        self.out.branch("MuTrig_matchedNonSelMus", "i", lenVar="MuTrig_nMatchedNonSelMus")
 
     def endFile(self, inputFile, outputFile, inputTree, wrappedOutputTree):
         pass
@@ -53,9 +55,12 @@ class MuTrigProducer(Module):
         MuMu_Mu1_t2016_1 = [False, False]
         MuMu_Mu1_t2017 = [False, False]
         MuMu_Mu1_t2018 = [False, False]
+        nMatchedNonSelMus = 0
+        matchedNonSelMus = []
 
         if event.MuTau_HavePair or event.EMu_HavePair or event.MuMu_HavePair:
-            trigObjs = Collection(event, "TrigObj")
+            trigObjsRaw = Collection(event, "TrigObj")
+            trigObjs = filter(lambda x: abs(x.id)==13, trigObjsRaw) #Eliminate non-muon trigger objs
             muons = Collection(event, "Muon")
             goodMuons = {}
             if event.MuTau_HavePair:
@@ -72,77 +77,125 @@ class MuTrigProducer(Module):
             t2017 = ["HLT_IsoMu27", ["Iso", "SingleMuon"], [2, 8], 10]
             t2018 = ["HLT_IsoMu24", ["Iso", "SingleMuon"], [2, 8], 10]
 
-            conditResult_2016_0 = False
+            trigPresent_2016_0 = False
             if hasattr(event, t2016_0[0]):
-                condit = "event.%s"%t2016_0[0]
-                conditResult_2016_0 = eval(condit)
-                MuTau_t2016_0[0] = conditResult_2016_0
-                EMu_1Mu_t2016_0[0] = conditResult_2016_0
-                MuMu_Mu0_t2016_0[0] = conditResult_2016_0
-                MuMu_Mu1_t2016_0[0] = conditResult_2016_0
+                trigPresent_2016_0 = eval("event.%s"%t2016_0[0])
+                MuTau_t2016_0[0] = trigPresent_2016_0
+                EMu_1Mu_t2016_0[0] = trigPresent_2016_0
+                MuMu_Mu0_t2016_0[0] = trigPresent_2016_0
+                MuMu_Mu1_t2016_0[0] = trigPresent_2016_0
 
-            conditResult_2016_1 = False
+            trigPresent_2016_1 = False
             if hasattr(event, t2016_1[0]):
-                condit = "event.%s"%t2016_1[0] 
-                conditResult_2016_1 = eval(condit)
-                MuTau_t2016_1[0] = conditResult_2016_1
-                EMu_1Mu_t2016_1[0] = conditResult_2016_1
-                MuMu_Mu0_t2016_1[0] = conditResult_2016_1
-                MuMu_Mu1_t2016_1[0] = conditResult_2016_1
+                trigPresent_2016_1 = eval("event.%s"%t2016_1[0])
+                MuTau_t2016_1[0] = trigPresent_2016_1
+                EMu_1Mu_t2016_1[0] = trigPresent_2016_1
+                MuMu_Mu0_t2016_1[0] = trigPresent_2016_1
+                MuMu_Mu1_t2016_1[0] = trigPresent_2016_1
 
-            conditResult_2017 = False
+            trigPresent_2017 = False
             if hasattr(event, t2017[0]):
-                condit_2017 = "event.%s"%t2017[0]
-                conditResult_2017 = eval(condit)
-                MuTau_t2017[0] = conditResult_2017
-                EMu_1Mu_t2017[0] = conditResult_2017
-                MuMu_Mu0_t2017[0] = conditResult_2017
-                MuMu_Mu1_t2017[0] = conditResult_2017
-            
-            conditResult_2018 = False
+                trigPresent_2017 = eval("event.%s"%t2017[0])
+                MuTau_t2017[0] = trigPresent_2017
+                EMu_1Mu_t2017[0] = trigPresent_2017
+                MuMu_Mu0_t2017[0] = trigPresent_2017
+                MuMu_Mu1_t2017[0] = trigPresent_2017
+
+            trigPresent_2018 = False
             if hasattr(event, t2018[0]):
-                condit_2018 = "event.%s"%t2018[0]
-                conditResult_2018 = eval(condit)
-                MuTau_t2018[0] = conditResult_2018
-                EMu_1Mu_t2018[0] = conditResult_2018
-                MuMu_Mu0_t2018[0] = conditResult_2018
-                MuMu_Mu1_t2018[0] = conditResult_2018
+                trigPresent_2018 = eval("event.%s"%t2018[0])
+                MuTau_t2018[0] = trigPresent_2018
+                EMu_1Mu_t2018[0] = trigPresent_2018
+                MuMu_Mu0_t2018[0] = trigPresent_2018
+                MuMu_Mu1_t2018[0] = trigPresent_2018
 
-            for trigObj in trigObjs:
-                muMatch = False
-                for muCh in goodMuons.keys():
-                    muIdx = goodMuons[muCh]
-                    muon = muons[muIdx]
+            writeNoMatchInfo = False
+            for muCh in goodMuons.keys():
+                muIdx = goodMuons[muCh]
+                muon = muons[muIdx]
 
+                for trigObj in trigObjs:
                     #https://indico.cern.ch/event/742871/contributions/3068139/attachments/1683609/2706137/2018-07-03-trigger_object_matching_for_offline.pdf
                     if deltaR(trigObj, muon) > 0.15:
                         continue
-                    
-                    muMatch_2016_0 = conditResult_2016_0 and ((trigObj.filterBits & t2016_0[3]) > 0) #bit comp is only what we expect if trig is present
-                    muMatch_2016_1 = conditResult_2016_1 and ((trigObj.filterBits & t2016_1[3]) > 0)
-                    muMatch_2017   = conditResult_2017 and ((trigObj.filterBits & t2017[3]) > 0)
-                    muMatch_2018   = conditResult_2018 and ((trigObj.filterBits & t2018[3]) > 0)
+                    if abs(muon.pt - trigObj.pt) > (0.20 * muon.pt): #Require pt match within 20%
+                        continue
+
+                    muMatch_2016_0 = trigPresent_2016_0 and ((trigObj.filterBits & t2016_0[3]) > 0) #bit comp is only what we expect if trig is present
+                    muMatch_2016_1 = trigPresent_2016_1 and ((trigObj.filterBits & t2016_1[3]) > 0)
+                    muMatch_2017   = trigPresent_2017 and ((trigObj.filterBits & t2017[3]) > 0)
+                    muMatch_2018   = trigPresent_2018 and ((trigObj.filterBits & t2018[3]) > 0)
 
                     if muCh == "MuTau":
-                        MuTau_t2016_0[1] = muMatch_2016_0
-                        MuTau_t2016_1[1] = muMatch_2016_1
-                        MuTau_t2017[1] = muMatch_2017
-                        MuTau_t2018[1] = muMatch_2018
+                        MuTau_t2016_0[1] = muMatch_2016_0 or MuTau_t2016_0[1] #OR with self prevents overwriting of previous matches
+                        MuTau_t2016_1[1] = muMatch_2016_1 or MuTau_t2016_1[1]
+                        MuTau_t2017[1] = muMatch_2017 or MuTau_t2017[1]
+                        MuTau_t2018[1] = muMatch_2018 or MuTau_t2018[1]
                     elif muCh == "EMu":
-                        EMu_1Mu_t2016_0[1] = muMatch_2016_0
-                        EMu_1Mu_t2016_1[1] = muMatch_2016_1
-                        EMu_1Mu_t2017[1] = muMatch_2017
-                        EMu_1Mu_t2018[1] = muMatch_2018
+                        EMu_1Mu_t2016_0[1] = muMatch_2016_0 or EMu_1Mu_t2016_0[1]
+                        EMu_1Mu_t2016_1[1] = muMatch_2016_1 or EMu_1Mu_t2016_1[1]
+                        EMu_1Mu_t2017[1] = muMatch_2017 or EMu_1Mu_t2017[1]
+                        EMu_1Mu_t2018[1] = muMatch_2018 or EMu_1Mu_t2018[1]
                     elif muCh == "MuMu_0":
-                        MuMu_Mu0_t2016_0[1] = muMatch_2016_0
-                        MuMu_Mu0_t2016_1[1] = muMatch_2016_1
-                        MuMu_Mu0_t2017[1] = muMatch_2017
-                        MuMu_Mu0_t2018[1] = muMatch_2018
+                        MuMu_Mu0_t2016_0[1] = muMatch_2016_0 or MuMu_Mu0_t2016_0[1]
+                        MuMu_Mu0_t2016_1[1] = muMatch_2016_1 or MuMu_Mu0_t2016_1[1]
+                        MuMu_Mu0_t2017[1] = muMatch_2017 or MuMu_Mu0_t2017[1]
+                        MuMu_Mu0_t2018[1] = muMatch_2018 or MuMu_Mu0_t2018[1]
                     elif muCh == "MuMu_1":
-                        MuMu_Mu1_t2016_0[1] = muMatch_2016_0
-                        MuMu_Mu1_t2016_1[1] = muMatch_2016_1
-                        MuMu_Mu1_t2017[1] = muMatch_2017
-                        MuMu_Mu1_t2018[1] = muMatch_2018
+                        MuMu_Mu1_t2016_0[1] = muMatch_2016_0 or MuMu_Mu1_t2016_0[1]
+                        MuMu_Mu1_t2016_1[1] = muMatch_2016_1 or MuMu_Mu1_t2016_1[1]
+                        MuMu_Mu1_t2017[1] = muMatch_2017 or MuMu_Mu1_t2017[1]
+                        MuMu_Mu1_t2018[1] = muMatch_2018 or MuMu_Mu1_t2018[1]
+
+                #If have triggers but triggers were not matched, store more information
+                if muCh == "MuTau" and not writeNoMatchInfo: 
+                    if (MuTau_t2016_0[0] and not MuTau_t2016_0[1]) or (MuTau_t2016_1[0] and not MuTau_t2016_1[1]):
+                        writeNoMatchInfo = True
+                    if (MuTau_t2017[0] and not MuTau_t2017[1]) or (MuTau_t2018[0] and not MuTau_t2018[1]):
+                        writeNoMatchInfo = True   
+                elif muCh == "EMu" and not writeNoMatchInfo:
+                    if (EMu_1Mu_t2016_0[0] and not EMu_1Mu_t2016_0[1]) or (EMu_1Mu_t2016_1[0] and not EMu_1Mu_t2016_1[1]):
+                        writeNoMatchInfo = True
+                    if (EMu_1Mu_t2017[0] and not EMu_1Mu_t2017[1]) or (EMu_1Mu_t2018[0] and not EMu_1Mu_t2018[1]):
+                        writeNoMatchInfo = True
+                elif muCh == "MuMu_0" and not writeNoMatchInfo:
+                    if (MuMu_Mu0_t2016_0[0] and not MuMu_Mu0_t2016_0[1]) or (MuMu_Mu0_t2016_1[0] and not MuMu_Mu0_t2016_1[1]): 
+                        writeNoMatchInfo = True
+                    if (MuMu_Mu0_t2017[0] and not MuMu_Mu0_t2017[1]) or (MuMu_Mu0_t2018[0] and not MuMu_Mu0_t2018[1]):
+                        writeNoMatchInfo = True
+                elif muCh == "MuMu_1"and not writeNoMatchInfo:
+                    if (MuMu_Mu1_t2016_0[0] and not MuMu_Mu1_t2016_0[1]) or (MuMu_Mu1_t2016_1[0] and not MuMu_Mu1_t2016_1[1]): 
+                        writeNoMatchInfo = True
+                    if (MuMu_Mu1_t2017[0] and not MuMu_Mu1_t2017[1]) or (MuMu_Mu1_t2018[0] and not MuMu_Mu1_t2018[1]):
+                        writeNoMatchInfo = True
+            if writeNoMatchInfo: #If a trigger had fired but a match was not made, look through other muons to see what matches trigObjs
+                for muIdx, mu in enumerate(muons):
+                    if muIdx in goodMuons.values():
+                        continue
+                    if not mu.isGlobal:
+                        continue
+            
+                    for trigObj in trigObjs:
+                        if deltaR(trigObj, muon) > 0.15:
+                            continue
+                        if abs(muon.pt - trigObj.pt) > (0.10 * muon.pt): #Require pt match within 10%
+                            continue
+
+                        muMatch_2016_0 = trigPresent_2016_0 and ((trigObj.filterBits & t2016_0[3]) > 0) #bit comp is only what we expect if trig is present
+                        muMatch_2016_1 = trigPresent_2016_1 and ((trigObj.filterBits & t2016_1[3]) > 0)
+                        muMatch_2017   = trigPresent_2017 and ((trigObj.filterBits & t2017[3]) > 0)
+                        muMatch_2018   = trigPresent_2018 and ((trigObj.filterBits & t2018[3]) > 0)
+
+                        if muMatch_2016_0 or muMatch_2016_1 or muMatch_2017 or muMatch_2018: # trigObj matched to a non-reco'd (chosen) muon. store its location
+                            alreadyMatched = False
+                            for prevMuIdx in matchedNonSelMus: #Check if we already found this match
+                                prevMu = muons[prevMuIdx]
+                                if abs(mu.pt - prevMu.pt) <= 0.10 * mu.pt and deltaR(mu, prevMu) <= 0.1:
+                                    alreadyMatched = True
+                            if not alreadyMatched:
+                                nMatchedNonSelMus += 1
+                                matchedNonSelMus.append(muIdx)
+        
 
         self.out.fillBranch("MuTau_t2016_0", MuTau_t2016_0)
         self.out.fillBranch("MuTau_t2016_1", MuTau_t2016_1)
@@ -154,12 +207,14 @@ class MuTrigProducer(Module):
         self.out.fillBranch("EMu_1Mu_t2018", EMu_1Mu_t2018)
         self.out.fillBranch("MuMu_Mu0_t2016_0", MuMu_Mu0_t2016_0)
         self.out.fillBranch("MuMu_Mu0_t2016_1", MuMu_Mu0_t2016_1)
-        self.out.fillBranch("MuMu_Mu0_t2017", MuMu_Mu0_t2017)
+        self.out.fillBranch("MuMu_Mu0_t2017", MuMu_Mu0_t2017) 
         self.out.fillBranch("MuMu_Mu0_t2018", MuMu_Mu0_t2018)
         self.out.fillBranch("MuMu_Mu1_t2016_0", MuMu_Mu1_t2016_0)
         self.out.fillBranch("MuMu_Mu1_t2016_1", MuMu_Mu1_t2016_1)
         self.out.fillBranch("MuMu_Mu1_t2017", MuMu_Mu1_t2017)
         self.out.fillBranch("MuMu_Mu1_t2018", MuMu_Mu1_t2018)
+        self.out.fillBranch("MuTrig_nMatchedNonSelMus", nMatchedNonSelMus)
+        self.out.fillBranch("MuTrig_matchedNonSelMus", matchedNonSelMus)
 
         return True
 
