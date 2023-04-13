@@ -14,7 +14,6 @@
 const int N_FILES = 17; //17 if all bkgd MC
 
 
-
 //Assign files to a TChain for easy access
 void getTreesMCasChain(TChain& chain, TString year)
 {
@@ -201,11 +200,12 @@ void incRecoEffs(TH2F* h_elEff, TH2F* h_muEff, TH2F* h_tauEff, TH2F* h_phoEff, T
     h_tauEff_reco->Sumw2();
     h_tauEff_den->Sumw2();
 
-    //Now calculated the efficiencies
-    h_elEff_reco->Divide(h_elEff_den);
-    h_muEff_reco->Divide(h_muEff_den);
-    h_tauEff_reco->Divide(h_tauEff_den);
-    h_phoEff_reco->Divide(h_phoEff_den);
+    //Now calculate the efficiencies
+    //Divide option allows assymmetric, non-zero errors if efficiency is one with binomial errors
+    h_elEff_reco->Divide(h_elEff_reco, h_elEff_den, 1.0, 1.0, "cl=0.683 b(1,1) mode");
+    h_muEff_reco->Divide(h_muEff_reco, h_muEff_den, 1.0, 1.0, "cl=0.683 b(1,1) mode");
+    h_tauEff_reco->Divide(h_tauEff_reco, h_tauEff_den, 1.0, 1.0, "cl=0.683 b(1,1) mode");
+    h_phoEff_reco->Divide(h_phoEff_reco, h_phoEff_den, 1.0, 1.0, "cl=0.683 b(1,1) mode");
 
     if (h_elEff->GetEntries() == 0) //Passed histograms are empty, therefore we can just add our new efficiencies in
     {
@@ -227,7 +227,7 @@ void incRecoEffs(TH2F* h_elEff, TH2F* h_muEff, TH2F* h_tauEff, TH2F* h_phoEff, T
 
 
 //Calculate the efficiencies chosen by the inc* parameters for each object in the analysis and save them to plots and a root file
-void calcObjEffs(TString outFilename, bool incReco=true, bool incID=true, bool incTrig=true)
+void calcRecoEffs(TString outFilename)
 {
     const int N_YEARS = 4;
     TString years[N_YEARS] = {"2015", "2016", "2017", "2018"};
@@ -271,8 +271,8 @@ void calcObjEffs(TString outFilename, bool incReco=true, bool incID=true, bool i
     double ptBins_EG[7] = {5, 50, 100, 200, 500, 1000, 4000};
     double ptBins_tau[6] = {18, 50, 100, 200, 500, 1000};
 
-
-    TString effsStr = buildEffsStr(incReco, incID, incTrig);    
+    //Since only using this code for reco now, this is overkill but keep format for ease
+    TString effsStr = buildEffsStr(true, false, false);    
 
     for (int yrN = 0; yrN < N_YEARS; yrN++)
     {
@@ -286,8 +286,7 @@ void calcObjEffs(TString outFilename, bool incReco=true, bool incID=true, bool i
         h_phoEff->Sumw2();
         h_tauEff->Sumw2();
 
-        if (incReco)
-            incRecoEffs( h_elEff, h_muEff, h_tauEff, h_phoEff, years[yrN], effsStr);   
+        incRecoEffs( h_elEff, h_muEff, h_tauEff, h_phoEff, years[yrN], effsStr);   
         
 	//Set better eta bin labels
         for (int i = 0; i < 5; i++) //6 is the largest number of eta bins
@@ -441,9 +440,14 @@ void calcTauIDEff(TString outFilename, TString year)
     eff_MuTauDen->Sumw2();
     eff_TauTauDen->Sumw2();
 
-    eff_ETau->Divide(eff_ETauDen);
-    eff_MuTau->Divide(eff_MuTauDen);
-    eff_TauTau->Divide(eff_TauTauDen);
+    //Divide option allows assymmetric, non-zero errors if efficiency is one with binomial errors
+    eff_ETau->Divide(eff_ETau, eff_ETauDen, 1.0, 1.0, "cl=0.683 b(1,1) mode");
+    eff_MuTau->Divide(eff_MuTau, eff_MuTauDen, 1.0, 1.0, "cl=0.683 b(1,1) mode");
+    eff_TauTau->Divide(eff_TauTau, eff_TauTauDen, 1.0, 1.0, "cl=0.683 b(1,1) mode");
+
+    eff_ETau->SetMaximum(1.0); //Ensure color scale goes from 0.0-1.0
+    eff_MuTau->SetMaximum(1.0);
+    eff_TauTau->SetMaximum(1.0);
 
     //Plot our efficiencies and save to a .png and ROOT file
     gStyle->SetOptStat(0);
