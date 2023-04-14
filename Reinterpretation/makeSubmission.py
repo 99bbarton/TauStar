@@ -1,6 +1,5 @@
 # A script to produce the HEPData submission for the Taustar analysis (EXO-22-007)
-
-#TODO Add table keywords
+#Must be run from an environment with HEPDataLib installed e.g having sourced: source HEPDataEnv/bin/activate for my venv setup
 
 import numpy as np
 import pandas as pd
@@ -176,6 +175,80 @@ def makeLBandWidthsTable():
     table.add_variable(widths)
 
     return table
+
+##--------------------------------------------------------------------------------------------------------------------------------
+
+
+## Produce a table of reco, ID, and trigger efficiencies for electrons
+# File paths are hardcoded and of the form effs_el_<eff type>_<year>.root. They were sourced and renamed from the following:
+# reco : https://twiki.cern.ch/twiki/pub/CMS/EgammaUL2016To2018/  Reco SF files of the form: egammaEffi_ptAbove20.txt_EGM2D_UL2018.root
+# ID   : https://twiki.cern.ch/twiki/pub/CMS/EgammaUL2016To2018/ MVA ID WP90 SF files of the form: egammaEffi.txt_Ele_wp90iso_EGM2D.root
+# trig : Calculated via EGamma TNP packages and stored in files of the form: singleElTrigEff_2015_effsHaveErrs.root found at:
+# /store/user/bbarton/TrigEffStudies/SingleElTrigEff/PassingMVAID/FineEtaBinning/PhotonOR/
+# Returns a HEPDataLib Table object containing the efficiencies
+#TODO add plots as images
+def makeEffTableEl():
+
+    #Define HEPData objects
+    tab = Table("Electron Efficiencies")
+    tab.description = """Reco, ID, and trigger efficiencies observed in MC for electrons.'Type' 0 = Reco, 1 = ID, 2 = trigger"""
+    var_year = Variable("Year", is_independent=True, is_binned=False)
+    var_effType = Variable("Type", is_independent=True, is_binned=False) #Reco = 0, ID = 1, Trig = 2 since strs not supported
+    var_eta = Variable("abs(eta)", is_independent=True, is_binned=True)
+    var_pt = Variable("pT", is_independent=True, is_binned=True, units="GeV/c" )
+    var_eff = Variable("Efficiency in MC", is_independent=False, is_binned=False)
+    #Technically this should not be symmetric (upper bound on eff of 100%), however th2 objects which provide the uncertainties have symmetric errors
+    var_effErr = Uncertainty("Efficiency Uncertainty", is_symmetric=True)  
+ 
+    for year in [2015, 2016, 2017, 2018]:
+        yrStr = str(year)
+
+        #Get data from ROOT files
+        #NB By default, the eff histograms in EGamma TNP output files don't have errors (separate histograms)
+        #I have used: https://github.com/99bbarton/TauStar/blob/main/Analysis/TNP/writeErrsToEffHists.py
+        # to write the appropriate errors to the eff histograms so that the data can be read in more easily here
+        effDict_reco = RootFileReader.read_hist_2D("effs_el_reco_" + yrStr + "/EGamma_EffMC2D")
+        effDict_ID = RootFileReader.read_hist_2D("effs_el_ID_" + yrStr + "/EGamma_EffMC2D")
+        effDict_trig = RootFileReader.read_hist_2D("effs_el_trig_" + yrStr + "/EGamma_EffMC2D")
+    
+        #Add data to the Variable/Uncertainty objects
+        numEntries_reco = len(effDict_reco["z"])
+        numEntries_ID = len(effDict_ID["z"])
+        numEntries_trig = len(effDict_trig["z"])
+        numEntriesForYear = numEntries_reco + numEntries_ID + numEntries_trig
+
+        var_year.values.extend([year] * numEntriesForYear)
+
+        var_effType.values.extend([0] * numEntries_reco)
+        var_effType.values.extend([1] * numEntries_ID)
+        var_effType.values.extend([2] * numEntries_trig)
+
+        var_eta.values.extend(effDict_reco["x_edges"])
+        var_eta.values.extend(effDict_ID["x_edges"])
+        var_eta.values.extend(effDict_trig["x_edges"])
+
+        var_pt.values.extend(effDict_reco["y_edges"])
+        var_pt.values.extend(effDict_ID["y_edges"])
+        var_pt.values.extend(effDict_trig["y_edges"])
+
+        var_eff.values.extend(effDict_reco["z"])
+        var_eff.values.extend(effDict_ID["z"])
+        var_eff.values.extend(effDict_trig["z"])
+
+        var_effErr.values.extend(effDict_reco["dz"])
+        var_effErr.values.extend(effDict_ID["dz"])
+        var_effErr.values.extend(effDict_trig["dz"])
+
+    #Add the variables to the table
+    var_eff.add_uncertainty(var_effErr)
+
+    tab.add_variable(var_year)
+    tab.add_variable(var_effType)
+    tab.add_variable(var_eta)
+    tab.add_variable(var_pt)
+    tab.add_variable(var_eff)
+
+    return tab
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
