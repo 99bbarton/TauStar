@@ -178,13 +178,13 @@ def makeLBandWidthsTable():
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
-
 ## Produce a table of reco, ID, and trigger efficiencies for electrons
 # File paths are hardcoded and of the form effs_el_<eff type>_<year>.root. They were sourced and renamed from the following:
 # reco : https://twiki.cern.ch/twiki/pub/CMS/EgammaUL2016To2018/  Reco SF files of the form: egammaEffi_ptAbove20.txt_EGM2D_UL2018.root
 # ID   : https://twiki.cern.ch/twiki/pub/CMS/EgammaUL2016To2018/ MVA ID WP90 SF files of the form: egammaEffi.txt_Ele_wp90iso_EGM2D.root
 # trig : Calculated via EGamma TNP packages and stored in files of the form: singleElTrigEff_2015_effsHaveErrs.root found at:
 # /store/user/bbarton/TrigEffStudies/SingleElTrigEff/PassingMVAID/FineEtaBinning/PhotonOR/
+# All files have been run through  https://github.com/99bbarton/TauStar/blob/main/Analysis/TNP/writeErrsToEffHists.py See note below
 # Returns a HEPDataLib Table object containing the efficiencies
 #TODO add plots as images
 def makeEffTableEl():
@@ -199,7 +199,7 @@ def makeEffTableEl():
     var_eff = Variable("Efficiency in MC", is_independent=False, is_binned=False)
     #Technically this should not be symmetric (upper bound on eff of 100%), however th2 objects which provide the uncertainties have symmetric errors
     var_effErr = Uncertainty("Efficiency Uncertainty", is_symmetric=True)  
- 
+
     for year in [2015, 2016, 2017, 2018]:
         yrStr = str(year)
 
@@ -252,6 +252,128 @@ def makeEffTableEl():
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
+## Produce a table of reco, ID, and trigger efficiencies for muons
+# File paths are hardcoded and of the form effs_mu_<eff type>_<year>.* . They were sourced and renamed from the following (2018 shown as example):
+# reco : https://gitlab.cern.ch/cms-muonPOG/muonefficiencies/-/blob/master/Run2/UL/2018/NUM_TrackerMuons_DEN_genTracks_Z_abseta_pt.json
+#      Reco efficiencies are not provided by the POG as TH2Fs so values from these JSONS were extracted manually to include below
+# ID   : https://gitlab.cern.ch/cms-muonPOG/muonefficiencies/-/blob/master/Run2/UL/2018/2018_Z/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root
+# trig : https://gitlab.cern.ch/cms-muonPOG/muonefficiencies/-/blob/master/Run2/UL/2018/2018_trigger/Efficiencies_muon_generalTracks_Z_Run2018_UL_SingleMuonTriggers.root
+# Returns a HEPDataLib Table object containing the efficiencies
+#TODO add plots as images
+def makeEffTableMu():
+    
+    #Define HEPData objects
+    tab = Table("Muon Efficiencies")
+    tab.description = """Reco, ID, and trigger efficiencies observed in MC for muons.'Type' 0 = Reco, 1 = ID, 2 = trigger"""
+    var_year = Variable("Year", is_independent=True, is_binned=False)
+    var_effType = Variable("Type", is_independent=True, is_binned=False) #Reco = 0, ID = 1, Trig = 2 since strs not supported
+    var_eta = Variable("abs(eta)", is_independent=True, is_binned=True)
+    var_pt = Variable("pT", is_independent=True, is_binned=True, units="GeV/c" )
+    var_eff = Variable("Efficiency in MC", is_independent=False, is_binned=False)
+    #Technically this should not be symmetric (upper bound on eff of 100%), however th2 objects which provide the uncertainties have symmetric errors
+    var_effErr = Uncertainty("Efficiency Uncertainty", is_symmetric=True)
+
+    #Reco efficiencies are not available from the POG as TH2Fs, only as jsons
+    #Values from those JSONs were manually extracted to include below (the values' absurd quoted precision has been clipped to 5 dig after decimal)
+    etaBinsReco = [(0.0, 0.9), (0.9, 1.2), (1.2, 2.1), (2.1, 2.4)]
+    ptBinsReco = [(18, 50), (50, 100), (100, 200), (200, 500), (500, 1500)]
+    nPtBinsReco = len(ptBinsReco)
+    binsPerYrReco = len(ptBinsReco) * len(etaBinsReco)
+    #Errs are in format (stat, syst)
+    recoEffs_2015 = [0.99982, 1.00015, 0.99989, 0.99902] 
+    recoEffErrs_2015 = [(0.00015, 0.00035), (0.00019, 0.00031), (0.00012, 0.00021), (0.00027, 0.00194)]
+    recoEffs_2016 = [1.00004, 0.99979, 0.99949, 0.99907]
+    recoEffErrs_2016 = [(0.00010, 0.00143), (0.00019, 0.00109), (0.00012,  0.00148), (0.00027, 0.00173)]
+    recoEffs_2017 = [0.99967, 0.99978, 0.99946, 0.99935]
+    recoEffErrs_2017 = [(0.00007, 0.00065), (0.00014, 0.00043), (0.00007, 0.00106), (0.00022, 0.00118)]
+    recoEffs_2018 = [0.99980, 0.99975, 0.99958, 0.99903]
+    recoEffErrs_2018 = [(0.00006, 0.00038), (0.00011, 0.00052), (0.00007, 0.00083), (0.00019, 0.00172)]
+
+    #Trigger histogram names are year dependent, provide map year->name here
+    trigHistNames ={2015 : "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_eta_pt_efficiencyMC",
+                    2016 : "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_eta_pt_efficiencyMC",
+                    2017 : "NUM_IsoMu27_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt_efficiencyMC",
+                    2018 : "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt_efficiencyMC"}
+
+    for year in [2015, 2016, 2017, 2018]:
+        yrStr = str(year)
+
+        #Reco effs are appended "manually" since values were extracted from jsons
+        var_year.values.extend([year] * binsPerYrReco)
+        var_effType.values.extend([0] * binsPerYrReco)
+        for b in range(len(etaBinsReco)):
+            var_eta.values.extend(etaBinsReco[b] * nPtBinsReco)
+            var_pt.values.extend(ptBinsReco)
+
+            if year == 2015:
+                var_eff.values.extend(recoEffs_2015[b] * nPtBinsReco) # Effs are indep of pt
+                effErr = np.sqrt((recoEffErrs_2015[b][0] * recoEffErrs_2015[b][0]) + (recoEffErrs_2015[b][1] * recoEffErrs_2015[b][1]))
+                var_effErr.values.extend([effErr] * nPtBinsReco)
+            elif year == 2016:
+                var_eff.values.extend(recoEffs_2016[b] * nPtBinsReco)
+                effErr = np.sqrt((recoEffErrs_2016[b][0] * recoEffErrs_2016[b][0]) + (recoEffErrs_2016[b][1] * recoEffErrs_2016[b][1]))
+                var_effErr.values.extend([effErr] * nPtBinsReco)
+            elif year == 2017:
+                var_eff.values.extend(recoEffs_2017[b] * nPtBinsReco)
+                effErr = np.sqrt((recoEffErrs_2017[b][0] * recoEffErrs_2017[b][0]) + (recoEffErrs_2017[b][1] * recoEffErrs_2017[b][1]))
+                var_effErr.values.extend([effErr] * nPtBinsReco)
+            elif year == 2018:
+                var_eff.values.extend(recoEffs_2018[b] * nPtBinsReco)
+                effErr = np.sqrt((recoEffErrs_2018[b][0] * recoEffErrs_2018[b][0]) + (recoEffErrs_2018[b][1] * recoEffErrs_2018[b][1]))
+                var_effErr.values.extend([effErr] * nPtBinsReco)
+
+        #Can extract ID and trig straight from TH2s but still need to combine syst + stat errs
+        effDict_ID = RootFileReader.read_hist_2D("effs_mu_ID_" + yrStr + "/NUM_TightID_DEN_TrackerMuons_abseta_pt_efficiencyMC")
+        effDict_ID_errStat = RootFileReader.read_hist_2D("effs_mu_ID_" + yrStr + "/NUM_TightID_DEN_TrackerMuons_abseta_pt_efficiencyMC_stat")
+        effDict_ID_errSyst = RootFileReader.read_hist_2D("effs_mu_ID_" + yrStr + "/NUM_TightID_DEN_TrackerMuons_abseta_pt_efficiencyMC_syst")
+        
+        effDict_trig = RootFileReader.read_hist_2D("effs_mu_trig_" + yrStr + "/" + trigHistNames[year])
+        effDict_trig_errStat = RootFileReader.read_hist_2D("effs_mu_trig_" + yrStr + "/" + trigHistNames[year] + "_stat")
+        effDict_trig_errSyst= RootFileReader.read_hist_2D("effs_mu_trig_" + yrStr + "/" + trigHistNames[year] + "syst")
+
+        var_year.values.extend([year] * (len(effDict_ID["z"]) + len(effDict_trig["z"])))
+        
+        var_effType.values.extend([1] * len(effDict_ID["z"]))
+        var_effType.values.extend([2] * len(effDict_trig["z"]))
+
+        var_eta.values.extend(effDict_ID["x_edges"])
+        var_eta.values.extend(effDict_trig["x_edges"])
+
+        var_pt.values.extend(effDict_ID["y_edges"])
+        var_pt.values.extend(effDict_trig["y_edges"])
+
+        var_eff.values.extend(effDict_ID["z"])
+        var_eff.values.extend(effDict_trig["z"])
+
+        #Combine syst + stat errors
+        for i in range(len(effDict_ID["z"])):
+            errID = np.sqrt(effDict_ID_errStat["z"][i]**2 + effDict_ID_errSyst["z"][i]**2)
+            var_effErr.values.append(errID)
+        for i in range(len(effDict_trig["z"])):
+            errTrig = np.sqrt(effDict_trig_errStat["z"][i]**2 + effDict_trig_errSyst["z"][i]**2)
+            var_effErr.values.append(errTrig)
+        
+    var_eff.add_uncertainty(var_effErr)
+
+    tab.add_variable(var_year)
+    tab.add_variable(var_effType)
+    tab.add_variable(var_eta)
+    tab.add_variable(var_pt)
+    tab.add_variable(var_eff)
+    
+    return tab
+
+##--------------------------------------------------------------------------------------------------------------------------------
+
+def makeEffTableTau():
+    pass
+##--------------------------------------------------------------------------------------------------------------------------------
+
+def makeEffTablePho():
+    pass
+
+##--------------------------------------------------------------------------------------------------------------------------------
+
 # Create the HEPData submission
 def makeSubmission():
     submission = Submission()
@@ -271,6 +393,17 @@ def makeSubmission():
     table_LBandWidths = makeLBandWidthsTable()
     submission.add_table(table_LBandWidths)
     print("...L-Band widths table added to submission")
+
+    print("Making object efficiency tables...")
+    table_effs_el = makeEffTableEl()
+    submission.add_table(table_effs_el)
+    #table_effs_mu = makeEffTableMu()
+    #submission.add_table(table_effs_mu)
+    #table_effs_tau =makeEffTableTau()
+    #submission.add_table(table_effs_tau)
+    #table_effs_pho = makeEffTablePho()
+    #submission.add_table(table_effs_pho)
+    print("...Efficiency tables added to submission")
 
     print("Adding text...")
     for table in submission.tables:
