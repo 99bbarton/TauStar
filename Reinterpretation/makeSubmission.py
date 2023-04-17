@@ -9,8 +9,8 @@ from time import sleep
 ##--------------------------------------------------------------------------------------------------------------------------------
 
 #Makes a HEPData_lib Table object of the signal process cut flow
-#\param filepath : a string containing the filename and path to file containing cutflow information. Assumed to be in a CSV format
-#\returns A Table object containing the cut flow information 
+#filepath : a string containing the filename and path to file containing cutflow information. Assumed to be in a CSV format
+#returns A Table object containing the cut flow information 
 def makeCutFlowTable(filepath):
     print("Making cutflow table...")
 
@@ -58,10 +58,10 @@ def makeCutFlowTable(filepath):
 ##--------------------------------------------------------------------------------------------------------------------------------
 
 #Make a set of HEPData_lib Tables containing the total covariance matrices for each year, taustar mass, channel, and region
-#\WARNING: Assumes a set of years, taustar masses, filename format for the output files from combine, channel mapping, and ROOT layout in the file
-#\param dirPath : a string containing the path to the directory containing the fiDiagnostics combine output files
-#\param includeSignalRegion : whether or not to include the signal region's covariance information in the table. default is False.
-#\returns tables : a list of HEPData_lib Table objects, one for each year in the years list initialize below
+#WARNING: Assumes a set of years, taustar masses, filename format for the output files from combine, channel mapping, and ROOT layout in the file
+#dirPath : a string containing the path to the directory containing the fiDiagnostics combine output files
+#includeSignalRegion : whether or not to include the signal region's covariance information in the table. default is False.
+#tables : a list of HEPData_lib Table objects, one for each year in the years list initialize below
 def makeCovarianceTables(dirPath, includeSignalRegion=False):
     print("Making covariance matrice tables...")
     if includeSignalRegion: #Safety check against including signal region information
@@ -207,9 +207,9 @@ def makeEffTableEl():
         #NB By default, the eff histograms in EGamma TNP output files don't have errors (separate histograms)
         #I have used: https://github.com/99bbarton/TauStar/blob/main/Analysis/TNP/writeErrsToEffHists.py
         # to write the appropriate errors to the eff histograms so that the data can be read in more easily here
-        effDict_reco = RootFileReader.read_hist_2D("effs_el_reco_" + yrStr + "/EGamma_EffMC2D")
-        effDict_ID = RootFileReader.read_hist_2D("effs_el_ID_" + yrStr + "/EGamma_EffMC2D")
-        effDict_trig = RootFileReader.read_hist_2D("effs_el_trig_" + yrStr + "/EGamma_EffMC2D")
+        effDict_reco = RootFileReader.read_hist_2D("effs_el_reco_" + yrStr + ".root" + "/EGamma_EffMC2D")
+        effDict_ID = RootFileReader.read_hist_2D("effs_el_ID_" + yrStr + ".root" + "/EGamma_EffMC2D")
+        effDict_trig = RootFileReader.read_hist_2D("effs_el_trig_" + yrStr + ".root" + "/EGamma_EffMC2D")
     
         #Add data to the Variable/Uncertainty objects
         numEntries_reco = len(effDict_reco["z"])
@@ -252,7 +252,7 @@ def makeEffTableEl():
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
-## Produce a table of reco, ID, and trigger efficiencies for muons
+## Produce a table of reco, ID, and trigger efficiencies for muons. ID, trigger are chosen to match MuTau channel selections
 # File paths are hardcoded and of the form effs_mu_<eff type>_<year>.* . They were sourced and renamed from the following (2018 shown as example):
 # reco : https://gitlab.cern.ch/cms-muonPOG/muonefficiencies/-/blob/master/Run2/UL/2018/NUM_TrackerMuons_DEN_genTracks_Z_abseta_pt.json
 #      Reco efficiencies are not provided by the POG as TH2Fs so values from these JSONS were extracted manually to include below
@@ -323,13 +323,13 @@ def makeEffTableMu():
                 var_effErr.values.extend([effErr] * nPtBinsReco)
 
         #Can extract ID and trig straight from TH2s but still need to combine syst + stat errs
-        effDict_ID = RootFileReader.read_hist_2D("effs_mu_ID_" + yrStr + "/NUM_TightID_DEN_TrackerMuons_abseta_pt_efficiencyMC")
-        effDict_ID_errStat = RootFileReader.read_hist_2D("effs_mu_ID_" + yrStr + "/NUM_TightID_DEN_TrackerMuons_abseta_pt_efficiencyMC_stat")
-        effDict_ID_errSyst = RootFileReader.read_hist_2D("effs_mu_ID_" + yrStr + "/NUM_TightID_DEN_TrackerMuons_abseta_pt_efficiencyMC_syst")
+        effDict_ID = RootFileReader.read_hist_2D("effs_mu_ID_" + yrStr + ".root" + "/NUM_TightID_DEN_TrackerMuons_abseta_pt_efficiencyMC")
+        effDict_ID_errStat = RootFileReader.read_hist_2D("effs_mu_ID_" + yrStr + ".root" + "/NUM_TightID_DEN_TrackerMuons_abseta_pt_efficiencyMC_stat")
+        effDict_ID_errSyst = RootFileReader.read_hist_2D("effs_mu_ID_" + yrStr + ".root" + "/NUM_TightID_DEN_TrackerMuons_abseta_pt_efficiencyMC_syst")
         
-        effDict_trig = RootFileReader.read_hist_2D("effs_mu_trig_" + yrStr + "/" + trigHistNames[year])
-        effDict_trig_errStat = RootFileReader.read_hist_2D("effs_mu_trig_" + yrStr + "/" + trigHistNames[year] + "_stat")
-        effDict_trig_errSyst= RootFileReader.read_hist_2D("effs_mu_trig_" + yrStr + "/" + trigHistNames[year] + "syst")
+        effDict_trig = RootFileReader.read_hist_2D("effs_mu_trig_" + yrStr + ".root/" + trigHistNames[year])
+        effDict_trig_errStat = RootFileReader.read_hist_2D("effs_mu_trig_" + yrStr + ".root/" + trigHistNames[year] + "_stat")
+        effDict_trig_errSyst= RootFileReader.read_hist_2D("effs_mu_trig_" + yrStr + ".root/" + trigHistNames[year] + "syst")
 
         var_year.values.extend([year] * (len(effDict_ID["z"]) + len(effDict_trig["z"])))
         
@@ -365,8 +365,77 @@ def makeEffTableMu():
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
+## Produce a table of reco, ID, and trigger efficiencies for taus. 
+# Sources of information for each efficiency type are discussed below:
+# reco : Calculated using https://github.com/99bbarton/TauStar/blob/reinterpretation/Analysis/RecoEffProducer.py
+#        and https://github.com/99bbarton/TauStar/blob/reinterpretation/Reinterpretation/Efficiencies/calcObjEffs.C
+#        and stored here: effs_reco.root
+# ID   : Calculated using https://github.com/99bbarton/TauStar/blob/reinterpretation/Reinterpretation/Efficiencies/calcObjEffs.C
+#        and stored here: effs_tau_ID.root
+# trig : Found here: https://github.com/cms-tau-pog/TauTriggerSFs/tree/run2_SFs/data , specifically files of the format: 2018UL_tauTriggerEff_DeepTau2017v2p1.root
+# Returns a HEPDataLib Table object containing the efficiencies
+#TODO add plots as images
 def makeEffTableTau():
-    pass
+    #Define HEPData objects
+    tab = Table("Tau Efficiencies")
+    tab.description = """Reco, ID, and trigger efficiencies observed in MC for taus.'Type' 0 = Reco, 1 = ID, 2 = trigger"""
+    var_year = Variable("Year", is_independent=True, is_binned=False)
+    var_ch = Variable("Analysis Channel", is_independent=True, is_binned=False) # -1 inclusive, 0 = ETau, 1 = MuTau, 2 = TauTau,
+    var_effType = Variable("Type", is_independent=True, is_binned=False) #Reco = 0, ID = 1, Trig = 2 since strs not supported
+    var_eta = Variable("abs(eta)", is_independent=True, is_binned=True)
+    var_pt = Variable("pT", is_independent=True, is_binned=True, units="GeV/c" )
+    var_eff = Variable("Efficiency in MC", is_independent=False, is_binned=False)
+    #Technically this should not be symmetric (upper bound on eff of 100%), however th2 objects which provide the uncertainties have symmetric errors
+    var_effErr = Uncertainty("Efficiency Uncertainty", is_symmetric=True)
+
+    chMap = ["ETau_", "MuTau_", "TauTau_"]
+
+    for year in [2015, 2016, 2017, 2018]:
+        yrStr = str(year)
+
+        #Add reco info
+        effDict_reco = RootFileReader.read_hist_2D("effs_reco.root/h_tauEff_" + yrStr)
+        var_year.values.extend([year] * len(effDict_reco["z"]))
+        var_effType.values.extend([0] * len(effDict_reco["z"]))
+        var_ch.values.extend([-1] * len(effDict_reco["z"])) #Reco is channel independent
+        var_eta.values.extend(effDict_reco["x_edges"])
+        var_pt.values.extend(effDict_reco["y_edges"])
+        var_eff.values.extend(effDict_reco["z"])
+        var_effErr.values.extend(effDict_reco["dz"])
+
+        #ID WPs used for each channel are different so must handle each separately
+        for chN in range(3):
+            effDict_ID = RootFileReader.read_hist_2D("effs_tau_ID.root/tauIDeff_" + chMap[chN] + year)
+            var_year.values.extend([year] * len(effDict_ID["z"]))
+            var_effType.values.extend([1] * len(effDict_ID["z"]))
+            var_ch.values.extend([chN] * len(effDict_ID["z"]))
+            var_eta.values.extend(effDict_ID["x_edges"])
+            var_pt.values.extend(effDict_ID["y_edges"])
+            var_eff.values.extend(effDict_ID["z"])
+            var_effErr.values.extend(effDict_ID["dz"])
+
+        #Add trig info
+        effDict_trig = RootFileReader.read_hist_2D("effs_el_trig_" + yrStr + ".root" + "/")
+        var_year.values.extend([year] * len(effDict_trig["z"]))
+        var_effType.values.extend([2] * len(effDict_trig["z"]))
+        var_ch.values.extend([2] * len(effDict_trig["z"])) #Only use tau trigger for TauTau
+        var_eta.values.extend(effDict_trig["x_edges"])
+        var_pt.values.extend(effDict_trig["y_edges"])
+        var_eff.values.extend(effDict_trig["z"])
+        var_effErr.values.extend(effDict_trig["dz"])
+    
+    var_eff.add_uncertainty(var_effErr)
+
+    tab.add_variable(var_year)
+    tab.add_variable(var_effType)
+    tab.add_Variable(var_ch)
+    tab.add_variable(var_eta)
+    tab.add_variable(var_pt)
+    tab.add_variable(var_eff)
+    
+    return tab
+
+
 ##--------------------------------------------------------------------------------------------------------------------------------
 
 def makeEffTablePho():
@@ -397,10 +466,10 @@ def makeSubmission():
     print("Making object efficiency tables...")
     table_effs_el = makeEffTableEl()
     submission.add_table(table_effs_el)
-    #table_effs_mu = makeEffTableMu()
-    #submission.add_table(table_effs_mu)
-    #table_effs_tau =makeEffTableTau()
-    #submission.add_table(table_effs_tau)
+    table_effs_mu = makeEffTableMu()
+    submission.add_table(table_effs_mu)
+    table_effs_tau =makeEffTableTau()
+    submission.add_table(table_effs_tau)
     #table_effs_pho = makeEffTablePho()
     #submission.add_table(table_effs_pho)
     print("...Efficiency tables added to submission")
