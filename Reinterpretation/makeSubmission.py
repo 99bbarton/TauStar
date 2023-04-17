@@ -438,8 +438,62 @@ def makeEffTableTau():
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
+## Produce a table of reco and ID efficiencies for photons
+# Sources of information for each efficiency type are discussed below:
+# reco : Calculated using https://github.com/99bbarton/TauStar/blob/reinterpretation/Analysis/RecoEffProducer.py
+#        and https://github.com/99bbarton/TauStar/blob/reinterpretation/Reinterpretation/Efficiencies/calcObjEffs.C
+#        and stored here: effs_reco.root
+# ID   : Calculated via EGamma TNP (see AN appendix for details), errors added to eff hists via: ../../Analysis/TNP/writeErrsToEffHists.py ,
+# then high-pt bins extrapolated via: ../../Analysis/PhoID_FittedSFS/extrapolateSFs.py
+# Returns a HEPDataLib Table object containing the efficiencies
+#TODO add plots as images
 def makeEffTablePho():
-    pass
+    #Define HEPData objects
+    tab = Table("Electron Efficiencies")
+    tab.description = """Reco and ID efficiencies observed in MC for photons.'Type' 0 = Reco, 1 = ID"""
+    var_year = Variable("Year", is_independent=True, is_binned=False)
+    var_effType = Variable("Type", is_independent=True, is_binned=False) #Reco = 0, ID = 1 since strs not supported
+    var_eta = Variable("abs(eta)", is_independent=True, is_binned=True)
+    var_pt = Variable("pT", is_independent=True, is_binned=True, units="GeV/c" )
+    var_eff = Variable("Efficiency in MC", is_independent=False, is_binned=False)
+    #Technically this should not be symmetric (upper bound on eff of 100%), however th2 objects which provide the uncertainties have symmetric errors
+    var_effErr = Uncertainty("Efficiency Uncertainty", is_symmetric=True)  
+
+    for year in [2015, 2016, 2017, 2018]:
+        yrStr = str(year)
+
+        #Get data from ROOT files
+        effDict_reco = RootFileReader.read_hist_2D("effs_reco.root" + "/h_phoEff_" + yrStr)
+        effDict_ID = RootFileReader.read_hist_2D("effs_pho_ID_" + yrStr + ".root" + "/EGamma_EffMC2D")
+
+        #Write data to the Variable objects
+        var_year.values.extend([year] * (len(effDict_reco["z"]) + len(effDict_ID["z"])))
+        
+        var_effType.values.extend([0] * len(effDict_reco["z"]))
+        var_effType.values.extend([1] * len(effDict_ID["z"]))
+
+        var_eta.values.extend(effDict_reco["x_edges"])
+        var_eta.values.extend(effDict_ID["x_edges"])
+
+        var_pt.values.extend(effDict_reco["y_edges"])
+        var_pt.values.extend(effDict_ID["y_edges"])
+
+        var_eff.values.extend(effDict_reco["z"])
+        var_eff.values.extend(effDict_ID["z"])
+
+        var_effErr.values.extend(effDict_reco["dz"])
+        var_effErr.values.extend(effDict_ID["dz"])
+
+    #Add the variables to the table
+    var_eff.add_uncertainty(var_effErr)
+
+    tab.add_variable(var_year)
+    tab.add_variable(var_effType)
+    tab.add_variable(var_eta)
+    tab.add_variable(var_pt)
+    tab.add_variable(var_eff)
+
+    return tab
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
@@ -464,14 +518,18 @@ def makeSubmission():
     print("...L-Band widths table added to submission")
 
     print("Making object efficiency tables...")
+    print("... electrons ...")
     table_effs_el = makeEffTableEl()
     submission.add_table(table_effs_el)
+    print("... muons ...")
     table_effs_mu = makeEffTableMu()
     submission.add_table(table_effs_mu)
+    print("... taus ...")
     table_effs_tau =makeEffTableTau()
     submission.add_table(table_effs_tau)
-    #table_effs_pho = makeEffTablePho()
-    #submission.add_table(table_effs_pho)
+    print("... photons ...")
+    table_effs_pho = makeEffTablePho()
+    submission.add_table(table_effs_pho)
     print("...Efficiency tables added to submission")
 
     print("Adding text...")

@@ -1,9 +1,12 @@
 #Calculate scale factors of highest pt bins via linear extrapolation
 #Following the example layed out here: https://twiki.cern.ch/twiki/bin/view/CMS/EGMPhotonIDHighPtPhotons
+#By default, assumes that you want to both add higher pT bins matching the configuration listed in addHigherPtBins()
+#and then calculate new SFs. Extrapolated SFs are by default weighted by the distance from the fit region.
+#This weight can be removed by uncommenting alternate err calculation lines
 
 import sys
 import os
-from ROOT import TH2F, TCanvas, gStyle, TFile, TGraph
+from ROOT import TH2F, TCanvas, gStyle, TFile, TGraph, gPad
 from array import array
 from math import sqrt
 
@@ -11,6 +14,7 @@ from math import sqrt
 ##Note, binning is hardcoded and must be altered manually if needed
 # filepath : filename and path of root file containing SFs to extrapolate
 def addHigherPtBins(filepath=""):
+    print("\nAdding high-pT bins...")
 
     inFile = TFile(filepath, "read")
 
@@ -74,16 +78,19 @@ def addHigherPtBins(filepath=""):
     outFile.WriteObject(hists_new[5], "altMCEff_new")
     outFile.Close()
 
+    print("...Done adding high-pT bins")
     return outFilePath
-    
 
-           
+##-------------------------------------------------------------------------------------------------------------------------------------
 
 ##Extrapolate SFs and uncertainties to high-pT bins
 # filepath : filename and path of root file containing SFs to extrapolate
 # ptBinsToFit : a list of pt bin centers to include in the fit for extrapolation
 # binsToExtrap : a list of bin centers of the bins to replace existing efficiencies/SFs with extrapolated ones
 def extrapolateSFs(filepath="", binsToExtrap=[750, 2500]):
+
+    print("\nCalculating extrapolated scale factors...")
+
     gStyle.SetPaintTextFormat("4.2f")
     gStyle.SetOptStat(0)
 
@@ -100,10 +107,9 @@ def extrapolateSFs(filepath="", binsToExtrap=[750, 2500]):
     canv.Divide(2,1)
     canv.cd(1)
 
-
     sfCopy= sf2D.Clone()
     sfCopy.Draw("colz texte")
-    canv.SetLogy()
+    gPad.SetLogy(1)
 
     nEtaBins = effData.GetNbinsX()
     etaBins = [-2.125, -1.783, -1.505, -1.122, -0.4, 0.4, 1.122, 1.505, 1.783, 2.125] #Eta bin centers
@@ -111,22 +117,39 @@ def extrapolateSFs(filepath="", binsToExtrap=[750, 2500]):
     ptGraphBins = array("f", ptBinsToFit)
 
     #Find the central (avg) pT value of the fit bins for later use in weighting the extrapolation
-    lowBin = effData.FindBin(etaBins[0], ptBinsToFit[0])
-    highBin = effData.FindBin(etaBins[0], ptBinsToFit[-1])
-    ptAvgInFit = ((effData.GetYaxis().GetBinLowEdge(highBin) + effData.GetYaxis().GetBinWidth(highBin)) - effData.GetYaxis().GetBinLowEdge(lowBin)) / 2
+    lowBin = effData.GetYaxis().FindBin(ptBinsToFit[0])
+    highBin = effData.GetYaxis().FindBin(ptBinsToFit[-1])
+    ptAvgInFit = (effData.GetYaxis().GetBinUpEdge(highBin) - effData.GetYaxis().GetBinLowEdge(lowBin)) / 2
 
+    #Calculate the variance of the bin centers used in the fit
+    varOfFitBins = 0
+    for ptBin in ptBinsToFit:
+        varOfFitBins += (ptBin - ptAvgInFit) * (ptBin - ptAvgInFit)
+    varOfFitBins /= len(ptBinsToFit)
 
     for x, eta in enumerate(etaBins):
         fitBinsData = []
         fitBinsMC = []
         x=x+1
+
+        sumSqrErrData=0
+        sumSqrErrMC=0
         for y, pt in enumerate(ptBinsToFit): #Copy the bin contents of the bins specified by ptBinsToFit to make graphs
             bin = effData.FindBin(eta, pt)
             fitBinsData.append(effData.GetBinContent(bin))
             fitBinsMC.append(effMC.GetBinContent(bin))
-        
+            errData = effData.GetBinError(bin)
+            sumSqrErrData += errData * errData
+            errMC = effMC.GetBinError(bin)
+            sumSqrErrData += errMC * errMC
+
         fitBinsData = array("f", fitBinsData)
         fitBinsMC = array("f", fitBinsMC)
+
+        #Sum of square errors can be added to treat the extrapolation weight as an uncertainty.
+        #Must also be accompanied by uncommenting out the appropriate error calculation lines below
+        sumSqrErrData /= len(ptBinsToFit) * len(ptBinsToFit)
+        sumSqrErrMC /= len(ptBinsToFit) * len(ptBinsToFit)
 
         #Make a graph of the extracted efficiencies
         graphData = TGraph(len(ptGraphBins), ptGraphBins, fitBinsData)
@@ -151,24 +174,31 @@ def extrapolateSFs(filepath="", binsToExtrap=[750, 2500]):
         for binToExtrap in binsToExtrap:
             #Extrapolate a new efficiency
             extrapValData = (binToExtrap * slopeData) + interData #eff_new = (m_data * x) + b_data
-            extrapErrData = sqrt(((interData**2) * (interDataErr**2)) + ((slopeData**2) * (slopeDataErr**2)) + (2 * slopeData * interData * covData01)) #Full err propagation   
+            extrapErrData = ((interData**2) * (interDataErr**2)) + ((slopeData**2) * (slopeDataErr**2)) + (2 * slopeData * interData * covData01) #Fit err (squared)   
             extrapValMC = (binToExtrap * slopeMC) + interMC # Sim for MC
-            extrapErrMC = sqrt(((interMC**2) * (interMCErr**2)) + ((slopeMC**2) * (slopeMCErr**2)) + (2 * slopeMC * interMC * covMC01))
+            print("ExtrapValMC = " + str(extrapValMC))
+            extrapErrMC = ((interMC**2) * (interMCErr**2)) + ((slopeMC**2) * (slopeMCErr**2)) + (2 * slopeMC * interMC * covMC01)
             #Weight on error from eqn (2) here: https://w3.pppl.gov/~hammett/work/1999/stderr.pdf
-            extrapBinWidth = effData.GetYaxis().GetBinWidth(effData.FindBin(etaBins[0], binToExtrap)) #The width of bin were extrapolating
-            extrapErrWeight = (binToExtrap - ptAvgInFit) / extrapBinWidth
-            extrapErrWeight = (1 + extrapErrWeight**2) / len(ptBinsToFit)
-        
+            #Essentially, weight the fit uncertainty by (1+lamda^2) 
+            # where lamda is the distance between the extrapolated pt bin center and the mean pt in the fit region in units of the std dev of the fit pt bins centers
+            lambdaSqrd = (binToExtrap - ptAvgInFit) * (binToExtrap - ptAvgInFit) / varOfFitBins
+            extrapErrWeight = (1 + lambdaSqrd)
+            #extrapErrData += sumSqrErrData * extrapErrWeight #Uncomment these lines to treat extrapolation as an additional uncertainty (fit + extrapolation)
+            #extrapErrMC += sumSqrErrMC * extrapErrWeight
 
             #Set new last bin efficiency contents
             binToFill = effData.GetBin(x, binToFillY)
             effData.SetBinContent(binToFill, extrapValData)
+            effData.SetBinError(binToFill, extrapErrData)
             effMC.SetBinContent(binToFill, extrapValMC)
+            effMC.SetBinError(binToFill, extrapErrMC)
 
             #Calculate and store new SFs and uncertainties
             #Uncertainties added in quadrature from data and MC extrapolation and then added in quadrature to existing error
             newSF = extrapValData / extrapValMC
-            newSFErr = (extrapErrData * extrapErrData * extrapErrWeight) + (extrapErrMC * extrapErrMC * extrapErrWeight) #Actually the squared error
+            newSFErr = (extrapErrData * extrapErrWeight) + (extrapErrMC * extrapErrWeight) #Actually the squared error
+            #newSFErr = extrapErrData + extrapErrMC #Uncomment this if you do not want to weight based on extrapolation distance
+            
             oldErr = sf2D.GetBinError(binToFill)
             statDataErr = statData2D.GetBinContent(binToFill)
             statMCErr = statMC2D.GetBinContent(binToFill)
@@ -185,14 +215,16 @@ def extrapolateSFs(filepath="", binsToExtrap=[750, 2500]):
             sf2D.SetBinContent(binToFill, newSF)
             sf2D.SetBinError(binToFill, newSFErr)
 
-            print("New sf +/- err for (" + str(x) + ", " + str(binToFillY) + ")= " + str(newSF) + " +/- " + str(newSFErr))
+            #print("New sf +/- err for (" + str(x) + ", " + str(binToFillY) + ")= " + str(newSF) + " +/- " + str(newSFErr))
 
             binToFillY += 1
     
 
     canv.cd(2)
     sf2D.Draw("colz texte")
-    canv.SetLogy()
+    gPad.SetLogy(1)
+    gPad.Modified()
+    canv.Update()
 
     buff = raw_input("Hit enter to close: ")
 
@@ -204,6 +236,9 @@ def extrapolateSFs(filepath="", binsToExtrap=[750, 2500]):
 
     outFile.Close()
 
+    print("\n...Done calculating extrapolated scale factors")
+
+##-------------------------------------------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
@@ -211,18 +246,5 @@ if __name__ == "__main__":
         extrapolateSFs(extendedFilePath)
     else:
         print("USAGE: extrapolateSFs.py <input file path>")
-
-
-
-
-
-        
-
-    
-
-
-
-            
-
 
 
