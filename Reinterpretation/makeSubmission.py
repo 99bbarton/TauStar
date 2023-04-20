@@ -95,7 +95,7 @@ def makeCovarianceTables(dirPath, includeSignalRegion=False):
         tables.append(Table(tableTitle))
 
         #Initialize the variables which will be added to the table
-        var_mass = Variable("TauStar Hypothesis Mass", is_independent=True, is_binned=False, units="GeV/c^2")
+        var_mass = Variable("TauStar Hypothesis Mass", is_independent=True, is_binned=False, units="GeV")
         var_ch = Variable("Analysis Channel", is_independent=True, is_binned=False)
         var_reg = Variable("Region", is_independent = True, is_binned=False)
         var_binNumX = Variable("Bin Number X", is_independent=True, is_binned=False)
@@ -164,7 +164,7 @@ def makeLBandWidthsTable():
     table.description = """The signal region is defined a an L-shaped band in the 2D collinear mass plane (min vs max collinear mass). 
     The width of the band is chosen to be the value such that 90% of signal falls within the band for each taustar hypothesis mass """
 
-    mass = Variable("TauStar Hypothesis Mass", is_binned = False, is_independent = True, units = "GeV/c^2")
+    mass = Variable("TauStar Hypothesis Mass", is_binned = False, is_independent = True, units = "GeV")
     mass.values = [175,250,375,500,625,750,1000,1250,1500,1750,2000,2500,3000,3500,4000,4500,5000]
     widths = Variable("Fractional Width of L-Band", is_independent = False, is_binned = False)
     widths.values = [0.47, 0.35, 0.26, 0.21, 0.19, 0.17, 0.15, 0.13, 0.12, 0.11, 0.11, 0.10, 0.10, 0.10, 0.11, 0.13, 0.16]
@@ -195,7 +195,7 @@ def makeEffTableEl():
     var_year = Variable("Year", is_independent=True, is_binned=False)
     var_effType = Variable("Type", is_independent=True, is_binned=False) #Reco = 0, ID = 1, Trig = 2 since strs not supported
     var_eta = Variable("abs(eta)", is_independent=True, is_binned=True)
-    var_pt = Variable("pT", is_independent=True, is_binned=True, units="GeV/c" )
+    var_pt = Variable("pT", is_independent=True, is_binned=True, units="GeV" )
     var_eff = Variable("Efficiency in MC", is_independent=False, is_binned=False)
     #Technically this should not be symmetric (upper bound on eff of 100%), however th2 objects which provide the uncertainties have symmetric errors
     var_effErr = Uncertainty("Efficiency Uncertainty", is_symmetric=True)  
@@ -268,7 +268,7 @@ def makeEffTableMu():
     var_year = Variable("Year", is_independent=True, is_binned=False)
     var_effType = Variable("Type", is_independent=True, is_binned=False) #Reco = 0, ID = 1, Trig = 2 since strs not supported
     var_eta = Variable("abs(eta)", is_independent=True, is_binned=True)
-    var_pt = Variable("pT", is_independent=True, is_binned=True, units="GeV/c" )
+    var_pt = Variable("pT", is_independent=True, is_binned=True, units="GeV" )
     var_eff = Variable("Efficiency in MC", is_independent=False, is_binned=False)
     #Technically this should not be symmetric (upper bound on eff of 100%), however th2 objects which provide the uncertainties have symmetric errors
     var_effErr = Uncertainty("Efficiency Uncertainty", is_symmetric=True)
@@ -378,7 +378,7 @@ def makeEffTableTau():
     var_ch = Variable("Analysis Channel", is_independent=True, is_binned=False) # -1 inclusive, 0 = ETau, 1 = MuTau, 2 = TauTau,
     var_effType = Variable("Type", is_independent=True, is_binned=False) #Reco = 0, ID = 1, Trig = 2 since strs not supported
     var_eta = Variable("abs(eta)", is_independent=True, is_binned=True)
-    var_pt = Variable("pT", is_independent=True, is_binned=True, units="GeV/c" )
+    var_pt = Variable("pT", is_independent=True, is_binned=True, units="GeV" )
     var_eff = Variable("Efficiency in MC", is_independent=False, is_binned=False)
     #Technically this should not be symmetric (upper bound on eff of 100%), however th2 objects which provide the uncertainties have symmetric errors
     var_effErr = Uncertainty("Efficiency Uncertainty", is_symmetric=True)
@@ -451,7 +451,7 @@ def makeEffTablePho():
     var_year = Variable("Year", is_independent=True, is_binned=False)
     var_effType = Variable("Type", is_independent=True, is_binned=False) #Reco = 0, ID = 1 since strs not supported
     var_eta = Variable("abs(eta)", is_independent=True, is_binned=True)
-    var_pt = Variable("pT", is_independent=True, is_binned=True, units="GeV/c" )
+    var_pt = Variable("pT", is_independent=True, is_binned=True, units="GeV" )
     var_eff = Variable("Efficiency in MC", is_independent=False, is_binned=False)
     #Technically this should not be symmetric (upper bound on eff of 100%), however th2 objects which provide the uncertainties have symmetric errors
     var_effErr = Uncertainty("Efficiency Uncertainty", is_symmetric=True)  
@@ -494,6 +494,44 @@ def makeEffTablePho():
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
+## Make a Table containing the limits on cross section x branching fraction as a function of tau* mass (i.e. the brazil plot)
+# Reads in the outputs of the combine AsymptoticLimits. expected file format ishiggsCombineTest.AsymptoticLimits.m"+ massStr + "y0.nominal.root
+def makeLimitsTable():
+    print("Making limits table...")
+
+    tab = Table("Asymptotic Limits")
+    tab.description = """Exclusion limits on the cross section x branching fraction for an excited tau decaying to tau and photon"""
+    tab.keywords["observables"] = ["SIG"]
+    tab.add_image("Inputs/Limits/UpperLimit.nominal.pdf")
+
+    var_mass = Variable("${Tau}$* mass", is_independent=True, is_binned=False, units="GeV")
+    var_mass.values = [175,250,375,500,625,750,1000,1250,1500,1750,2000,2500,3000,3500,4000,4500,5000]
+    var_expLim = Variable("Expected Limits", is_independent=False, is_binned=False)
+    var_expLim.add_qualifier("Limit", "Expected")
+    var_expLim.add_qualifier("SQRT(S)", 13, "TeV")
+    var_expLim.add_qualifier("LUMINOSITY", 138, "fb$^{-1}$")
+    
+    unc_1stdDev = Uncertainty("1 std dev", is_symmetric=False)
+    unc_2stdDev = Uncertainty("2 std dev", is_symmetric=False)
+
+    for mass in var_mass.values:
+        massStr = str(mass)
+        reader = RootFileReader("Inputs/Limits/higgsCombineTest.AsymptoticLimits.m"+ massStr + "y0.nominal.root")
+        limits = reader.read_tree("limit","limit") #Returned array is of form [-2sd, -1sd, nom, +1sd, +2sd]
+        var_expLim.values.append(limits[2])
+        unc_1stdDev.values.append((limits[1] - limits[2], limits[3] - limits[2])) #Calc intervals from +/-1stddev - median vals
+        unc_2stdDev.values.append((limits[0] - limits[2], limits[4] - limits[2])) 
+
+    var_expLim.add_uncertainty(unc_1stdDev)
+    var_expLim.add_uncertainty(unc_2stdDev)
+
+    tab.add_variable(var_mass)
+    tab.add_variable(var_expLim)
+
+    return tab
+
+##--------------------------------------------------------------------------------------------------------------------------------
+
 # Create the HEPData submission
 def makeSubmission():
     submission = Submission()
@@ -531,6 +569,11 @@ def makeSubmission():
     submission.add_table(table_effs_pho)
     print("...Efficiency tables added to submission")
 
+    #Asymptotic limits
+    table_limits = makeLimitsTable()
+    submission.add_table(table_limits)
+    print("...limits table added to submission")
+
     #Meta data and text 
     print("Adding text...")
     for table in submission.tables:
@@ -538,7 +581,6 @@ def makeSubmission():
     submission.read_abstract("Inputs/abstract.txt")
     submission.add_link("CMS CADI", "https://cms.cern.ch/iCMS/analysisadmin/cadilines?line=EXO-22-007")
     print("...text added to submission") 
-
 
     print("Creating files...")
     submission.create_files("TestOutput/", remove_old=True)
