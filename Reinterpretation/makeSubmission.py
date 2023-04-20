@@ -4,7 +4,7 @@
 import numpy as np
 import pandas as pd
 from hepdata_lib import Submission, Table, Variable, Uncertainty, RootFileReader
-from time import sleep
+from math import sqrt
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
@@ -207,9 +207,9 @@ def makeEffTableEl():
         #NB By default, the eff histograms in EGamma TNP output files don't have errors (separate histograms)
         #I have used: https://github.com/99bbarton/TauStar/blob/main/Analysis/TNP/writeErrsToEffHists.py
         # to write the appropriate errors to the eff histograms so that the data can be read in more easily here
-        effDict_reco = RootFileReader.read_hist_2D("effs_el_reco_" + yrStr + ".root" + "/EGamma_EffMC2D")
-        effDict_ID = RootFileReader.read_hist_2D("effs_el_ID_" + yrStr + ".root" + "/EGamma_EffMC2D")
-        effDict_trig = RootFileReader.read_hist_2D("effs_el_trig_" + yrStr + ".root" + "/EGamma_EffMC2D")
+        effDict_reco = RootFileReader("Efficiencies/effs_el_reco_" + yrStr + ".root").read_hist_2d("EGamma_EffMC2D")
+        effDict_ID = RootFileReader("Efficiencies/effs_el_ID_" + yrStr + ".root").read_hist_2d("EGamma_EffMC2D")
+        effDict_trig = RootFileReader("Efficiencies/effs_el_trig_" + yrStr + ".root").read_hist_2d("EGamma_EffMC2D")
     
         #Add data to the Variable/Uncertainty objects
         numEntries_reco = len(effDict_reco["z"])
@@ -302,34 +302,33 @@ def makeEffTableMu():
         var_year.values.extend([year] * binsPerYrReco)
         var_effType.values.extend([0] * binsPerYrReco)
         for b in range(len(etaBinsReco)):
-            var_eta.values.extend(etaBinsReco[b] * nPtBinsReco)
+            for ptBinN in range(nPtBinsReco):
+                var_eta.values.append(etaBinsReco[b])
             var_pt.values.extend(ptBinsReco)
 
             if year == 2015:
-                var_eff.values.extend(recoEffs_2015[b] * nPtBinsReco) # Effs are indep of pt
-                effErr = np.sqrt((recoEffErrs_2015[b][0] * recoEffErrs_2015[b][0]) + (recoEffErrs_2015[b][1] * recoEffErrs_2015[b][1]))
+                var_eff.values.extend([recoEffs_2015[b]] * nPtBinsReco) # Effs are indep of pt
+                effErr = sqrt((recoEffErrs_2015[b][0] * recoEffErrs_2015[b][0]) + (recoEffErrs_2015[b][1] * recoEffErrs_2015[b][1]))
                 var_effErr.values.extend([effErr] * nPtBinsReco)
             elif year == 2016:
-                var_eff.values.extend(recoEffs_2016[b] * nPtBinsReco)
-                effErr = np.sqrt((recoEffErrs_2016[b][0] * recoEffErrs_2016[b][0]) + (recoEffErrs_2016[b][1] * recoEffErrs_2016[b][1]))
+                var_eff.values.extend([recoEffs_2016[b]] * nPtBinsReco)
+                effErr = sqrt((recoEffErrs_2016[b][0] * recoEffErrs_2016[b][0]) + (recoEffErrs_2016[b][1] * recoEffErrs_2016[b][1]))
                 var_effErr.values.extend([effErr] * nPtBinsReco)
             elif year == 2017:
-                var_eff.values.extend(recoEffs_2017[b] * nPtBinsReco)
-                effErr = np.sqrt((recoEffErrs_2017[b][0] * recoEffErrs_2017[b][0]) + (recoEffErrs_2017[b][1] * recoEffErrs_2017[b][1]))
+                var_eff.values.extend([recoEffs_2017[b]] * nPtBinsReco)
+                effErr = sqrt((recoEffErrs_2017[b][0] * recoEffErrs_2017[b][0]) + (recoEffErrs_2017[b][1] * recoEffErrs_2017[b][1]))
                 var_effErr.values.extend([effErr] * nPtBinsReco)
             elif year == 2018:
-                var_eff.values.extend(recoEffs_2018[b] * nPtBinsReco)
-                effErr = np.sqrt((recoEffErrs_2018[b][0] * recoEffErrs_2018[b][0]) + (recoEffErrs_2018[b][1] * recoEffErrs_2018[b][1]))
+                var_eff.values.extend([recoEffs_2018[b]] * nPtBinsReco)
+                effErr = sqrt((recoEffErrs_2018[b][0] * recoEffErrs_2018[b][0]) + (recoEffErrs_2018[b][1] * recoEffErrs_2018[b][1]))
                 var_effErr.values.extend([effErr] * nPtBinsReco)
 
         #Can extract ID and trig straight from TH2s but still need to combine syst + stat errs
-        effDict_ID = RootFileReader.read_hist_2D("effs_mu_ID_" + yrStr + ".root" + "/NUM_TightID_DEN_TrackerMuons_abseta_pt_efficiencyMC")
-        effDict_ID_errStat = RootFileReader.read_hist_2D("effs_mu_ID_" + yrStr + ".root" + "/NUM_TightID_DEN_TrackerMuons_abseta_pt_efficiencyMC_stat")
-        effDict_ID_errSyst = RootFileReader.read_hist_2D("effs_mu_ID_" + yrStr + ".root" + "/NUM_TightID_DEN_TrackerMuons_abseta_pt_efficiencyMC_syst")
+        readerID = RootFileReader("Efficiencies/effs_mu_ID_" + yrStr + ".root")
+        effDict_ID = readerID.read_hist_2d("NUM_TightID_DEN_TrackerMuons_abseta_pt_efficiencyMC")
         
-        effDict_trig = RootFileReader.read_hist_2D("effs_mu_trig_" + yrStr + ".root/" + trigHistNames[year])
-        effDict_trig_errStat = RootFileReader.read_hist_2D("effs_mu_trig_" + yrStr + ".root/" + trigHistNames[year] + "_stat")
-        effDict_trig_errSyst= RootFileReader.read_hist_2D("effs_mu_trig_" + yrStr + ".root/" + trigHistNames[year] + "syst")
+        readerTrig = RootFileReader("Efficiencies/effs_mu_trig_" + yrStr + ".root")
+        effDict_trig = readerTrig.read_hist_2d(trigHistNames[year])
 
         var_year.values.extend([year] * (len(effDict_ID["z"]) + len(effDict_trig["z"])))
         
@@ -345,13 +344,9 @@ def makeEffTableMu():
         var_eff.values.extend(effDict_ID["z"])
         var_eff.values.extend(effDict_trig["z"])
 
-        #Combine syst + stat errors
-        for i in range(len(effDict_ID["z"])):
-            errID = np.sqrt(effDict_ID_errStat["z"][i]**2 + effDict_ID_errSyst["z"][i]**2)
-            var_effErr.values.append(errID)
-        for i in range(len(effDict_trig["z"])):
-            errTrig = np.sqrt(effDict_trig_errStat["z"][i]**2 + effDict_trig_errSyst["z"][i]**2)
-            var_effErr.values.append(errTrig)
+        var_effErr.values.extend(effDict_ID["dz"])
+        var_effErr.values.extend(effDict_trig["dz"])
+        
         
     var_eff.add_uncertainty(var_effErr)
 
@@ -360,7 +355,7 @@ def makeEffTableMu():
     tab.add_variable(var_eta)
     tab.add_variable(var_pt)
     tab.add_variable(var_eff)
-    
+
     return tab
 
 ##--------------------------------------------------------------------------------------------------------------------------------
@@ -394,7 +389,7 @@ def makeEffTableTau():
         yrStr = str(year)
 
         #Add reco info
-        effDict_reco = RootFileReader.read_hist_2D("effs_reco.root/h_tauEff_" + yrStr)
+        effDict_reco = RootFileReader("Efficiencies/effs_reco.root").read_hist_2d("h_tauEff_" + yrStr)
         var_year.values.extend([year] * len(effDict_reco["z"]))
         var_effType.values.extend([0] * len(effDict_reco["z"]))
         var_ch.values.extend([-1] * len(effDict_reco["z"])) #Reco is channel independent
@@ -405,7 +400,7 @@ def makeEffTableTau():
 
         #ID WPs used for each channel are different so must handle each separately
         for chN in range(3):
-            effDict_ID = RootFileReader.read_hist_2D("effs_tau_ID.root/tauIDeff_" + chMap[chN] + year)
+            effDict_ID = RootFileReader("Efficiencies/effs_tau_ID.root").read_hist_2d("tauIDeff_" + chMap[chN] + yrStr)
             var_year.values.extend([year] * len(effDict_ID["z"]))
             var_effType.values.extend([1] * len(effDict_ID["z"]))
             var_ch.values.extend([chN] * len(effDict_ID["z"]))
@@ -414,21 +409,23 @@ def makeEffTableTau():
             var_eff.values.extend(effDict_ID["z"])
             var_effErr.values.extend(effDict_ID["dz"])
 
-        #Add trig info
-        effDict_trig = RootFileReader.read_hist_2D("effs_el_trig_" + yrStr + ".root" + "/")
-        var_year.values.extend([year] * len(effDict_trig["z"]))
-        var_effType.values.extend([2] * len(effDict_trig["z"]))
-        var_ch.values.extend([2] * len(effDict_trig["z"])) #Only use tau trigger for TauTau
-        var_eta.values.extend(effDict_trig["x_edges"])
-        var_pt.values.extend(effDict_trig["y_edges"])
-        var_eff.values.extend(effDict_trig["z"])
-        var_effErr.values.extend(effDict_trig["dz"])
+        #Add trig info. Trigger Effs are indep of eta
+        effDict_trig = RootFileReader("Efficiencies/effs_tau_trig_" + yrStr + ".root").read_hist_1d("mc_ditau_Medium_dmall_fitted")
+        nBinsTrig = len(effDict_trig["y"])
+        var_year.values.extend([year] * nBinsTrig)
+        var_effType.values.extend([2] * nBinsTrig)
+        var_ch.values.extend([2] * nBinsTrig) #Only use tau trigger for TauTau
+        for i in range(nBinsTrig): #Effs apply to entire eta range
+            var_eta.values.append((0, 2.3))
+        var_pt.values.extend(effDict_trig["x_edges"])
+        var_eff.values.extend(effDict_trig["y"])
+        var_effErr.values.extend(effDict_trig["dy"])
     
     var_eff.add_uncertainty(var_effErr)
 
     tab.add_variable(var_year)
     tab.add_variable(var_effType)
-    tab.add_Variable(var_ch)
+    tab.add_variable(var_ch)
     tab.add_variable(var_eta)
     tab.add_variable(var_pt)
     tab.add_variable(var_eff)
@@ -449,7 +446,7 @@ def makeEffTableTau():
 #TODO add plots as images
 def makeEffTablePho():
     #Define HEPData objects
-    tab = Table("Electron Efficiencies")
+    tab = Table("Photon Efficiencies")
     tab.description = """Reco and ID efficiencies observed in MC for photons.'Type' 0 = Reco, 1 = ID"""
     var_year = Variable("Year", is_independent=True, is_binned=False)
     var_effType = Variable("Type", is_independent=True, is_binned=False) #Reco = 0, ID = 1 since strs not supported
@@ -463,8 +460,8 @@ def makeEffTablePho():
         yrStr = str(year)
 
         #Get data from ROOT files
-        effDict_reco = RootFileReader.read_hist_2D("effs_reco.root" + "/h_phoEff_" + yrStr)
-        effDict_ID = RootFileReader.read_hist_2D("effs_pho_ID_" + yrStr + ".root" + "/EGamma_EffMC2D")
+        effDict_reco = RootFileReader("Efficiencies/effs_reco.root").read_hist_2d("h_phoEff_" + yrStr)
+        effDict_ID = RootFileReader("Efficiencies/effs_pho_ID_" + yrStr + ".root").read_hist_2d("EGamma_EffMC2D")
 
         #Write data to the Variable objects
         var_year.values.extend([year] * (len(effDict_reco["z"]) + len(effDict_ID["z"])))
@@ -513,10 +510,12 @@ def makeSubmission():
         submission.add_table(table)
     print("...covariance tables added to submission")
 
+    #Taustar signal L-band widths
     table_LBandWidths = makeLBandWidthsTable()
     submission.add_table(table_LBandWidths)
     print("...L-Band widths table added to submission")
 
+    #Object reco, ID, and trig effs
     print("Making object efficiency tables...")
     print("... electrons ...")
     table_effs_el = makeEffTableEl()
@@ -532,6 +531,7 @@ def makeSubmission():
     submission.add_table(table_effs_pho)
     print("...Efficiency tables added to submission")
 
+    #Meta data and text 
     print("Adding text...")
     for table in submission.tables:
         table.keywords["cmenergies"] = ["13000"] 
