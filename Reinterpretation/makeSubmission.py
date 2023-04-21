@@ -506,7 +506,7 @@ def makeLimitsTable():
 
     var_mass = Variable("${Tau}$* mass", is_independent=True, is_binned=False, units="GeV")
     var_mass.values = [175,250,375,500,625,750,1000,1250,1500,1750,2000,2500,3000,3500,4000,4500,5000]
-    var_expLim = Variable("Expected Limits", is_independent=False, is_binned=False)
+    var_expLim = Variable("Expected Limits", is_independent=False, is_binned=False, units="fb")
     var_expLim.add_qualifier("Limit", "Expected")
     var_expLim.add_qualifier("SQRT(S)", 13, "TeV")
     var_expLim.add_qualifier("LUMINOSITY", 138, "fb$^{-1}$")
@@ -518,9 +518,9 @@ def makeLimitsTable():
         massStr = str(mass)
         reader = RootFileReader("Inputs/Limits/higgsCombineTest.AsymptoticLimits.m"+ massStr + "y0.nominal.root")
         limits = reader.read_tree("limit","limit") #Returned array is of form [-2sd, -1sd, nom, +1sd, +2sd]
-        var_expLim.values.append(limits[2])
-        unc_1stdDev.values.append((limits[1] - limits[2], limits[3] - limits[2])) #Calc intervals from +/-1stddev - median vals
-        unc_2stdDev.values.append((limits[0] - limits[2], limits[4] - limits[2])) 
+        var_expLim.values.append(1000 * limits[2]) #Factor of 1000 converts the returned unit from combine of pb to desired unit of fb
+        unc_1stdDev.values.append((1000 * (limits[1] - limits[2]), 1000 * (limits[3] - limits[2]))) #Calc intervals from +/-1stddev - median vals
+        unc_2stdDev.values.append(1000 * ((limits[0] - limits[2]), 1000 * (limits[4] - limits[2]))) 
 
     var_expLim.add_uncertainty(unc_1stdDev)
     var_expLim.add_uncertainty(unc_2stdDev)
