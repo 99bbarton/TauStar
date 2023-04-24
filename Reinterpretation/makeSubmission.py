@@ -186,7 +186,6 @@ def makeLBandWidthsTable():
 # /store/user/bbarton/TrigEffStudies/SingleElTrigEff/PassingMVAID/FineEtaBinning/PhotonOR/
 # All files have been run through  https://github.com/99bbarton/TauStar/blob/main/Analysis/TNP/writeErrsToEffHists.py See note below
 # Returns a HEPDataLib Table object containing the efficiencies
-#TODO add plots as images
 def makeEffTableEl():
 
     #Define HEPData objects
@@ -248,6 +247,21 @@ def makeEffTableEl():
     tab.add_variable(var_pt)
     tab.add_variable(var_eff)
 
+    #Add plots of all efficiencies
+    tab.add_image("Inputs/eff_el_reco_2016preHIPM.png")
+    tab.add_image("Inputs/eff_el_reco_2016postHIPM.png")
+    tab.add_image("Inputs/eff_el_reco_2017.png")
+    tab.add_image("Inputs/eff_el_reco_2018.png")
+    tab.add_image("Inputs/eff_el_ID_2016preHIPM.png")
+    tab.add_image("Inputs/eff_el_ID_2016postHIPM.png")
+    tab.add_image("Inputs/eff_el_ID_2017.png")
+    tab.add_image("Inputs/eff_el_ID_2018.png")
+    tab.add_image("Inputs/eff_el_trig_2016preHIPM.png")
+    tab.add_image("Inputs/eff_el_trig_2016postHIPM.png")
+    tab.add_image("Inputs/eff_el_trig_2017.png")
+    tab.add_image("Inputs/eff_el_trig_2018.png")
+
+
     return tab
 
 ##--------------------------------------------------------------------------------------------------------------------------------
@@ -259,7 +273,6 @@ def makeEffTableEl():
 # ID   : https://gitlab.cern.ch/cms-muonPOG/muonefficiencies/-/blob/master/Run2/UL/2018/2018_Z/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root
 # trig : https://gitlab.cern.ch/cms-muonPOG/muonefficiencies/-/blob/master/Run2/UL/2018/2018_trigger/Efficiencies_muon_generalTracks_Z_Run2018_UL_SingleMuonTriggers.root
 # Returns a HEPDataLib Table object containing the efficiencies
-#TODO add plots as images
 def makeEffTableMu():
     
     #Define HEPData objects
@@ -356,6 +369,20 @@ def makeEffTableMu():
     tab.add_variable(var_pt)
     tab.add_variable(var_eff)
 
+    #Add plots of all efficiencies
+    tab.add_image("Inputs/eff_mu_reco_2016preHIPM.png")
+    tab.add_image("Inputs/eff_mu_reco_2016postHIPM.png")
+    tab.add_image("Inputs/eff_mu_reco_2017.png")
+    tab.add_image("Inputs/eff_mu_reco_2018.png")
+    tab.add_image("Inputs/eff_mu_ID_2016preHIPM.png")
+    tab.add_image("Inputs/eff_mu_ID_2016postHIPM.png")
+    tab.add_image("Inputs/eff_mu_ID_2017.png")
+    tab.add_image("Inputs/eff_mu_ID_2018.png")
+    tab.add_image("Inputs/eff_mu_trig_2016preHIPM.png")
+    tab.add_image("Inputs/eff_mu_trig_2016postHIPM.png")
+    tab.add_image("Inputs/eff_mu_trig_2017.png")
+    tab.add_image("Inputs/eff_mu_trig_2018.png")
+
     return tab
 
 ##--------------------------------------------------------------------------------------------------------------------------------
@@ -369,7 +396,6 @@ def makeEffTableMu():
 #        and stored here: effs_tau_ID.root
 # trig : Found here: https://github.com/cms-tau-pog/TauTriggerSFs/tree/run2_SFs/data , specifically files of the format: 2018UL_tauTriggerEff_DeepTau2017v2p1.root
 # Returns a HEPDataLib Table object containing the efficiencies
-#TODO add plots as images
 def makeEffTableTau():
     #Define HEPData objects
     tab = Table("Tau Efficiencies")
@@ -430,6 +456,27 @@ def makeEffTableTau():
     tab.add_variable(var_pt)
     tab.add_variable(var_eff)
     
+    tab.add_image("Inputs/eff_tau_reco_2016preHIPM.png")
+    tab.add_image("Inputs/eff_tau_reco_2016postHIPM.png")
+    tab.add_image("Inputs/eff_tau_reco_2017.png")
+    tab.add_image("Inputs/eff_tau_reco_2018.png")
+    tab.add_image("Inputs/eff_tau_ID_ETau_2016preHIPM.png")
+    tab.add_image("Inputs/eff_tau_ID_MuTau_2016preHIPM.png")
+    tab.add_image("Inputs/eff_tau_ID_TauTau_2016preHIPM.png")
+    tab.add_image("Inputs/eff_tau_ID_ETau_2016postHIPM.png")
+    tab.add_image("Inputs/eff_tau_ID_MuTau_2016postHIPM.png")
+    tab.add_image("Inputs/eff_tau_ID_TauTau_2016postHIPM.png")
+    tab.add_image("Inputs/eff_tau_ID_ETau_2017.png")
+    tab.add_image("Inputs/eff_tau_ID_MuTau_2017.png")
+    tab.add_image("Inputs/eff_tau_ID_TauTau_2017.png")
+    tab.add_image("Inputs/eff_tau_ID_ETau_2018.png")
+    tab.add_image("Inputs/eff_tau_ID_MuTau_2018.png")
+    tab.add_image("Inputs/eff_tau_ID_TauTau_2018.png")
+    tab.add_image("Inputs/eff_tau_trig_2016preHIPM.png")
+    tab.add_image("Inputs/eff_tau_trig_2016postHIPM.png")
+    tab.add_image("Inputs/eff_tau_trig_2017.png")
+    tab.add_image("Inputs/eff_tau_trig_2018.png")
+
     return tab
 
 
@@ -443,7 +490,6 @@ def makeEffTableTau():
 # ID   : Calculated via EGamma TNP (see AN appendix for details), errors added to eff hists via: ../../Analysis/TNP/writeErrsToEffHists.py ,
 # then high-pt bins extrapolated via: ../../Analysis/PhoID_FittedSFS/extrapolateSFs.py
 # Returns a HEPDataLib Table object containing the efficiencies
-#TODO add plots as images
 def makeEffTablePho():
     #Define HEPData objects
     tab = Table("Photon Efficiencies")
@@ -489,6 +535,15 @@ def makeEffTablePho():
     tab.add_variable(var_eta)
     tab.add_variable(var_pt)
     tab.add_variable(var_eff)
+
+    tab.add_image("Inputs/eff_pho_reco_2016preHIPM.png")
+    tab.add_image("Inputs/eff_pho_reco_2016postHIPM.png")
+    tab.add_image("Inputs/eff_pho_reco_2017.png")
+    tab.add_image("Inputs/eff_pho_reco_2018.png")
+    tab.add_image("Inputs/eff_pho_ID_2016preHIPM.png")
+    tab.add_image("Inputs/eff_pho_ID_2016postHIPM.png")
+    tab.add_image("Inputs/eff_pho_ID_2017.png")
+    tab.add_image("Inputs/eff_pho_ID_2018.png")
 
     return tab
 
