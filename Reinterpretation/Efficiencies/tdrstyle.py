@@ -15,8 +15,8 @@ def setTDRStyle():
   #for the canvas:
   tdrStyle.SetCanvasBorderMode(0)
   tdrStyle.SetCanvasColor(rt.kWhite)
-  tdrStyle.SetCanvasDefH(600) #Height of canvas
-  tdrStyle.SetCanvasDefW(600) #Width of canvas
+  tdrStyle.SetCanvasDefH(800) #Height of canvas
+  tdrStyle.SetCanvasDefW(800) #Width of canvas
   tdrStyle.SetCanvasDefX(0)   #POsition on screen
   tdrStyle.SetCanvasDefY(0)
 

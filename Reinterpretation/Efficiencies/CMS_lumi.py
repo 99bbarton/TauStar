@@ -15,10 +15,10 @@ writeExtraText = True
 extraText   = "Simulation Preliminary"
 extraTextFont = 52
 
-lumiTextSize     = 0.5
+lumiTextSize     = 0.4
 lumiTextOffset   = 0.20
 
-cmsTextSize      = 0.75
+cmsTextSize      = 0.5
 cmsTextOffset    = 0.1
 
 relPosX    = 0.145

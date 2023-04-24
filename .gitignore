@@ -34,6 +34,9 @@
 #Root Files
 *.root
 
+#pyc files
+*.pyc
+
 #Python virtual environments
 Reinterpretation/HEPDataEnv/
 Reinterpretation/__pycache__/
