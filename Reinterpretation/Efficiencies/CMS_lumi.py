@@ -1,3 +1,5 @@
+#Retrieved from figGuidelines twiki
+
 import ROOT as rt
 
 # CMS_lumi
@@ -6,20 +8,20 @@ import ROOT as rt
 #   Updated by:   Dinko Ferencek (Rutgers)
 #
 
-cmsText     = "CMS";
+cmsText     = "CMS"
 cmsTextFont   = 61  
 
 writeExtraText = True
-extraText   = "Preliminary"
-extraTextFont = 52 
+extraText   = "Simulation Preliminary"
+extraTextFont = 52
 
-lumiTextSize     = 0.6
-lumiTextOffset   = 0.2
+lumiTextSize     = 0.5
+lumiTextOffset   = 0.20
 
 cmsTextSize      = 0.75
 cmsTextOffset    = 0.1
 
-relPosX    = 0.045
+relPosX    = 0.145
 relPosY    = 0.035
 relExtraDY = 1.2
 
@@ -87,8 +89,6 @@ def CMS_lumi(pad,  iPeriod,  iPosX ):
         lumiText += "8 TeV"
     elif ( iPeriod==0 ):
         lumiText += lumi_sqrtS
-            
-    print lumiText
 
     latex = rt.TLatex()
     latex.SetNDC()
@@ -108,7 +108,7 @@ def CMS_lumi(pad,  iPeriod,  iPosX ):
         latex.SetTextAlign(11) 
         latex.SetTextSize(cmsTextSize*t)    
         latex.DrawLatex(l,1-t+lumiTextOffset*t,cmsText)
-  
+
     pad.cd()
 
     posX_ = 0

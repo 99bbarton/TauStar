@@ -1,3 +1,5 @@
+#Retrieved from figGuidelines twiki
+
 import ROOT as rt
 
 def tdrGrid( gridOn):
@@ -10,7 +12,7 @@ def fixOverlay(): gPad.RedrawAxis()
 def setTDRStyle():
   tdrStyle =  rt.TStyle("tdrStyle","Style for P-TDR")
 
-   #for the canvas:
+  #for the canvas:
   tdrStyle.SetCanvasBorderMode(0)
   tdrStyle.SetCanvasColor(rt.kWhite)
   tdrStyle.SetCanvasDefH(600) #Height of canvas
@@ -148,5 +150,7 @@ def setTDRStyle():
 
   tdrStyle.SetHatchesLineWidth(5)
   tdrStyle.SetHatchesSpacing(0.05)
+
+  tdrStyle.SetPaintTextFormat("4.2f")
 
   tdrStyle.cd()
