@@ -8,20 +8,20 @@
 
 
 //Return cuts used for the specified channel and year. idx is used to specify how many cuts to include (inclusive to all lower indices).
-//Taken from https://github.com/fojensen/nanoAOD-tools/blob/TauTauGamma/analysis/cutflow.c
+//Modified from https://github.com/fojensen/nanoAOD-tools/blob/TauTauGamma/analysis/cutflow.c
 TCut returnCuts(const TString channel, const int year, const int idx, const bool isSig=false)
 {
-    const int ncuts = 10;
+   const int ncuts = 10;
    TCut cuts[ncuts];
    if (channel=="ETau") {
       cuts[0] = "1>0";
       cuts[1] = "nE==1 && nMu==0";
       cuts[2] = "ETau_HavePair>0 && ETau_qq==-1 && (32&Tau_idDeepTau2017v2p1VSjet[ETau_TauIdx]) && Tau_decayMode[ETau_TauIdx]!=5 && Tau_decayMode[ETau_TauIdx]!=6 && Tau_decayMode[ETau_TauIdx]!=7 && Electron_mvaFall17V2Iso_WP90[ETau_EIdx] && (32&Tau_idDeepTau2017v2p1VSe[ETau_TauIdx])";
       if (year==2015||year==2016) {
-          const TCut patha = "HLT_Ele27_WPTight_Gsf && (ETau_EHasTrigObj>0 && (ETau_EHasTrigObj%10)>0)";
-          const TCut pathb = "HLT_Photon175 && (ETau_EHasTrigObj>=10)";
-          const TCut triggerpath = patha||pathb;
-          cuts[3] = triggerpath && TCut("Electron_pt[ETau_EIdx]>=29.");
+         const TCut patha = "HLT_Ele27_WPTight_Gsf && (ETau_EHasTrigObj>0 && (ETau_EHasTrigObj%10)>0)";
+         const TCut pathb = "HLT_Photon175 && (ETau_EHasTrigObj>=10)";
+         const TCut triggerpath = patha||pathb;
+         cuts[3] = triggerpath && TCut("Electron_pt[ETau_EIdx]>=29.");
       } else if (year==2017) {
          const TCut patha = "HLT_Ele32_WPTight_Gsf_L1DoubleEG && Trigger_L1EG && (ETau_EHasTrigObj>0 && (ETau_EHasTrigObj%10)>0)";
          const TCut pathb = "HLT_Photon200 && (ETau_EHasTrigObj>=10)";
@@ -125,7 +125,7 @@ void cutFlow_HEPData()
       for (int massN = 0; massN < nMasses; massN++)
       {  
          //TODO Ensure this line is up to date with the latest signal MC processing
-         sprintf(infile, "root://cmseos.fnal.gov//store/user/bbarton/PDFWeights/ExcitedTau_20112022/Taustar_m%s_%d.root", masses[massN].Data(), year);
+         sprintf(infile, "root://cmseos.fnal.gov//store/user/bbarton/PDFWeights/ExcitedTau_29032023/Taustar_m%s_%d.root", masses[massN].Data(), year);
          TFile *file = TFile::Open(infile);
          TTree * tree = (TTree*) file->Get("Events");
 

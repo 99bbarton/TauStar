@@ -71,9 +71,9 @@ def makeCovarianceTables(dirPath, includeSignalRegion=False):
             exit(-1)
     
     #Initialize what data to include and how to access+label it
-    years = ["2015", "2016", "2017", "2018"]
+    years = ["2015", "2016", "2017", "2018", "0"]
     masses = [175,250,375,500,625,750,1000,1250,1500,1750,2000,2500,3000,3500,4000,4500,5000]
-    filebase = "fitDiagnosticsTest_m"
+    filebase = "fitDiagnosticsTest.m"
     pathToHistBase = "shapes_fit_b/"
     #channels = {"ch1":"ETau","ch2":"MuTau","ch3":"TauTau","ch4":"ETauLowPt","ch5":"MuTauLowPt","ch6":"TauTauLowPt","ch7":"EE","ch8":"MuMu","ch9":"EMu"}
     channelMap = {"ch1":1,"ch2":2,"ch3":3,"ch4":4,"ch5":5,"ch6":6,"ch7":7,"ch8":8,"ch9":9}
@@ -104,7 +104,7 @@ def makeCovarianceTables(dirPath, includeSignalRegion=False):
 
         #Read in each file and extract total covariance matrix for each channel and region
         for mass in masses:
-            filename = filebase + str(mass) + "y" + year + ".root"
+            filename = filebase + str(mass) + "y" + year + ".nominalParamt2wmask.root"
             fileReader = RootFileReader(dirPath + filename)
     
             for chCount, chNum in enumerate(channelMap.keys()):
@@ -569,13 +569,18 @@ def makeLimitsTable():
     unc_1stdDev = Uncertainty("1 std dev", is_symmetric=False)
     unc_2stdDev = Uncertainty("2 std dev", is_symmetric=False)
 
-    for mass in var_mass.values:
+    #Crossections 
+    xs = [0.0177, 0.0108, 6.639e-3, 4.069e-3, 2.494e-3, 1.529e-3, 9.371e-4, 5.744e-4, 3.521e-4, 2.159e-4, 1.323e-4, 8.12e-5, 4.97e-5, 3.05e-5, 1.87e-5, 1.14e-5, 7.02e-6, 4.30e-6, 2.64e-6, 1.62e-6]
+
+    for i, mass in enumerate(var_mass.values):
+        multiplier = 1000 * xs[i]
         massStr = str(mass)
-        reader = RootFileReader("Inputs/Limits/higgsCombineTest.AsymptoticLimits.m"+ massStr + "y0.nominal.root")
+        reader = RootFileReader("Inputs/Limits/12May2023/higgsCombineTest.AsymptoticLimits.m"+ massStr + "y0.nominalParam.root")
         limits = reader.read_tree("limit","limit") #Returned array is of form [-2sd, -1sd, nom, +1sd, +2sd]
-        var_expLim.values.append(1000 * limits[2]) #Factor of 1000 converts the returned unit from combine of pb to desired unit of fb
-        unc_1stdDev.values.append((1000 * (limits[1] - limits[2]), 1000 * (limits[3] - limits[2]))) #Calc intervals from +/-1stddev - median vals
-        unc_2stdDev.values.append(1000 * ((limits[0] - limits[2]), 1000 * (limits[4] - limits[2]))) 
+
+        var_expLim.values.append(multiplier * limits[2]) #Factor of 1000 converts the returned unit from combine of pb to desired unit of fb
+        unc_1stdDev.values.append((multiplier * (limits[1] - limits[2]), multiplier * (limits[3] - limits[2]))) #Calc intervals from +/-1stddev - median vals
+        unc_2stdDev.values.append((multiplier * (limits[0] - limits[2]), multiplier * (limits[4] - limits[2])))
 
     var_expLim.add_uncertainty(unc_1stdDev)
     var_expLim.add_uncertainty(unc_2stdDev)
@@ -592,13 +597,13 @@ def makeSubmission():
     submission = Submission()
 
     #Add cutflow table
-    table_cutFlow = makeCutFlowTable("Cutflows/signalCutflow_08Feb23.csv")
+    table_cutFlow = makeCutFlowTable("Cutflows/signalCutflow_12May2023.csv")
     table_cutFlow.keywords["observables"] = ["N"]
     submission.add_table(table_cutFlow)
     print("...cutflow table added to submission")
 
     #Add covariance matrice tables
-    tables_covar = makeCovarianceTables(dirPath="CovarianceMatrices/")
+    tables_covar = makeCovarianceTables(dirPath="CovarianceMatrices/12May2023/")
     for table in tables_covar:
         submission.add_table(table)
     print("...covariance tables added to submission")
