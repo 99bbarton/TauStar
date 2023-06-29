@@ -71,7 +71,7 @@ def plotAllSig():
 
         if mass == "2000":
             useLeftLeg = True
-
+            
         for year in ["2015", "2016", "2017", "2018"]:
 
             filepath = os.environ["ROOTURL"] + os.environ["TSSIGDIR"] + "Taustar_m" + mass + "_" + year + ".root"
@@ -88,9 +88,19 @@ def plotAllSig():
             tree.Draw("Photon_pt[MuTau_PhotonIdx]>>+" + histNames[1], getCuts(year=year, channel="MuTau", isSig=True))
             tree.Draw("Photon_pt[TauTau_PhotonIdx]>>+" + histNames[2], getCuts(year=year, channel="TauTau", isSig=True))
 
-            h_ETau.Add(h_ETau_yr)
-            h_MuTau.Add(h_MuTau_yr)
-            h_TauTau.Add(h_TauTau_yr)
+
+            if year == "2015":
+                lumiFrac = 19.7 / 137.8;
+            elif year == "2016":
+                lumiFrac = 16.9 / 137.8;
+            elif year == "2017": 
+                lumiFrac = 41.5 / 137.8;
+            elif year == "2018":
+                lumiFrac = 59.7 / 137.8;
+
+            h_ETau.Add(h_ETau_yr, lumiFrac)
+            h_MuTau.Add(h_MuTau_yr, lumiFrac)
+            h_TauTau.Add(h_TauTau_yr, lumiFrac)
 
             h_ETau_yr.Scale(1.0 / h_ETau_yr.GetEntries())
             h_MuTau_yr.Scale(1.0 / h_MuTau_yr.GetEntries())
