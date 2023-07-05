@@ -77,7 +77,6 @@ def plotAllSig():
             filepath = os.environ["ROOTURL"] + os.environ["TSSIGDIR"] + "Taustar_m" + mass + "_" + year + ".root"
             fil = TFile.Open(filepath, "READ")
             tree = fil.Get("Events")
-            tree.Draw("Photon_pt[ETau_PhotonIdx]")
 
             histNames = ["h_ETau_m" + mass + "_" + year, "h_MuTau_m" + mass + "_" + year, "h_TauTau_m" + mass + "_" + year]
             h_ETau_yr = TH1F(histNames[0], "Photon pT: m" + mass + " " + year + ";pT [GeV];Fraction of Events / bin", nBins, ptBins)
@@ -90,13 +89,13 @@ def plotAllSig():
 
 
             if year == "2015":
-                lumiFrac = 19.7 / 137.8;
+                lumiFrac = 19.7 / 137.8
             elif year == "2016":
-                lumiFrac = 16.9 / 137.8;
+                lumiFrac = 16.9 / 137.8
             elif year == "2017": 
-                lumiFrac = 41.5 / 137.8;
+                lumiFrac = 41.5 / 137.8
             elif year == "2018":
-                lumiFrac = 59.7 / 137.8;
+                lumiFrac = 59.7 / 137.8
 
             h_ETau.Add(h_ETau_yr, lumiFrac)
             h_MuTau.Add(h_MuTau_yr, lumiFrac)
