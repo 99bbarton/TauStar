@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from hepdata_lib import Submission, Table, Variable, Uncertainty, RootFileReader
 from math import sqrt
+from ROOT import THStack, TList, TFile, TH1D
+import os
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
@@ -592,6 +594,87 @@ def makeLimitsTable():
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
+## Make a Table containing the bin contents of the 6-bin histograms showing the number of events predicted and observed in the sig and bckgd
+# bins for each of the three analysis channels. 
+# masses : a list of masses two include in the table. The masses should correspond to files in Inputs/6BinHists/ of the form e.g. 6binplot_m1750.root
+# Returns a HEPDataLib Table object containing the bin contents of the hists
+def make6BinTables(masses):
+
+    print("Making 6-bin histograms table...")
+
+    tab = Table("Predicted and Observed Yields")
+    tab.description = """Post-fit predicted and observed yields in signal and background bins.\n
+    Channel Key: 0 = ETau, 1 = MuTau, 2 = TauTau
+    Process Key: -1 = predicted signal, 0 = observed in data, 1 = 1-prong jet prediction, 2 = 3-prong jet prediction, 4 = di-boson prediction, 5 = drell-yan prediction,
+    6 = single-top prediction, 7 = ttbar prediction
+    Bin Num Key: 0 = background, 1 = signal 
+    """
+    tab.keywords["observables"] = [""]
+
+    var_mass = Variable("${Tau}$* mass", is_independent=True, is_binned=False, units="GeV")
+    var_ch = Variable("Channel", is_independent=True, is_binned=False) # 0 = ETau, 1 = MuTau, 2 = TauTau,
+    var_process = Variable("Process", is_independent=True, is_binned=False)
+    var_binN = Variable("Bin Num", is_independent=True, is_binned=False)
+    var_events = Variable("Number of Events", is_independent=False, is_binned=False)
+    unc_eventsErr = Uncertainty("numEvtsUncert", is_symmetric=True)
+
+    for mass in masses:
+        filebase = "Inputs/6BinHists/6binplot_m" + mass
+
+        if os.path.isfile(filebase + ".pdf"):
+            tab.add_image(filebase + ".pdf")
+        else:
+            print("WARNING: Cannot find associated 6-bin hist image file: " + filebase + ".pdf")
+
+        if not os.path.isfile(filebase + ".root"):
+            print("ERROR: Cannot find associated 6-bin hist root file: " + filebase + ".root . Skipping this file...")
+            continue
+        rootFile = TFile.Open(filebase + ".root", "READ")
+        obsHist = rootFile.Get("h6_data")
+        sigHist = rootFile.Get("h6_sig")
+        stack = rootFile.Get("s")
+        hists = stack.GetHists()
+
+        #Add observed values
+        var_mass.values.extend([int(mass)] * 6)
+        var_ch.values.extend([0, 0, 1, 1, 2, 2])
+        var_process.values.extend([0] * 6)
+        var_binN.values.extend([0, 1, 0, 1, 0, 1])
+        for bin in range(1, 7):
+            var_events.values.append(obsHist.GetBinContent(bin))
+            unc_eventsErr.values.append(obsHist.GetBinError(bin))
+
+        #Add predicted signal values
+        var_mass.values.extend([int(mass)] * 6)
+        var_ch.values.extend([0, 0, 1, 1, 2, 2])
+        var_process.values.extend([-1] * 6)
+        var_binN.values.extend([0, 1, 0, 1, 0, 1])
+        for bin in range(1, 7):
+            var_events.values.append(sigHist.GetBinContent(bin))
+            unc_eventsErr.values.append(sigHist.GetBinError(bin))
+
+
+        #Add predicted values from the THStack
+        for procNum, hist in enumerate(hists):
+            var_mass.values.extend([int(mass)] * 6)
+            var_ch.values.extend([0, 0, 1, 1, 2, 2])
+            var_binN.values.extend([0, 1, 0, 1, 0, 1])
+            for bin in range(1, 7):
+                var_process.values.append(procNum+1)
+                var_events.values.append(hist.GetBinContent(bin))
+                unc_eventsErr.values.append(hist.GetBinError(bin))
+
+    var_events.add_uncertainty(unc_eventsErr)
+    tab.add_variable(var_mass)
+    tab.add_variable(var_ch)
+    tab.add_variable(var_binN)
+    tab.add_variable(var_process)
+    tab.add_variable(var_events)
+
+    return tab
+
+##------------------------------------------------------------------------------------------------------------------------------
+
 # Create the HEPData submission
 def makeSubmission():
     submission = Submission()
@@ -622,7 +705,7 @@ def makeSubmission():
     table_effs_mu = makeEffTableMu()
     submission.add_table(table_effs_mu)
     print("... taus ...")
-    table_effs_tau =makeEffTableTau()
+    table_effs_tau = makeEffTableTau()
     submission.add_table(table_effs_tau)
     print("... photons ...")
     table_effs_pho = makeEffTablePho()
@@ -634,6 +717,11 @@ def makeSubmission():
     submission.add_table(table_limits)
     print("...limits table added to submission")
 
+    #6-bin observed vs predicted events histrograms
+    table_6BinHists = make6BinTables(masses = ["250", "1750"])
+    submission.add_table(table_6BinHists)
+    print("...6-bin histograms table added to submission")
+
     #Meta data and text 
     print("Adding text...")
     for table in submission.tables:
@@ -644,6 +732,8 @@ def makeSubmission():
 
     print("Creating files...")
     submission.create_files("TestOutput/", remove_old=True)
+
+##------------------------------------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
     makeSubmission()
