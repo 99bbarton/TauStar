@@ -24,7 +24,7 @@ void runSVFit(TString filenames[], int nFiles, TString baseDir);
 int main(int argc, char* argv[])
 {
     const int N_FILES = 1;
-    TString fileNames[N_FILES] = {"ZGToLLG"};//{"Taustar_m500"};
+    TString fileNames[N_FILES] = {"DYJetsToLL_M50"};//{"Taustar_m500"};
     TString baseDir = "/uscms_data/d3/bbarton/CMSSW_10_6_27/src/Data/";
 
     //const int N_FILES = 17;
@@ -40,9 +40,10 @@ int main(int argc, char* argv[])
 
 void runSVFit(TString filenames[], int nFiles, TString baseDir)
 {
-  TString years[4] = {"2015", "2016", "2017", "2018"};
+  //TString years[4] = {"2015", "2016", "2017", "2018"};
+  TString years[1] =  {"2018"};
 
-  ClassicSVfit svFitAlgo(VERBOSITY);//arg is verbosity level
+  ClassicSVfit svFitAlgo(VERBOSITY);
 
     for (int fN = 0; fN < nFiles; fN++)
     {
@@ -82,7 +83,7 @@ void runSVFit(TString filenames[], int nFiles, TString baseDir)
             float met_covXX;
             float met_covXY;
             float met_covYY;
-            float met_sumEt;
+            float met_pt;
             float met_phi;
 	    float ETau_Mass;
 	    float MuTau_Mass;
@@ -114,7 +115,7 @@ void runSVFit(TString filenames[], int nFiles, TString baseDir)
             tree->SetBranchStatus("MET_covXX", true);
             tree->SetBranchStatus("MET_covXY", true);
             tree->SetBranchStatus("MET_covYY", true);
-            tree->SetBranchStatus("MET_sumEt", true);
+            tree->SetBranchStatus("MET_pt", true);
             tree->SetBranchStatus("MET_phi", true);
 	    tree->SetBranchStatus("ETau_Mass", true);
 	    tree->SetBranchStatus("MuTau_Mass", true);
@@ -142,7 +143,7 @@ void runSVFit(TString filenames[], int nFiles, TString baseDir)
             tree->SetBranchAddress("Muon_eta", mu_eta );
             tree->SetBranchAddress("Muon_phi", mu_phi );
             tree->SetBranchAddress("Muon_mass", mu_mass );
-            tree->SetBranchAddress("MET_sumEt", &met_sumEt);
+            tree->SetBranchAddress("MET_pt", &met_pt);
             tree->SetBranchAddress("MET_phi", &met_phi);
 	    tree->SetBranchAddress("MET_covXX", &met_covXX);
 	    tree->SetBranchAddress("MET_covXY", &met_covXY);
@@ -156,25 +157,27 @@ void runSVFit(TString filenames[], int nFiles, TString baseDir)
             double transverseMass;
             double transverseMassErr;
 	    int valid;
+	    int considered;
 
             TBranch *b_mass = tree->Branch("SVFit_TauPairMass", &mass, "SVFit_TauPairMass/D");
             TBranch *b_massErr = tree->Branch("SVFit_TauPairMassErr", &massErr, "SVFit_TauPairMassErr/D");
             TBranch *b_transverseMass = tree->Branch("SVFit_TauPairMT", &transverseMass, "SVFit_TauPairMT/D");
             TBranch *b_transverseMassErr = tree->Branch("SVFit_TauPairMTErr", &transverseMassErr, "SVFit_TauPairMTErr/D");
 	    TBranch *b_valid = tree->Branch("SVFit_Valid", &valid, "SVFit_Valid/I");
+	    TBranch *b_considered = tree->Branch("SVFit_Considered", &considered, "SVFit_Considered/I");
 	    
 	    double calcEff = 0;
 	    int candidateEvents = 0;
 
             std::vector<MeasuredTauLepton> tausToFit;
 	    int nEntries = tree->GetEntries();
-	    int evToProcess = std::min(nEntries, 100000);
+	    int evToProcess = std::min(nEntries, 100000); //////////////////////////////////////////////////////////////////////
 
             for (int eN = 0; eN < evToProcess; eN++)
             {
 	      if (eN % 1000 == 0)
 		std::cout << "    ... eN = " << eN << "/" << evToProcess << " ..." << std::endl;
-	      
+
 	      tree->GetEntry(eN);
 
                 TMatrixD covMET(2, 2);
@@ -186,6 +189,7 @@ void runSVFit(TString filenames[], int nFiles, TString baseDir)
 		tausToFit.clear();
 		bool goodEvent = false;
 		valid = 0;
+		considered = 0;
 
                 if (ETau_HavePair && ETau_Mass <= 150 && ETau_Mass >= 50)
                 {
@@ -224,11 +228,14 @@ void runSVFit(TString filenames[], int nFiles, TString baseDir)
 		if (goodEvent)
 		  {
 		    candidateEvents += 1;
+		    considered = 1;
 		    svFitAlgo.setLikelihoodFileName(TString("svFitLikelihood_"+filenames[fN]+"_"+years[yrN]+".root").Data());
-		    svFitAlgo.integrate(tausToFit, met_sumEt*TMath::Cos(met_phi), met_sumEt*TMath::Sin(met_phi), covMET);
+		    //std::cout << "Met_X = " << met_pt*TMath::Cos(met_phi) << " : Met_Y = " << met_pt*TMath::Sin(met_phi) << std::endl;
+		    svFitAlgo.integrate(tausToFit, met_pt*TMath::Cos(met_phi), met_pt*TMath::Sin(met_phi), covMET);
 		    if (svFitAlgo.isValidSolution())
 		      {
 			mass = static_cast<DiTauSystemHistogramAdapter*>(svFitAlgo.getHistogramAdapter())->getMass();
+			std::cout << "Mass = " << mass << std::endl;
 			massErr = static_cast<DiTauSystemHistogramAdapter*>(svFitAlgo.getHistogramAdapter())->getMassErr();
 			transverseMass = static_cast<DiTauSystemHistogramAdapter*>(svFitAlgo.getHistogramAdapter())->getTransverseMass();
 			transverseMassErr = static_cast<DiTauSystemHistogramAdapter*>(svFitAlgo.getHistogramAdapter())->getTransverseMassErr();
@@ -251,6 +258,7 @@ void runSVFit(TString filenames[], int nFiles, TString baseDir)
                     transverseMassErr = -99.99;
 		  }
 
+		b_considered->Fill();
 		b_valid->Fill();
                 b_mass->Fill();
                 b_massErr->Fill();
