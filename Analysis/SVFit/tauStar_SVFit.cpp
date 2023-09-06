@@ -19,42 +19,50 @@ using namespace classic_svFit;
 const static int VERBOSITY = 0;
 const static int N_YEARS = 1;
 
-void runSVFit(TString filenames[], int nFiles, TString baseDir);
+void runSVFit(TString path, TString filename);
 
 int main(int argc, char* argv[])
 {
-    const int N_FILES = 1;
-    TString fileNames[N_FILES] = {"DYJetsToLL_M50"};//{"Taustar_m500"};
-    TString baseDir = "/uscms_data/d3/bbarton/CMSSW_10_6_27/src/Data/";
-
+  //const int N_FILES = 1;
+  //TString fileNames[N_FILES] = {argv[1]}//{"DYJetsToLL_M50"};//{"ZGToLLG"};//{"DYJetsToLL_M50"};//{"Taustar_m500"};
+   //TString baseDir = "/uscms_data/d3/bbarton/CMSSW_10_6_27/src/Data/";
+  ///uscms_data/d3/bbarton/CMSSW_10_6_27/src/Data/
     //const int N_FILES = 17;
     //TString fileNames[N_FILES] = {"DYJetsToLL_M10to50", "DYJetsToLL_M50", "ST_s_channel", "ST_tW_antitop", "ST_tW_top", "ST_t_channel_antitop", "ST_t_channel_top", "TTGamma_Dilept", "TTGamma_SingleLept", "TTTo2L2Nu", "TTToSemiLeptonic", "WGToLNuG", "WJetsToLNu", "WW", "WZ", "ZGToLLG", "ZZ" };
     //TString baseDir = "root://cmsxrootd.fnal.gov//store/user/";
     
     std::cout << "Running SVFit... " << std::endl;
-    runSVFit(fileNames, N_FILES, baseDir);
+    if (argc != 3)
+      {
+	std::cout<<"Usage: tauStar_SVFit <filepath> <filename>"<<std::endl;
+	return 1;
+      }
+    
+    TString path = argv[1];
+    TString filename = argv[2];
+    runSVFit(path, filename);
 
     return 0;
 }
 
 
-void runSVFit(TString filenames[], int nFiles, TString baseDir)
+void runSVFit(TString path, TString filename)
 {
   //TString years[4] = {"2015", "2016", "2017", "2018"};
-  TString years[1] =  {"2018"};
+  //TString years[1] =  {"2018"};
 
   ClassicSVfit svFitAlgo(VERBOSITY);
 
-    for (int fN = 0; fN < nFiles; fN++)
-    {
-        std::cout << "... over process " << fN+1 << "/" << nFiles << "..." << std::endl;
-        for (int yrN = 0; yrN < N_YEARS; yrN++)
-        {
-	  std::cout << "  ... year = " << years[yrN] << " ..." << std::endl;
+  //for (int fN = 0; fN < nFiles; fN++)
+  //{
+  //std::cout << "... over process " << fN+1 << "/" << nFiles << "..." << std::endl;
+        //for (int yrN = 0; yrN < N_YEARS; yrN++)
+  //    {
+  //	  std::cout << "  ... year = " << years[yrN] << " ..." << std::endl;
 	  
-            char filepath[100];
-            sprintf(filepath, "%s%s_%s.root", baseDir.Data(), filenames[fN].Data(), years[yrN].Data());
-            TFile* file = TFile::Open(filepath, "UPDATE");
+  //char filepath[100];
+            //sprintf(filepath, "%s%s_%s.root", baseDir.Data(), filename.Data(), year.Data());
+            TFile* file = TFile::Open(path + filename, "UPDATE");
             TTree* tree = (TTree*) file->Get("Events");
 
             //Variables to readout tree
@@ -71,15 +79,18 @@ void runSVFit(TString filenames[], int nFiles, TString baseDir)
             float tau_eta[50];
             float tau_phi[50];
             float tau_mass[50];
+	    UChar_t tau_genPartFlav[50];
             int tau_decayMode[50];
             float el_pt[50];
             float el_eta[50];
             float el_phi[50];
             float el_mass[50];
+	    UChar_t el_genPartFlav[50];
             float mu_pt[50];
             float mu_eta[50];
             float mu_phi[50];
             float mu_mass[50];
+	    UChar_t mu_genPartFlav[50];
             float met_covXX;
             float met_covXY;
             float met_covYY;
@@ -103,15 +114,18 @@ void runSVFit(TString filenames[], int nFiles, TString baseDir)
             tree->SetBranchStatus("Tau_eta", true);
             tree->SetBranchStatus("Tau_phi", true);
             tree->SetBranchStatus("Tau_mass", true);
+	    tree->SetBranchStatus("Tau_genPartFlav", true);
             tree->SetBranchStatus("Tau_decayMode", true);
             tree->SetBranchStatus("Electron_pt", true);
             tree->SetBranchStatus("Electron_eta", true);
             tree->SetBranchStatus("Electron_phi", true);
             tree->SetBranchStatus("Electron_mass", true);
+	    tree->SetBranchStatus("Electron_genPartFlav", true);
             tree->SetBranchStatus("Muon_pt", true);
             tree->SetBranchStatus("Muon_eta", true);
             tree->SetBranchStatus("Muon_phi", true);
             tree->SetBranchStatus("Muon_mass", true);
+	    tree->SetBranchStatus("Muon_genPartFlav", true);
             tree->SetBranchStatus("MET_covXX", true);
             tree->SetBranchStatus("MET_covXY", true);
             tree->SetBranchStatus("MET_covYY", true);
@@ -134,15 +148,18 @@ void runSVFit(TString filenames[], int nFiles, TString baseDir)
             tree->SetBranchAddress("Tau_eta", tau_eta );
             tree->SetBranchAddress("Tau_phi", tau_phi );
             tree->SetBranchAddress("Tau_mass", tau_mass );
+	    tree->SetBranchAddress("Tau_genPartFlav", tau_genPartFlav );
             tree->SetBranchAddress("Tau_decayMode", tau_decayMode );
             tree->SetBranchAddress("Electron_pt", el_pt );
             tree->SetBranchAddress("Electron_eta", el_eta );
             tree->SetBranchAddress("Electron_phi", el_phi );
             tree->SetBranchAddress("Electron_mass", el_mass );
+	    tree->SetBranchAddress("Electron_genPartFlav", el_genPartFlav );
             tree->SetBranchAddress("Muon_pt", mu_pt );
             tree->SetBranchAddress("Muon_eta", mu_eta );
             tree->SetBranchAddress("Muon_phi", mu_phi );
             tree->SetBranchAddress("Muon_mass", mu_mass );
+	    tree->SetBranchAddress("Muon_genPartFlav", mu_genPartFlav );
             tree->SetBranchAddress("MET_pt", &met_pt);
             tree->SetBranchAddress("MET_phi", &met_phi);
 	    tree->SetBranchAddress("MET_covXX", &met_covXX);
@@ -156,23 +173,23 @@ void runSVFit(TString filenames[], int nFiles, TString baseDir)
             double massErr;
             double transverseMass;
             double transverseMassErr;
-	    int valid;
-	    int considered;
+	    bool valid;
+	    bool considered;
 
             TBranch *b_mass = tree->Branch("SVFit_TauPairMass", &mass, "SVFit_TauPairMass/D");
             TBranch *b_massErr = tree->Branch("SVFit_TauPairMassErr", &massErr, "SVFit_TauPairMassErr/D");
             TBranch *b_transverseMass = tree->Branch("SVFit_TauPairMT", &transverseMass, "SVFit_TauPairMT/D");
             TBranch *b_transverseMassErr = tree->Branch("SVFit_TauPairMTErr", &transverseMassErr, "SVFit_TauPairMTErr/D");
-	    TBranch *b_valid = tree->Branch("SVFit_Valid", &valid, "SVFit_Valid/I");
-	    TBranch *b_considered = tree->Branch("SVFit_Considered", &considered, "SVFit_Considered/I");
+	    TBranch *b_valid = tree->Branch("SVFit_Valid", &valid, "SVFit_Valid/O");
+	    TBranch *b_considered = tree->Branch("SVFit_Considered", &considered, "SVFit_Considered/O");
 	    
 	    double calcEff = 0;
 	    int candidateEvents = 0;
 
             std::vector<MeasuredTauLepton> tausToFit;
 	    int nEntries = tree->GetEntries();
-	    int evToProcess = std::min(nEntries, 100000); //////////////////////////////////////////////////////////////////////
-
+	    //int evToProcess = std::min(nEntries, 100000); //////////////////////////////////////////////////////////////////////
+	    int evToProcess = nEntries;
             for (int eN = 0; eN < evToProcess; eN++)
             {
 	      if (eN % 1000 == 0)
@@ -188,10 +205,10 @@ void runSVFit(TString filenames[], int nFiles, TString baseDir)
 
 		tausToFit.clear();
 		bool goodEvent = false;
-		valid = 0;
-		considered = 0;
+		valid = false;
+		considered = false;
 
-                if (ETau_HavePair && ETau_Mass <= 150 && ETau_Mass >= 50)
+                if (ETau_HavePair && ETau_Mass >= 25 && ETau_Mass <= 200)// && el_genPartFlav[ETau_EIdx]==15 && tau_genPartFlav[ETau_TauIdx]==15)
                 {
 		  //std::cout << el_pt[ETau_EIdx] << " " << el_eta[ETau_EIdx] << " " << el_phi[ETau_EIdx] << " " << el_mass[ETau_EIdx] << std::endl;
 		  //std::cout << tau_pt[ETau_TauIdx] << " " << tau_eta[ETau_TauIdx] << " " << tau_phi[ETau_TauIdx] << " " << tau_mass[ETau_TauIdx] << tau_decayMode[ETau_TauIdx] << std::endl;  
@@ -202,7 +219,7 @@ void runSVFit(TString filenames[], int nFiles, TString baseDir)
 		  svFitAlgo.addLogM_fixed(true, 4); //4 from slide 3 of https://indico.cern.ch/event/684622/contributions/2807248/attachments/1575090/2487044/presentation_tmuller.pdf
 		  goodEvent = true;
                 }
-                else if (MuTau_HavePair && MuTau_Mass <= 150 && MuTau_Mass >= 50)
+                else if (MuTau_HavePair && MuTau_Mass >= 25 && MuTau_Mass <= 200)// && mu_genPartFlav[MuTau_MuIdx]==15 && tau_genPartFlav[MuTau_TauIdx]==15)
                 {
 		  //std::cout << mu_pt[MuTau_MuIdx] << " " << mu_eta[MuTau_MuIdx] << " " << mu_phi[MuTau_MuIdx] << " " << mu_mass[MuTau_MuIdx] << std::endl;
 		  //std::cout << tau_pt[MuTau_TauIdx] << " " << tau_eta[MuTau_TauIdx] << " " << tau_phi[MuTau_TauIdx] << " " << tau_mass[MuTau_TauIdx] << tau_decayMode[MuTau_TauIdx] << std::endl;
@@ -212,7 +229,7 @@ void runSVFit(TString filenames[], int nFiles, TString baseDir)
 		  svFitAlgo.addLogM_fixed(true, 4);
 		  goodEvent = true;
                 }
-                else if (TauTau_HavePair && TauTau_Mass <= 150 && TauTau_Mass >= 50)
+                else if (TauTau_HavePair && TauTau_Mass >= 25 && TauTau_Mass <= 200)// && tau_genPartFlav[TauTau_Tau0Idx]==15 && tau_genPartFlav[TauTau_Tau1Idx]==15)
                 {
 		  //std::cout << tau_pt[TauTau_Tau0Idx] << " " << tau_eta[TauTau_Tau0Idx] << " " << tau_phi[TauTau_Tau0Idx] << " " << tau_mass[TauTau_Tau0Idx] << tau_decayMode[TauTau_Tau0Idx] << std::endl;
 		  //std::cout << tau_pt[TauTau_Tau1Idx] << " " << tau_eta[TauTau_Tau1Idx] << " " << tau_phi[TauTau_Tau1Idx] << " " << tau_mass[TauTau_Tau1Idx] << tau_decayMode[TauTau_Tau1Idx] << std::endl;
@@ -228,34 +245,33 @@ void runSVFit(TString filenames[], int nFiles, TString baseDir)
 		if (goodEvent)
 		  {
 		    candidateEvents += 1;
-		    considered = 1;
-		    svFitAlgo.setLikelihoodFileName(TString("svFitLikelihood_"+filenames[fN]+"_"+years[yrN]+".root").Data());
+		    considered = true;
+		    svFitAlgo.setLikelihoodFileName(TString("svFitLikelihood_"+filename+".root").Data());
 		    //std::cout << "Met_X = " << met_pt*TMath::Cos(met_phi) << " : Met_Y = " << met_pt*TMath::Sin(met_phi) << std::endl;
 		    svFitAlgo.integrate(tausToFit, met_pt*TMath::Cos(met_phi), met_pt*TMath::Sin(met_phi), covMET);
 		    if (svFitAlgo.isValidSolution())
 		      {
 			mass = static_cast<DiTauSystemHistogramAdapter*>(svFitAlgo.getHistogramAdapter())->getMass();
-			std::cout << "Mass = " << mass << std::endl;
 			massErr = static_cast<DiTauSystemHistogramAdapter*>(svFitAlgo.getHistogramAdapter())->getMassErr();
 			transverseMass = static_cast<DiTauSystemHistogramAdapter*>(svFitAlgo.getHistogramAdapter())->getTransverseMass();
 			transverseMassErr = static_cast<DiTauSystemHistogramAdapter*>(svFitAlgo.getHistogramAdapter())->getTransverseMassErr();
 			calcEff += 1;
-			valid = 1;
+			valid = true;
 		      }
 		    else
 		      {
-			mass = -99.99;
-			massErr = -99.99;
-			transverseMass = -99.99;
-			transverseMassErr = -99.99;
+			mass = -999.99;
+			massErr = -999.99;
+			transverseMass = -999.99;
+			transverseMassErr = -999.99;
 		      }
 		  }
 		else
 		  {
-                    mass = -99.99;
-                    massErr = -99.99;
-                    transverseMass = -99.99;
-                    transverseMassErr = -99.99;
+                    mass = -999.99;
+                    massErr = -999.99;
+                    transverseMass = -999.99;
+                    transverseMassErr = -999.99;
 		  }
 
 		b_considered->Fill();
@@ -264,13 +280,15 @@ void runSVFit(TString filenames[], int nFiles, TString baseDir)
                 b_massErr->Fill();
                 b_transverseMass->Fill();
                 b_transverseMassErr->Fill();
+
+		//		std::cout << "valid = " << valid << std::endl;
             } //End entry
 
 	    std::cout << "Calculation efficiency for file = " << calcEff / candidateEvents << std::endl;
 	    file->cd();
 	    tree->SetBranchStatus("*", true);
             tree->Write("", TObject::kOverwrite);
-        } //End year
-    } //End filebase (process)
+	    //    } //End year
+	    //} //End filebase (process)
 } //End function
 
