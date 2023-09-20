@@ -2,31 +2,25 @@
 
 import os
 
-## Background MC settings
-inDir = os.environ["TSMC"]
-#filebases = ["DYJetsToLL_M10to50", "DYJetsToLL_M50", "ZGToLLG"]
-filebases = ["DYJetsToLL_M50", "ZGToLLG"]
-
-## Signal MC settings
-#inDir = os.environ["TSSIGDIR"]
-#filebases = ["Taustar_m175", "Taustar_m250","Taustar_m375","Taustar_m500","Taustar_m625","Taustar_m750","Taustar_m1000","Taustar_m1250","Taustar_m1500","Taustar_m1750","Taustar_m2000","Taustar_m2500","Taustar_m3000","Taustar_m3500","Taustar_m4000","Taustar_m4500","Taustar_m5000"]
-
-#Common settings
-outDir = "/store/user/bbarton/SVFit/"
+outDirBase = "/store/user/bbarton/SVFit/ZGamma/"
 years = ["2015", "2016", "2017", "2018"]
+#years = ["2018"]
+inDirBase = os.environ["TSMC"] + "/ZGToLLG_01J_5f_TuneCP5_13TeV-amcatnloFXFX-pythia8/crab_ZGToLLG_"
+inParams = {"2015": [inDirBase + "2015_29032023/230329_212304/0000/", 25], "2016":[inDirBase + "2016_29032023/230329_203021/0000/", 26], "2017": [inDirBase+ "2017_29032023/230329_193730/0000/", 45], "2018": ["2018_29032023/230329_184320/0000/", 54]}
 
+for year in years:
 
-
-for filebase in filebases:
-    for year in years:
-        filename = filebase + "_" + year
+    inDir = inParams[year][0]
+    nTrees = inParams[year][1]
+    for treeN in range(1, nTrees+1):
+        filename = "tree_" + str(treeN)
 
         #Executable .sh scripts
-        with open("run_" + filename + ".sh", "w+") as outFile:
+        with open("run_" + year + "_" + filename + ".sh", "w+") as outFile:
 
             outFile.write("#!/bin/bash\n")
             outFile.write("set -x\n")
-            outFile.write("OUTDIR="+ outDir + "\n")
+            outFile.write("OUTDIR="+ outDirBase + year + "/\n")
 
             outFile.write('echo "Starting job on " `date` #Date/time of start of job\n')
             outFile.write('echo "Running on: `uname -a`" #Condor job is running on this node\n')
@@ -42,7 +36,7 @@ for filebase in filebases:
 
             outFile.write("xrdcp root://cmseos.fnal.gov/" + inDir +"/"+ filename + ".root .\n")
 
-            outFile.write("tauStar_SVFit ./ " + filebase + "_" + year + ".root\n")
+            outFile.write("tauStar_SVFit ./ " + filename + ".root\n")
 
             outFile.write("#Copy files to eos area\n")
 
@@ -61,12 +55,12 @@ for filebase in filebases:
             outFile.write("date\n")
         
         #Job configuration files
-        with open("jobConfig_" + filename + ".jdl", "w") as jdlFile:
+        with open("jobConfig_" + year + "_" + filename + ".jdl", "w") as jdlFile:
             jdlFile.write('universe = vanilla\n')
-            jdlFile.write("Executable = run_" + filename + ".sh\n")
+            jdlFile.write("Executable = run_" + year + "_" + filename + ".sh\n")
             jdlFile.write('should_transfer_files = YES\n')
             jdlFile.write('when_to_transfer_output = ON_EXIT\n')
-            jdlFile.write('Output = condor_TNP_$(Cluster)_$(Process).stdout\n')
-            jdlFile.write('Error = condor_TNP_$(Cluster)_$(Process).stderr\n')
-            jdlFile.write('Log = condor_TNP_$(Cluster)_$(Process).log\n')
+            jdlFile.write('Output = condor_SVFit_$(Cluster)_$(Process).stdout\n')
+            jdlFile.write('Error = condor_SVFit_$(Cluster)_$(Process).stderr\n')
+            jdlFile.write('Log = condor_SVFit_$(Cluster)_$(Process).log\n')
             jdlFile.write('Queue 1\n')
