@@ -1,14 +1,15 @@
 
 
-from ROOT import TH1F, TCanvas, TFile, gStyle, THStack, TLegend, gPad
+from ROOT import TH1F, TCanvas, TFile, gStyle, THStack, TLegend, gPad, TMultiGraph, TGraph
 import os
+from array import array
 
 ## -------------------------------------------------------------------------------------------------------------------------------------------------------------------
 FILEPATH = os.environ["ROOTURL"] + "/" + os.environ["TSSVFIT"]
 
-def plotSVFit():
+def plotSVFit(svFitMass = True):
     #File names
-    years = ["2015", "2016", "2017"]#, "2018"]
+    years = ["2015", "2016", "2017", "2018"]
     channels = ["ETau", "MuTau", "TauTau"]
     #bkgdFiles = ["DYJetsToLL_M10to50", "DYJetsToLL_M50", "ZGToLLG"]
     bkgdFiles = ["ZGToLLG"]
@@ -16,55 +17,75 @@ def plotSVFit():
     sigFiles = ["Taustar_m175", "Taustar_m250","Taustar_m375","Taustar_m500","Taustar_m625"]
 
     #Plotting related
-    canv = TCanvas("canv", "SVFit Tau Pair Mass", 1000, 800)
+    canv_rat = TCanvas("canv_rat", "S/B Ratio Plots", 1000, 800)
+    canv = TCanvas("canv", "Tau Pair Mass", 1000, 800)
     gStyle.SetOptStat(0)
     bkgdColors = [16, 27]
     sigColors = [2, 4, 6, 7, 415, 32, 36, 634]
     leg = TLegend(0.7, 0.6, 0.9, 0.9)
+    leg_rat =TLegend(0.7, 0.2, 0.9, 0.5)
 
     #Histogram Limits
     nBins = 50
     binMin = 0
     binMax = 500
+    binCenters = []
 
     hs_bkgd = []
     hs_sig = []
-    stack_bkgd = THStack("stack_bkgd", "SVFit Mass;Tau Pair Mass [GeV];Events")
     
+    massName = ""
+    if svFitMass:
+        massName = "SVFit"
+    else:
+        massName = "Visible"
+    print("Using mass type = " + massName)
+    stack_bkgd = THStack("stack_bkgd", massName + " Mass;Tau Pair" + massName+ " Mass [GeV];Events")
+    h_bkgdTot= TH1F("h_bkgdTot", massName + " Mass;" + massName + " Mass [GeV];Events", nBins, binMin, binMax)
     #Background
     print("Getting background...")
     for bkgdFN, bkgdFileBase in enumerate(bkgdFiles):
-        hs_bkgd.append(TH1F("h_"+bkgdFileBase, "SVFit Tau Pair Mass; Tau Pair Mass [GeV];Events", nBins, binMin, binMax))
+        hs_bkgd.append(TH1F("h_"+bkgdFileBase, "Tau Pair "+ massName + " Mass; Tau Pair " + massName +" Mass [GeV];Events", nBins, binMin, binMax))
         
+        print("Process = " + bkgdFileBase)
         for yearN, year in enumerate(years):
+            print("Year = " + year)
             fil = TFile.Open(FILEPATH + bkgdFileBase+"_"+year+".root", "READ")
             tree = fil.Get("Events")
             
             for ch in channels:
+                print("Channel = " + ch)
                 h_temp = TH1F("h_"+bkgdFileBase+"_"+year+"_"+ch, bkgdFileBase, nBins, binMin, binMax)
                 
-                cuts = getCuts(year, ch)
+                cuts = getCuts(year, ch, svFitMass)
                 weight = getWeight(ch, isSig=False)
-    
-                tree.Draw("SVFit_TauPairMass>>+h_"+bkgdFileBase+"_"+year+"_"+ch, cuts + " * " + weight)
+                
+                if svFitMass:
+                    tree.Draw("SVFit_TauPairMass>>+h_"+bkgdFileBase+"_"+year+"_"+ch, cuts + " * " + weight)
+                else:
+                    tree.Draw(ch+"_Mass>>+h_"+bkgdFileBase+"_"+year+"_"+ch, cuts + " * " + weight)
                 hs_bkgd[bkgdFN].Add(h_temp)
+                h_bkgdTot.Add(h_temp)
                 del h_temp
-                #h_bkgd.Add(h_temp)
-                print(bkgdFileBase + " hist now has # entries = " + str(hs_bkgd[bkgdFN].GetEntries()))
+                #print(bkgdFileBase + " hist now has # entries = " + str(hs_bkgd[bkgdFN].GetEntries()))
             fil.Close()
     
         hs_bkgd[bkgdFN].SetLineColor(bkgdColors[bkgdFN])
         hs_bkgd[bkgdFN].SetFillColor(bkgdColors[bkgdFN])
-        hs_bkgd[bkgdFN].SetAxisRange(0.1, 30,"Y")
+        hs_bkgd[bkgdFN].SetAxisRange(0.1, 50,"Y")
         hs_bkgd[bkgdFN].SetMinimum(0.1)
         stack_bkgd.Add(hs_bkgd[bkgdFN])
         leg.AddEntry(hs_bkgd[bkgdFN],bkgdFileBase, "F")
     
     #Signal
+    sigBkgdRatios = []
+    gs_sigBkgdRatios = []
+    mg_sigBkgdRatios = TMultiGraph()
+    mg_sigBkgdRatios.SetTitle(massName + " Mass Signal/Background;"+massName+" Mass [GeV];Sig/Bkgd")
     print("Getting signal...")
     for sigFN, sigFileBase in enumerate(sigFiles):
         hs_sig.append(TH1F("h_"+sigFileBase, sigFileBase, nBins, binMin, binMax))
-        
+        print("Mass = " + sigFileBase)
         for yearN, year in enumerate(years):
             fil = TFile.Open(FILEPATH + sigFileBase+"_"+year+".root", "READ")
             tree = fil.Get("Events")
@@ -72,22 +93,47 @@ def plotSVFit():
             for ch in channels:
                 h_temp = TH1F("h_"+sigFileBase+"_"+year+"_"+ch, sigFileBase, nBins, binMin, binMax)
 
-                cuts = getCuts(year, ch)
+                cuts = getCuts(year, ch, svFitMass)
                 weight = getWeight(ch, isSig=True)
-
-                tree.Draw("SVFit_TauPairMass>>+h_"+sigFileBase+"_"+year+"_"+ch, cuts + " * " + weight)
+                if svFitMass:
+                    tree.Draw("SVFit_TauPairMass>>+h_"+sigFileBase+"_"+year+"_"+ch, cuts + " * " + weight)
+                else:
+                    tree.Draw(ch+"_Mass>>+h_"+sigFileBase+"_"+year+"_"+ch, cuts + " * " + weight)
                 hs_sig[sigFN].Add(h_temp)
                 del h_temp
-                print(sigFileBase + " hist now has # entries = " + str(hs_sig[sigFN].GetEntries()))
+                #print(sigFileBase + " hist now has # entries = " + str(hs_sig[sigFN].GetEntries()))
             fil.Close()
+
+        #Calculate the signal/background ratio for each bin... could hvae just used Divide() but whelp...
+        sigBkgdRatios.append([]) 
+        for binN in range(1, nBins+1):
+            if h_bkgdTot.GetBinContent(binN) > 0:
+                ratio = hs_sig[sigFN].GetBinContent(binN) / h_bkgdTot.GetBinContent(binN)
+            else:
+                ratio = 0
+            sigBkgdRatios[sigFN].append(ratio)
+            if sigFN == 0:
+                binCenters.append(h_bkgdTot.GetBinCenter(binN))
+        #print(sigBkgdRatios[sigFN])
+        #print(binCenters)
+        gs_sigBkgdRatios.append(TGraph(nBins, array("f", binCenters), array("f",sigBkgdRatios[sigFN])))
+        gs_sigBkgdRatios[sigFN].SetLineColor(sigColors[sigFN])
+        gs_sigBkgdRatios[sigFN].SetLineWidth(2)
+        gs_sigBkgdRatios[sigFN].SetMarkerColor(sigColors[sigFN])
+        gs_sigBkgdRatios[sigFN].SetMarkerStyle(5)
+        mg_sigBkgdRatios.Add(gs_sigBkgdRatios[sigFN])
+        leg_rat.AddEntry(gs_sigBkgdRatios[sigFN], sigFileBase, "LP" )
+    
     
         hs_sig[sigFN].SetLineColor(sigColors[sigFN])
         hs_sig[sigFN].SetLineWidth(2)
-        hs_sig[sigFN].SetAxisRange(0.1, 30,"Y")
+        hs_sig[sigFN].SetAxisRange(0.1, 50,"Y")
         hs_sig[sigFN].SetMinimum(0.1)
         leg.AddEntry(hs_sig[sigFN], sigFileBase, "L")
     
     print("Plotting...")
+    #Plot the mass histograms
+    canv.cd()
     canv.Clear()
     canv.SetLogy(1)
     gPad.SetLeftMargin(0.15)
@@ -97,17 +143,26 @@ def plotSVFit():
         hs_bkgd[0].Draw("HIST")
     for hSig in hs_sig:
         hSig.Draw("HIST SAME")
-    
     leg.Draw("SAME")
     
-    canv.SaveAs("../Plots/svFitMasses.png")
+    canv.SaveAs("../Plots/svFitMasses_"+massName+".png")
+
+    #Plot the s/b ratio plot
+    canv_rat.cd()
+    canv_rat.Clear()
+    canv_rat.SetLogy(1)
+    mg_sigBkgdRatios.Draw("ALP")
+    leg_rat.Draw("SAME")
+    canv_rat.SaveAs("../Plots/svFitSigBkgdRatios_"+massName+".png")
+
+
     wait=raw_input("Hit Enter to end...")
 
 ## -------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #Return the full signal region cuts (except the mass cut) for the given year and channel as a single string
-#Also require a valid SVFit result
-def getCuts(year, channel):
+#Also require a valid SVFit result if svFitMass == True
+def getCuts(year, channel, svFitMass):
     cuts = "("
     if channel == "ETau":
         cuts += "ETau_HaveTriplet>0 && (32&Tau_idDeepTau2017v2p1VSe[ETau_TauIdx]) && (32&Tau_idDeepTau2017v2p1VSjet[ETau_TauIdx]) && ETau_qq==-1"
@@ -140,7 +195,9 @@ def getCuts(year, channel):
     elif year == "2017" or year == "2018":
         cuts += "&& Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_BadPFMuonDzFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter"
 
-    cuts += " && SVFit_Valid && SVFit_TauPairMass > 10"
+    if svFitMass:
+        cuts += " && SVFit_Valid && SVFit_TauPairMass > 10"
+    
     cuts += ")"
     return cuts
 
@@ -283,4 +340,6 @@ def getWeight(channel, isSig):
 ## -------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    plotSVFit()
+    plotSVFit(True)
+    print("\n\n")
+    plotSVFit(False)
