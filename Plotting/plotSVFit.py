@@ -19,17 +19,18 @@ def plotSVFit(svFitMass = True):
     #Plotting related
     canv_rat = TCanvas("canv_rat", "S/B Ratio Plots", 1000, 800)
     canv = TCanvas("canv", "Tau Pair Mass", 1000, 800)
+    canv_roc = TCanvas("canv_roc", '"ROC" Curves', 1000, 800)
     gStyle.SetOptStat(0)
     bkgdColors = [16, 27]
     sigColors = [2, 4, 6, 7, 415, 32, 36, 634]
     leg = TLegend(0.7, 0.6, 0.9, 0.9)
-    leg_rat =TLegend(0.7, 0.2, 0.9, 0.5)
+    leg_rat = TLegend(0.1, 0.7, 0.3, 0.9)
+    leg_roc = TLegend(0.7, 0.4, 0.9, 0.7)
 
     #Histogram Limits
     nBins = 50
     binMin = 0
     binMax = 500
-    binCenters = []
 
     hs_bkgd = []
     hs_sig = []
@@ -40,6 +41,7 @@ def plotSVFit(svFitMass = True):
     else:
         massName = "Visible"
     print("Using mass type = " + massName)
+
     stack_bkgd = THStack("stack_bkgd", massName + " Mass;Tau Pair" + massName+ " Mass [GeV];Events")
     h_bkgdTot= TH1F("h_bkgdTot", massName + " Mass;" + massName + " Mass [GeV];Events", nBins, binMin, binMax)
     #Background
@@ -77,11 +79,18 @@ def plotSVFit(svFitMass = True):
         stack_bkgd.Add(hs_bkgd[bkgdFN])
         leg.AddEntry(hs_bkgd[bkgdFN],bkgdFileBase, "F")
     
-    #Signal
+    #Signal and calculations involving both sig and bkgd
     sigBkgdRatios = []
     gs_sigBkgdRatios = []
     mg_sigBkgdRatios = TMultiGraph()
     mg_sigBkgdRatios.SetTitle(massName + " Mass Signal/Background;"+massName+" Mass [GeV];Sig/Bkgd")
+    binCenters = []
+    gs_sigBkgdROCs = []
+    mg_sigBkgdROCs = TMultiGraph()
+    mg_sigBkgdROCs.SetTitle(massName  + " Mass Fraction of Events;"+massName+" Mass [GeV];Frac of Bkgd(Sig) to Left(Right) of Bin Low Edge")
+    sigFracToRight = []
+    bkgdFracToLeft = []
+    binLeftEdges = []
     print("Getting signal...")
     for sigFN, sigFileBase in enumerate(sigFiles):
         hs_sig.append(TH1F("h_"+sigFileBase, sigFileBase, nBins, binMin, binMax))
@@ -104,18 +113,28 @@ def plotSVFit(svFitMass = True):
                 #print(sigFileBase + " hist now has # entries = " + str(hs_sig[sigFN].GetEntries()))
             fil.Close()
 
-        #Calculate the signal/background ratio for each bin... could hvae just used Divide() but whelp...
+        #Calculate the signal/background ratio and fraction of bkgd/sig to left and right for each bin
         sigBkgdRatios.append([]) 
+        sigFracToRight.append([])
+        bkgdTot = h_bkgdTot.Integral(0,nBins+1) #Explicitly provide whole range so under/overflow are included
+        sigTot = hs_sig[sigFN].Integral(0,nBins+1)
         for binN in range(1, nBins+1):
+            if sigFN == 0: #If this is our first signal sample, calculate things we only need one copy of
+                binCenters.append(h_bkgdTot.GetBinCenter(binN))
+                binLeftEdges.append(h_bkgdTot.GetBinLowEdge(binN))
+                if binN == 1: #First bin content is just underflow
+                    bkgdFracToLeft.append(h_bkgdTot.GetBinContent(0) / bkgdTot)#Underflow
+                else: #All subsequent bins are cumulative, i.e. that bin plus bin frac to left
+                    bkgdFracToLeft.append((h_bkgdTot.GetBinContent(binN) / bkgdTot) + bkgdFracToLeft[binN-2])
             if h_bkgdTot.GetBinContent(binN) > 0:
                 ratio = hs_sig[sigFN].GetBinContent(binN) / h_bkgdTot.GetBinContent(binN)
             else:
                 ratio = 0
             sigBkgdRatios[sigFN].append(ratio)
-            if sigFN == 0:
-                binCenters.append(h_bkgdTot.GetBinCenter(binN))
-        #print(sigBkgdRatios[sigFN])
-        #print(binCenters)
+
+            sigFracToRight[sigFN].append(hs_sig[sigFN].Integral(binN, nBins+1) / sigTot)
+
+
         gs_sigBkgdRatios.append(TGraph(nBins, array("f", binCenters), array("f",sigBkgdRatios[sigFN])))
         gs_sigBkgdRatios[sigFN].SetLineColor(sigColors[sigFN])
         gs_sigBkgdRatios[sigFN].SetLineWidth(2)
@@ -123,7 +142,14 @@ def plotSVFit(svFitMass = True):
         gs_sigBkgdRatios[sigFN].SetMarkerStyle(5)
         mg_sigBkgdRatios.Add(gs_sigBkgdRatios[sigFN])
         leg_rat.AddEntry(gs_sigBkgdRatios[sigFN], sigFileBase, "LP" )
-    
+
+        gs_sigBkgdROCs.append(TGraph(nBins, array("f", binLeftEdges), array("f",sigFracToRight[sigFN])))
+        gs_sigBkgdROCs[sigFN].SetLineColor(sigColors[sigFN])
+        gs_sigBkgdROCs[sigFN].SetLineWidth(2)
+        gs_sigBkgdROCs[sigFN].SetMarkerColor(sigColors[sigFN])
+        gs_sigBkgdROCs[sigFN].SetMarkerStyle(5)
+        mg_sigBkgdROCs.Add(gs_sigBkgdROCs[sigFN])
+        leg_roc.AddEntry(gs_sigBkgdROCs[sigFN], sigFileBase, "LP" )
     
         hs_sig[sigFN].SetLineColor(sigColors[sigFN])
         hs_sig[sigFN].SetLineWidth(2)
@@ -131,6 +157,15 @@ def plotSVFit(svFitMass = True):
         hs_sig[sigFN].SetMinimum(0.1)
         leg.AddEntry(hs_sig[sigFN], sigFileBase, "L")
     
+    gs_sigBkgdROCs.append(TGraph(nBins, array("f", binLeftEdges), array("f",bkgdFracToLeft)))
+    gs_sigBkgdROCs[-1].SetLineColor(bkgdColors[0])
+    gs_sigBkgdROCs[-1].SetLineWidth(2)
+    gs_sigBkgdROCs[-1].SetMarkerColor(bkgdColors[0])
+    gs_sigBkgdROCs[-1].SetMarkerStyle(5)
+    mg_sigBkgdROCs.Add(gs_sigBkgdROCs[-1])
+    leg_roc.AddEntry(gs_sigBkgdROCs[-1],"Total Background", "LP" )    
+
+
     print("Plotting...")
     #Plot the mass histograms
     canv.cd()
@@ -146,6 +181,7 @@ def plotSVFit(svFitMass = True):
     leg.Draw("SAME")
     
     canv.SaveAs("../Plots/svFitMasses_"+massName+".png")
+    canv.SaveAs("../Plots/svFitMasses_"+massName+".pdf")
 
     #Plot the s/b ratio plot
     canv_rat.cd()
@@ -154,7 +190,15 @@ def plotSVFit(svFitMass = True):
     mg_sigBkgdRatios.Draw("ALP")
     leg_rat.Draw("SAME")
     canv_rat.SaveAs("../Plots/svFitSigBkgdRatios_"+massName+".png")
+    canv_rat.SaveAs("../Plots/svFitSigBkgdRatios_"+massName+".pdf")
 
+    #Plot the ROC curves
+    canv_roc.cd()
+    canv_roc.Clear()
+    mg_sigBkgdROCs.Draw("ALP")
+    leg_roc.Draw("SAME")
+    canv_roc.SaveAs("../Plots/svFitSigBkgdROCs_"+massName+".png")
+    canv_roc.SaveAs("../Plots/svFitSigBkgdROCs_"+massName+".pdf")
 
     wait=raw_input("Hit Enter to end...")
 
