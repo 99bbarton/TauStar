@@ -46,7 +46,7 @@ def makePlots():
     #colors = [595, 602, 597, 434, 426, 419, 411, 414, 402, 797, 626, 634, 610, 618, 619]
     colors = [595, 602, 434, 411, 426, 419, 597, 414, 402, 797, 626, 634, 610, 618, 619]
     #colors = [884, 874, 881, 876, 890, 855, 852, 867, 835, 844, 419, 413]
-    alpha = 0.2
+    alpha = 1
 
     masses = ["1000", "2000", "3000", "5000"]
     minEdges=(0, 100)
@@ -85,7 +85,9 @@ def makePlots():
             fil.Close()
 
         hists.append(h_mass)
-        
+
+    outFile = TFile.Open(OUTPATH + ".root", "RECREATE")
+    outFile.cd()
             
     canv.cd()
     canv.SetLeftMargin(0.15) #Make margins larger so axis titles don't get cut off
@@ -101,13 +103,15 @@ def makePlots():
         else:
             hist.Draw("P SAME")
         leg.AddEntry(hist, masses[hN], "LP")
+        
+        hist.Write()
 
     leg.Draw()
     canv.Update()
     wait = raw_input("Hit Enter to close and save plot...")
+    outFile.Close()
     canv.SaveAs(OUTPATH + ".pdf")
     canv.SaveAs(OUTPATH + ".png")
-
     #Draw L-band
     widths = {"175":0.47,"250":0.35,"375":0.25,"500":0.21,"625":0.19,"750":0.17,"1000":0.15,"1250":0.13,"1500":0.13,"1750":0.12,"2000":0.11,"2500":0.10,"3000":0.11,"3500":0.10,"4000":0.11,"4500":0.13,"5000":0.14}
 
