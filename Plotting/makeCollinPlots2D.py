@@ -1,6 +1,8 @@
 
 import os
 from ROOT import TCanvas, TLegend, gStyle, TFile, TTree, TH2F, TGraph2D, TMultiGraph, gPad, TLine
+import CMS_lumi as lumiStyle
+import tdrstyle
 
 #Return the full signal region cuts for the given year and channel as a single string
 def getCuts(year, channel):
@@ -39,8 +41,10 @@ def getCuts(year, channel):
     return cuts
 
 
-def makePlots():
+def makePlots(useWeight = False):
     OUTPATH = "../Plots/CollinMass2D/sigCollinMass2D"
+    if useWeight:
+        OUTPATH += "_weighted"
     canv = TCanvas("canv_collinMass", "2D Collinear Mass Distributions", 1000, 800)
     gStyle.SetOptStat(0)
     #colors = [595, 602, 597, 434, 426, 419, 411, 414, 402, 797, 626, 634, 610, 618, 619]
@@ -78,8 +82,13 @@ def makePlots():
 
             for ch in ["ETau", "MuTau", "TauTau"]:
                 h_ch = TH2F("h_"+mass+"_"+year+"_"+ch, "Collinear Mass;Min Collinear Mass [GeV]; Max Collinear Mass [GeV]", nBins[0], minEdges[0], maxEdges[0], nBins[1], minEdges[1], maxEdges[1])
-            
-                tree.Draw(ch + "_MaxCollMass:"+ch+"_MinCollMass>>+h_"+mass+"_"+year+"_"+ch, getCuts(year=year, channel=ch))
+                
+                if useWeight:
+                    weight = getWeight(ch, isSig=True)
+                else:
+                    weight = "1"
+
+                tree.Draw(ch + "_MaxCollMass:"+ch+"_MinCollMass>>+h_"+mass+"_"+year+"_"+ch, "(" + getCuts(year=year, channel=ch) + ")*" + weight)
                 h_mass.Add(h_ch)
 
             fil.Close()
@@ -106,6 +115,9 @@ def makePlots():
         
         hist.Write()
 
+    lumiStyle.lumi_13TeV = "137.8"
+    lumiStyle.CMS_lumi(gPad, 4, 0)
+    tdrstyle.setTDRStyle()
     leg.Draw()
     canv.Update()
     wait = raw_input("Hit Enter to close and save plot...")
@@ -146,5 +158,147 @@ def makePlots():
     canv.SaveAs(OUTPATH + "_Lbands.png")
 
 
+
+##-----------------------------------------------------------------------------------------------------------------------------------------------
+
+def getWeight(channel, isSig=True):
+    
+    weightTag = "("
+    
+    #crossection
+    weightTag += "xsWeight"
+
+    #lumi_13TeV
+    weightTag += " * lumiWeight[1]"
+
+    #CMS_pileup
+    weightTag += " * puWeight[1]"
+
+    #l1ecal
+    weightTag += " * L1PreFiringWeight_ECAL_Nom"
+
+    #PDF reweighting
+    if isSig:
+        weightTag += " * PDFWeights_varWeightsRMS" #central
+
+    if channel=="MuTau":
+        #l1muon
+        weightTag += " * L1PreFiringWeight_Muon_Nom"
+        
+    weightTag += " * (genWeight<0?-1.:+1.)"
+
+    if channel=="ETau":
+        #CMS_eff_t_antie1p
+        weightTag += " * (ETau_nProng==1 ? ETau_SFTau_e[1] : 1.)"
+        #CMS_eff_t_antie3p
+        weightTag += " * (ETau_nProng==3 ? ETau_SFTau_e[1] : 1.)"
+        #CMS_eff_t_antimu1p
+        weightTag += " * (ETau_nProng==1 ? ETau_SFTau_mu[1] : 1.)"
+        #CMS_eff_t_antimu3p
+        weightTag += " * (ETau_nProng==3 ? ETau_SFTau_mu[1] : 1.)"
+        #CMS_eff_t_antijet1p
+        weightTag += " * (((32&Tau_idDeepTau2017v2p1VSjet[ETau_TauIdx]) && ETau_nProng==1) ? ETau_SFTau_jet_tight[1] : 1.)"
+        #CMS_eff_t_antijet3p
+        weightTag += " * (((32&Tau_idDeepTau2017v2p1VSjet[ETau_TauIdx]) && ETau_nProng==3) ? ETau_SFTau_jet_tight[1] : 1.)"
+        #CMS_eff_e_reco
+        weightTag += " * ETau_SFE_reco[1]"
+        #CMS_eff_e_id
+        weightTag += " * ETau_SFE_id[1]"
+        #CMS_eff_etrigger_data
+        weightTag += " * ETau_TriggerEffData[1]"
+        #CMS_eff_etrigger_mc
+        weightTag += " * (1./ETau_TriggerEffMC[1])"
+        #CMS_btag_light
+        weightTag += " * JetETau_bTagWeight_light[1]"
+        #CMS_btag_light_corr
+        #weightTag += " * JetETau_bTagWeight_lightcorr[1]";
+        #CMS_btag_heavy
+        weightTag += " * JetETau_bTagWeight_bc[1]"
+        #CMS_btag_heavy_corr
+        #weightTag += " * JetETau_bTagWeight_bccorr[1]";
+        #if (haveTriplet) {
+        #CMS_eff_g_id
+        weightTag += " * ETau_SFPhoton_id[1]"
+        #CMS_eff_g_pv
+        weightTag += " * ETau_SFPhoton_pv[1]"
+
+    elif channel=="MuTau":
+        #CMS_eff_t_antie1p
+        weightTag += " * (MuTau_nProng==1 ? MuTau_SFTau_e[1] : 1.)"
+        #CMS_eff_t_antie3p
+        weightTag += " * (MuTau_nProng==3 ? MuTau_SFTau_e[1] : 1.)"
+        #CMS_eff_t_antimu1p
+        weightTag += " * (MuTau_nProng==1 ? MuTau_SFTau_mu[1] : 1.)"
+        #CMS_eff_t_antimu3p
+        weightTag += " * (MuTau_nProng==3 ? MuTau_SFTau_mu[1] : 1.)"
+        #CMS_eff_t_antijet1p
+        weightTag += " * (((32&Tau_idDeepTau2017v2p1VSjet[MuTau_TauIdx]) && MuTau_nProng==1) ? MuTau_SFTau_jet_tight[1] : 1.)"
+        #CMS_eff_t_antijet3p
+        weightTag += " * (((32&Tau_idDeepTau2017v2p1VSjet[MuTau_TauIdx]) && MuTau_nProng==3) ? MuTau_SFTau_jet_tight[1] : 1.)"
+        #CMS_eff_m_reco
+        weightTag += " * MuTau_SFMu_reco[1]"
+        #CMS_eff_m_id
+        weightTag += " * MuTau_SFMu_id[1]"
+        #CMS_eff_m_iso
+        weightTag += " * MuTau_SFMu_iso[1]"
+        #CMS_eff_mtrigger_data
+        weightTag += " * MuTau_TriggerEffData[1]"
+        #CMS_eff_mtrigger_mc
+        weightTag += " * (1./MuTau_TriggerEffMC[1])"
+        #CMS_btag_light
+        weightTag += " * JetMuTau_bTagWeight_light[1]"
+        #CMS_btag_light_corr
+        #weightTag += " * JetMuTau_bTagWeight_lightcorr[1]";
+        #CMS_btag_heavy
+        weightTag += " * JetMuTau_bTagWeight_bc[1]"
+        #CMS_btag_heavy_corr
+        #weightTag += " * JetMuTau_bTagWeight_bccorr[1]";
+        #if (haveTriplet) {
+        #CMS_eff_g_id
+        weightTag += " * MuTau_SFPhoton_id[1]"
+        #CMS_eff_g_csev
+        weightTag += " * MuTau_SFPhoton_csev[1]"
+        #}
+    elif channel=="TauTau":
+        #CMS_eff_t_antie1p
+        weightTag += " * (TauTau_Tau0nProng==1 ? TauTau_SFTau0_e[1] : 1.)"
+        weightTag += " * (TauTau_Tau1nProng==1 ? TauTau_SFTau1_e[1] : 1.)"
+        #CMS_eff_t_antie3p
+        weightTag += " * (TauTau_Tau0nProng==3 ? TauTau_SFTau0_e[1] : 1.)"
+        weightTag += " * (TauTau_Tau1nProng==3 ? TauTau_SFTau1_e[1] : 1.)"
+        #CMS_eff_t_antimu1p
+        weightTag += " * (TauTau_Tau0nProng==1 ? TauTau_SFTau0_mu[1] : 1.)"
+        weightTag += " * (TauTau_Tau1nProng==1 ? TauTau_SFTau1_mu[1] : 1.)"
+        #CMS_eff_t_antimu3p
+        weightTag += " * (TauTau_Tau0nProng==3 ? TauTau_SFTau0_mu[1] : 1.)"
+        weightTag += " * (TauTau_Tau1nProng==3 ? TauTau_SFTau1_mu[1] : 1.)"
+        #CMS_eff_t_antijet1p
+        weightTag += " * (((16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau0Idx]) && TauTau_Tau0nProng==1) ? TauTau_SFTau0_jet_medium_pt[1] : 1.)"
+        weightTag += " * (((16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau1Idx]) && TauTau_Tau1nProng==1) ? TauTau_SFTau1_jet_medium_pt[1] : 1.)"
+        #CMS_eff_t_antijet3p
+        weightTag += " * (((16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau0Idx]) && TauTau_Tau0nProng==3) ? TauTau_SFTau0_jet_medium_pt[1] : 1.)"
+        weightTag += " * (((16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau1Idx]) && TauTau_Tau1nProng==3) ? TauTau_SFTau1_jet_medium_pt[1] : 1.)"
+        #CMS_eff_tttrigger1p
+        weightTag += " * (((16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau0Idx]) && TauTau_Tau0nProng==1) ? TauTau_SFTau0_trigger_medium[1] : 1.)"
+        weightTag += " * (((16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau1Idx]) && TauTau_Tau1nProng==1) ? TauTau_SFTau1_trigger_medium[1] : 1.)"
+        #CMS_eff_tttrigger3p
+        weightTag += " * (((16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau0Idx]) && TauTau_Tau0nProng==3) ? TauTau_SFTau0_trigger_medium[1] : 1.)"
+        weightTag += " * (((16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau1Idx]) && TauTau_Tau1nProng==3) ? TauTau_SFTau1_trigger_medium[1] : 1.)"
+        #if (haveTriplet) {
+        #CMS_eff_g_id
+        weightTag += " * TauTau_SFPhoton_id[1]"
+        #CMS_eff_g_csev
+        weightTag += " * TauTau_SFPhoton_csev[1]"
+        #}
+
+    weightTag += ")"
+
+    return weightTag
+
+## -------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
 if __name__ == "__main__":
-    makePlots()
+    makePlots(useWeight=False)
+    makePlots(useWeight=True)
