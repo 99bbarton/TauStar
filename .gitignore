@@ -44,6 +44,9 @@ Reinterpretation/__pycache__/
 #Data files
 Reinterpretation/Cutflows/*.txt
 Reinterpretation/Cutflows/*.csv
-Reinterpretation/Inputs/*
+Reinterpretation/Inputs/*.png
+Reinterpretation/Inputs/*.pdf
+Reinterpretation/Inputs/*.txt
 Reinterpretation/TestOutput/*
 Reinterpretation/*.tar.gz
+Reinterpretation/Efficiencies/*.json
