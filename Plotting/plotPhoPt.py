@@ -4,7 +4,18 @@
 import sys
 import os
 from array import array
-from ROOT import TFile, TH1F, TCanvas, TTree, TCut, gStyle, gPad, TLegend
+from ROOT import TFile, TH1F, TCanvas, TTree, TCut, gStyle, gPad, TLegend, THStack
+
+#---------------------------------------------------------------------------------------------------------
+
+def getDataTree(dataset, year):
+    filepath = os.environ["ROOTURL"] + os.environ["TSDATA"] + dataset + "_" + year + ".root"
+    fil = TFile.Open(filepath, "READ")
+    tree = fil.Get("Events")
+    return tree
+
+
+#---------------------------------------------------------------------------------------------------------
 
 
 def getSigTree(mass, year):
@@ -12,6 +23,9 @@ def getSigTree(mass, year):
     fil = TFile.Open(filepath, "READ")
     tree = fil.Get("Events")
     return tree
+
+
+#---------------------------------------------------------------------------------------------------------
 
 def getCuts(year, channel, isSig):
     cuts = ""
@@ -50,10 +64,9 @@ def getCuts(year, channel, isSig):
     return cuts
 
 
-
 def plotAllSig():
     OUTPATH = "../Plots/PhotonPt/Normalized/"
-    canv = TCanvas("canv_phoPt", "Photon pT Distributions", 800, 600)
+    canv = TCanvas("canv_phoPt_sig", "Signal MC Photon pT Distributions", 800, 600)
     #leg = TLegend(0.7, 0.7, 0.9, 0.9, "Channels")
     gStyle.SetOptStat(0)
     
@@ -187,8 +200,181 @@ def plotAllSig():
         canv.Update()
         canv.SaveAs(OUTPATH + "phoPt_m" + mass + ".png")
 
+#---------------------------------------------------------------------------------------------------------
+
+def plotAllData(frac=False):
+    OUTPATH = "../Plots/PhotonPt/Normalized/Data/"
+
+    canv = TCanvas("canv_phoPt_data", "Observed Photon pT Distributions", 800, 600)
+    #leg = TLegend(0.7, 0.7, 0.9, 0.9, "Channels")
+    gStyle.SetOptStat(0)
+    
+    ptBins = array("f", [20, 75, 100, 200, 500, 1000, 2000, 3000, 4000, 5000])
+    nBins = len(ptBins) - 1
+
+    if not frac:
+        stack_all = THStack("hs_all", "Observed Photon pT")
+        h_ETau_all = TH1F("h_ETau", "Photon pT: " + year + ";pT [GeV];Events / bin", nBins, ptBins)
+        h_MuTau_all = TH1F("h_MuTau", "Photon pT: " + year + ";pT [GeV];Events / bin", nBins, ptBins)
+        h_TauTau_all = TH1F("h_TauTau", "Photon pT: " + year + ";pT [GeV];Events / bin", nBins, ptBins)
+
+    for year in ["2015", "2016", "2017", "2018"]:
+        print("Plotting pho pT for year= " + year + "...")
+
+        if frac:
+            h_ETau = TH1F("h_ETau_" + year, "Photon pT: " + year + ";pT [GeV];Fraction of Events / bin", nBins, ptBins)
+            h_MuTau = TH1F("h_MuTau_" + year, "Photon pT: " + year + ";pT [GeV];Fraction of Events / bin", nBins, ptBins)
+            h_TauTau = TH1F("h_TauTau_" + year, "Photon pT: " + year + ";pT [GeV];Fraction of Events / bin", nBins, ptBins)
+        else:
+            h_ETau = TH1F("h_ETau_" + year, "Photon pT: " + year + ";pT [GeV];Events / bin", nBins, ptBins)
+            h_MuTau = TH1F("h_MuTau_" + year, "Photon pT: " + year + ";pT [GeV];Events / bin", nBins, ptBins)
+            h_TauTau = TH1F("h_TauTau_" + year, "Photon pT: " + year + ";pT [GeV];Events / bin", nBins, ptBins)
+
+        for dataset in ["EGamma", "SingleMuon", "Tau", "MuonEG"]:
+            filepath = os.environ["ROOTURL"] + os.environ["TSDATA"] + dataset + "_" + year + ".root"
+            fil = TFile.Open(filepath, "READ")
+            tree = fil.Get("Events")
+
+            histNames = ["h_ETau_" + year + "_" + dataset, "h_MuTau_" + year + "_" + dataset, "h_TauTau_" + year + "_" + dataset]
+            h_ETau_ds = TH1F(histNames[0], "Photon pT: " + year + " " + dataset + ";pT [GeV];Fraction of Events / bin", nBins, ptBins)
+            h_MuTau_ds = TH1F(histNames[1], "Photon pT: " + year + " " + dataset + ";pT [GeV];Fraction of Events / bin", nBins, ptBins)
+            h_TauTau_ds = TH1F(histNames[2], "Photon pT: " + year + " " + dataset + ";pT [GeV];Fraction of Events / bin", nBins, ptBins)
+            
+            tree.Draw("Photon_pt[ETau_PhotonIdx]>>+" + histNames[0], getCuts(year=year, channel="ETau", isSig=False))
+            tree.Draw("Photon_pt[MuTau_PhotonIdx]>>+" + histNames[1], getCuts(year=year, channel="MuTau", isSig=False))
+            tree.Draw("Photon_pt[TauTau_PhotonIdx]>>+" + histNames[2], getCuts(year=year, channel="TauTau", isSig=False))
+
+            h_ETau.Add(h_ETau_ds)
+            h_MuTau.Add(h_MuTau_ds)
+            h_TauTau.Add(h_TauTau_ds)
+
+            if frac:
+                h_ETau_ds.Scale(1.0 / h_ETau_ds.GetEntries())
+                h_MuTau_ds.Scale(1.0 / h_MuTau_ds.GetEntries())
+                h_TauTau_ds.Scale(1.0 / h_TauTau_ds.GetEntries())
+
+            h_ETau_ds.SetLineColor(12)
+            h_MuTau_ds.SetLineColor(9)
+            h_TauTau_ds.SetLineColor(46)
+            h_ETau_ds.SetFillColor(12)
+            h_MuTau_ds.SetFillColor(9)
+            h_TauTau_ds.SetFillColor(46)
+            h_ETau_ds.SetLineWidth(3)
+            h_MuTau_ds.SetLineWidth(3)
+            h_TauTau_ds.SetLineWidth(3)
+
+            canv.cd()
+            canv.Clear()
+            if frac:
+                canv.SetLogx(1)
+
+            if frac:
+                max_ETau = h_ETau_ds.GetMaximum()
+                max_MuTau = h_MuTau_ds.GetMaximum()
+                max_TauTau = h_TauTau_ds.GetMaximum()
+                if max_ETau >= max_MuTau and max_ETau >= max_TauTau:
+                    h_ETau_ds.Draw("hist")
+                    h_MuTau_ds.Draw("hist same")
+                    h_TauTau_ds.Draw("hist same")
+                elif max_MuTau >= max_ETau and max_MuTau >= max_TauTau:
+                    h_MuTau_ds.Draw("hist")
+                    h_ETau_ds.Draw("hist same")
+                    h_TauTau_ds.Draw("hist same")
+                else:
+                    h_TauTau_ds.Draw("hist")
+                    h_MuTau_ds.Draw("hist same")
+                    h_ETau_ds.Draw("hist same")
+                
+            leg = TLegend(0.7, 0.7, 0.9, 0.9, "Channels")
+
+            if frac:
+                leg.AddEntry(h_ETau_ds, "ETau", "l")
+                leg.AddEntry(h_MuTau_ds, "MuTau", "l")
+                leg.AddEntry(h_TauTau_ds, "TauTau", "l")
+                
+            leg.Draw()
+            
+            canv.Update()
+            canv.SaveAs(OUTPATH + "phoPt_" + year + "_" + dataset + ".png")
+            
+            fil.Close()
+            #End datset
+
+        h_ETau.SetLineColor(12)
+        h_MuTau.SetLineColor(9)
+        h_TauTau.SetLineColor(46)
+        h_ETau.SetFillColor(12)
+        h_MuTau.SetFillColor(9)
+        h_TauTau.SetFillColor(46)
+        h_ETau.SetLineWidth(3)
+        h_MuTau.SetLineWidth(3)
+        h_TauTau.SetLineWidth(3)
+
+        if frac:
+            h_ETau.Scale(1.0 / h_ETau.GetEntries())
+            h_MuTau.Scale(1.0 / h_MuTau.GetEntries())
+            h_TauTau.Scale(1.0 / h_TauTau.GetEntries())
+        else:
+            h_ETau_all.Add(h_ETau)
+            h_MuTau_all.Add(h_MuTau)
+            h_TauTau_all.Add(h_TauTau)
+
+        canv.cd()
+        canv.Clear()
+
+        if frac:
+            canv.SetLogx(1)
+
+            max_ETau = h_ETau.GetMaximum()
+            max_MuTau = h_MuTau.GetMaximum()
+            max_TauTau = h_TauTau.GetMaximum()
+            if max_ETau >= max_MuTau and max_ETau >= max_TauTau:
+                h_ETau.Draw("hist")
+                h_MuTau.Draw("hist same")
+                h_TauTau.Draw("hist same")
+            elif max_MuTau >= max_ETau and max_MuTau >= max_TauTau:
+                h_MuTau.Draw("hist")
+                h_ETau.Draw("hist same")
+                h_TauTau.Draw("hist same")
+            else:
+                h_TauTau.Draw("hist")
+                h_MuTau.Draw("hist same")
+                h_ETau.Draw("hist same")
+        else:
+            stack_yr = THStack("stack_"+year," Observed Photon pT: " + year)
+            stack_yr.Add(h_ETau)
+            stack_yr.Add(h_MuTau)
+            stack_yr.Add(h_TauTau)
+            stack_yr.Draw()
+
+        leg.Clear()
+        leg.AddEntry(h_ETau, "ETau", "l")
+        leg.AddEntry(h_MuTau, "MuTau", "l")
+        leg.AddEntry(h_TauTau, "TauTau", "l")
+        leg.Draw()
+        canv.Update()
+        if frac:
+            canv.SaveAs(OUTPATH + "phoPt_" + year + "frac.png")
+        else:
+            canv.SaveAs(OUTPATH + "phoPt_" + year + ".png")
+        #End year
+
+    if not frac:
+        canv.Clear()
+        stack_all.Add(h_ETau_all)
+        stack_all.Add(h_MuTau_all)
+        stack_all.Add(h_TauTau_all)
+        stack_all.Draw()
+        leg.Draw()
+        canv.Update()
+        canv.SaveAs(OUTPATH + "phoPt_all.png")
+
+
+
 if __name__ == "__main__":
     plotAllSig()
+    plotAllData(frac=True)
+    plotAllData(frac=False)
 
 
 
