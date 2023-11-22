@@ -47,7 +47,7 @@ def getCuts(year, channel, isSig):
         elif year == "2018":
             cuts += "&& MuTau_t2018[1] && Muon_pt[MuTau_MuIdx]>=26."
     elif channel == "TauTau":
-        cuts += "TauTau_HaveTriplet>0 && TauTau_Mass>=100. && (16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau0Idx_esup]) && (16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau1Idx_esup]) && TauTau_qq_esup==-1"
+        cuts += "TauTau_HaveTriplet>0 && TauTau_Mass>=100. && (16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau0Idx]) && (16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau1Idx]) && TauTau_qq==-1"
         cuts += " && nE==0 && nMu==0 && ZEE_HavePair==0 && ZMuMu_HavePair==0"
         if year == "2015" or year == "2016":
             cuts += " && (TauTau_t2016_0[0] || TauTau_t2016_1[0])"
@@ -208,15 +208,17 @@ def plotAllData(frac=False):
     canv = TCanvas("canv_phoPt_data", "Observed Photon pT Distributions", 800, 600)
     #leg = TLegend(0.7, 0.7, 0.9, 0.9, "Channels")
     gStyle.SetOptStat(0)
+    colors = [595, 602, 434]
     
-    ptBins = array("f", [20, 75, 100, 200, 500, 1000, 2000, 3000, 4000, 5000])
+
+    ptBins = array("f", [20, 75, 100, 500, 1000])
     nBins = len(ptBins) - 1
 
     if not frac:
-        stack_all = THStack("hs_all", "Observed Photon pT")
-        h_ETau_all = TH1F("h_ETau", "Photon pT: " + year + ";pT [GeV];Events / bin", nBins, ptBins)
-        h_MuTau_all = TH1F("h_MuTau", "Photon pT: " + year + ";pT [GeV];Events / bin", nBins, ptBins)
-        h_TauTau_all = TH1F("h_TauTau", "Photon pT: " + year + ";pT [GeV];Events / bin", nBins, ptBins)
+        stack_all = THStack("hs_all", "Observed Photon pT;pT [GeV];Events / bin")
+        h_ETau_all = TH1F("h_ETau", "Observed Photon pT;pT [GeV];Events / bin", nBins, ptBins)
+        h_MuTau_all = TH1F("h_MuTau", "Observed Photon pT;pT [GeV];Events / bin", nBins, ptBins)
+        h_TauTau_all = TH1F("h_TauTau", "Observed Photon pT;pT [GeV];Events / bin", nBins, ptBins)
 
     for year in ["2015", "2016", "2017", "2018"]:
         print("Plotting pho pT for year= " + year + "...")
@@ -230,7 +232,7 @@ def plotAllData(frac=False):
             h_MuTau = TH1F("h_MuTau_" + year, "Photon pT: " + year + ";pT [GeV];Events / bin", nBins, ptBins)
             h_TauTau = TH1F("h_TauTau_" + year, "Photon pT: " + year + ";pT [GeV];Events / bin", nBins, ptBins)
 
-        for dataset in ["EGamma", "SingleMuon", "Tau", "MuonEG"]:
+        for dataset in ["Electron", "SingleMuon", "Tau"]:
             filepath = os.environ["ROOTURL"] + os.environ["TSDATA"] + dataset + "_" + year + ".root"
             fil = TFile.Open(filepath, "READ")
             tree = fil.Get("Events")
@@ -253,20 +255,19 @@ def plotAllData(frac=False):
                 h_MuTau_ds.Scale(1.0 / h_MuTau_ds.GetEntries())
                 h_TauTau_ds.Scale(1.0 / h_TauTau_ds.GetEntries())
 
-            h_ETau_ds.SetLineColor(12)
-            h_MuTau_ds.SetLineColor(9)
-            h_TauTau_ds.SetLineColor(46)
-            h_ETau_ds.SetFillColor(12)
-            h_MuTau_ds.SetFillColor(9)
-            h_TauTau_ds.SetFillColor(46)
-            h_ETau_ds.SetLineWidth(3)
-            h_MuTau_ds.SetLineWidth(3)
-            h_TauTau_ds.SetLineWidth(3)
+            h_ETau_ds.SetLineColor(colors[0])
+            h_MuTau_ds.SetLineColor(colors[1])
+            h_TauTau_ds.SetLineColor(colors[2])
+            h_ETau_ds.SetFillColor(colors[0])
+            h_MuTau_ds.SetFillColor(colors[1])
+            h_TauTau_ds.SetFillColor(colors[2])
+            #h_ETau_ds.SetLineWidth(10)
+            #h_MuTau_ds.SetLineWidth(10)
+            #h_TauTau_ds.SetLineWidth(10)
 
             canv.cd()
             canv.Clear()
-            if frac:
-                canv.SetLogx(1)
+            canv.SetLogy(1)
 
             if frac:
                 max_ETau = h_ETau_ds.GetMaximum()
@@ -300,15 +301,15 @@ def plotAllData(frac=False):
             fil.Close()
             #End datset
 
-        h_ETau.SetLineColor(12)
-        h_MuTau.SetLineColor(9)
-        h_TauTau.SetLineColor(46)
-        h_ETau.SetFillColor(12)
-        h_MuTau.SetFillColor(9)
-        h_TauTau.SetFillColor(46)
-        h_ETau.SetLineWidth(3)
-        h_MuTau.SetLineWidth(3)
-        h_TauTau.SetLineWidth(3)
+        h_ETau.SetLineColor(colors[0])
+        h_MuTau.SetLineColor(colors[1])
+        h_TauTau.SetLineColor(colors[2])
+        h_ETau.SetFillColor(colors[0])
+        h_MuTau.SetFillColor(colors[1])
+        h_TauTau.SetFillColor(colors[2])
+        #h_ETau.SetLineWidth(10)
+        #h_MuTau.SetLineWidth(10)
+        #h_TauTau.SetLineWidth(10)
 
         if frac:
             h_ETau.Scale(1.0 / h_ETau.GetEntries())
@@ -321,7 +322,8 @@ def plotAllData(frac=False):
 
         canv.cd()
         canv.Clear()
-
+        canv.SetLogy(1)
+        
         if frac:
             canv.SetLogx(1)
 
@@ -341,16 +343,16 @@ def plotAllData(frac=False):
                 h_MuTau.Draw("hist same")
                 h_ETau.Draw("hist same")
         else:
-            stack_yr = THStack("stack_"+year," Observed Photon pT: " + year)
+            stack_yr = THStack("stack_"+year," Observed Photon pT: " + year + ";pT [GeV];Events / bin")
             stack_yr.Add(h_ETau)
             stack_yr.Add(h_MuTau)
             stack_yr.Add(h_TauTau)
-            stack_yr.Draw()
+            stack_yr.Draw("hist")
 
         leg.Clear()
-        leg.AddEntry(h_ETau, "ETau", "l")
-        leg.AddEntry(h_MuTau, "MuTau", "l")
-        leg.AddEntry(h_TauTau, "TauTau", "l")
+        leg.AddEntry(h_ETau, "ETau", "F")
+        leg.AddEntry(h_MuTau, "MuTau", "F")
+        leg.AddEntry(h_TauTau, "TauTau", "F")
         leg.Draw()
         canv.Update()
         if frac:
@@ -360,11 +362,19 @@ def plotAllData(frac=False):
         #End year
 
     if not frac:
+        h_ETau_all.SetLineColor(colors[0])
+        h_MuTau_all.SetLineColor(colors[1])
+        h_TauTau_all.SetLineColor(colors[2])
+        h_ETau_all.SetFillColor(colors[0])
+        h_MuTau_all.SetFillColor(colors[1])
+        h_TauTau_all.SetFillColor(colors[2])
+
         canv.Clear()
+        canv.SetLogy(1)
         stack_all.Add(h_ETau_all)
         stack_all.Add(h_MuTau_all)
         stack_all.Add(h_TauTau_all)
-        stack_all.Draw()
+        stack_all.Draw("hist")
         leg.Draw()
         canv.Update()
         canv.SaveAs(OUTPATH + "phoPt_all.png")
@@ -372,8 +382,8 @@ def plotAllData(frac=False):
 
 
 if __name__ == "__main__":
-    plotAllSig()
-    plotAllData(frac=True)
+#    plotAllSig()
+#    plotAllData(frac=True)
     plotAllData(frac=False)
 
 
