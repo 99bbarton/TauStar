@@ -1,7 +1,6 @@
 # A script to produce the HEPData submission for the Taustar analysis (EXO-22-007)
 #Must be run from an environment with HEPDataLib installed e.g having sourced: source HEPDataEnv/bin/activate for my venv setup
 
-import numpy as np
 import pandas as pd
 from hepdata_lib import Submission, Table, Variable, Uncertainty, RootFileReader
 from math import sqrt
@@ -29,6 +28,7 @@ def makeCutFlowTable(filepath):
         - bveto : No btagged jets in event (only for ETau and MuTau)
         - gamma20GeV : have a photon with pt>20GeV
         - gamma100GeV : have a photon with pt>100GeV"""
+    table.location = ""
 
     #Add the different signal processes to the table
     year = Variable("Year", is_independent=True, is_binned=False)
@@ -64,8 +64,8 @@ def makeCovarianceTables(dirPath, includeSignalRegion=False):
     print("Making covariance matrice tables...")
     if includeSignalRegion: #Safety check against including signal region information
         print("\n\n WARNING: You have chosen to include the signal region (A) total covariance matrix in the table.")
-        response = raw_input("Are you sure you wish to continue? Enter YES to continue or anything else to abort")
-        if response != "YES":
+        response = input("Are you sure you wish to continue? Enter YES to continue or anything else to abort: ")
+        if response.upper() != "YES":
             exit(-1)
     
     #Initialize what data to include and how to access+label it
@@ -102,7 +102,7 @@ def makeCovarianceTables(dirPath, includeSignalRegion=False):
 
         #Read in each file and extract total covariance matrix for each channel and region
         for mass in masses:
-            filename = filebase + str(mass) + "y" + year + ".nominalParamt2wmask.root"
+            filename = filebase + str(mass) + "y" + year + ".nominal.root"
             fileReader = RootFileReader(dirPath + filename)
     
             for chCount, chNum in enumerate(channelMap.keys()):
@@ -148,6 +148,7 @@ def makeCovarianceTables(dirPath, includeSignalRegion=False):
         Values are extracted from the Higgs Combine tool's fitDiagnostics option. 
         Please see associated image ("fitRegions.pdf") for guide on region and channel setup."""
         tables[yearN].add_image("Inputs/fitRegions.pdf")
+        tables[yearN].location = ""
 
     return tables
 
@@ -161,7 +162,7 @@ def makeLBandWidthsTable():
     table = Table("Signal Region L-Band Widths")
     table.description = """The signal region is defined a an L-shaped band in the 2D collinear mass plane (min vs max collinear mass). 
     The width of the band is chosen to be the value such that 90% of signal falls within the band for each taustar hypothesis mass """
-    
+    table.location = "Figure 2"
     table.add_image("Inputs/CollinMass2D/sigCollinMass2D.pdf")
 
     mass = Variable("TauStar Hypothesis Mass", is_binned = False, is_independent = True, units = "GeV")
@@ -191,6 +192,7 @@ def makeEffTableEl():
     #Define HEPData objects
     tab = Table("Electron Efficiencies")
     tab.description = """Reco, ID, and trigger efficiencies observed in MC for electrons."""
+    tab.location = ""
     #'Type' 0 = Reco, 1 = ID, 2 = trigger
     var_year = Variable("Year", is_independent=True, is_binned=False)
     var_effType = Variable("Type", is_independent=True, is_binned=False) #Reco = 0, ID = 1, Trig = 2 since strs not supported
@@ -279,6 +281,7 @@ def makeEffTableMu():
     #Define HEPData objects
     tab = Table("Muon Efficiencies")
     tab.description = """Reco, ID, and trigger efficiencies observed in MC for muons."""
+    tab.location = ""
     #'Type' 0 = Reco, 1 = ID, 2 = trigger
     var_year = Variable("Year", is_independent=True, is_binned=False)
     var_effType = Variable("Type", is_independent=True, is_binned=False) #Reco = 0, ID = 1, Trig = 2 since strs not supported
@@ -402,6 +405,7 @@ def makeEffTableTau():
     #Define HEPData objects
     tab = Table("Tau Efficiencies")
     tab.description = """Reco, ID, and trigger efficiencies observed in MC for taus."""
+    tab.location = ""
     #'Type' 0 = Reco, 1 = ID, 2 = trigger
     var_year = Variable("Year", is_independent=True, is_binned=False)
     var_ch = Variable("Analysis Channel", is_independent=True, is_binned=False) # -1 inclusive, 0 = ETau, 1 = MuTau, 2 = TauTau,
@@ -497,6 +501,7 @@ def makeEffTablePho():
     #Define HEPData objects
     tab = Table("Photon Efficiencies")
     tab.description = """Reco and ID efficiencies observed in MC for photons."""
+    tab.location = ""
     #'Type' 0 = Reco, 1 = ID
     var_year = Variable("Year", is_independent=True, is_binned=False)
     var_effType = Variable("Type", is_independent=True, is_binned=False) #Reco = 0, ID = 1 since strs not supported
@@ -555,42 +560,65 @@ def makeEffTablePho():
 
 ## Make a Table containing the limits on cross section x branching fraction as a function of tau* mass (i.e. the brazil plot)
 # Reads in the outputs of the combine AsymptoticLimits. expected file format ishiggsCombineTest.AsymptoticLimits.m"+ massStr + "y0.nominal.root
-def makeLimitsTable():
+def makeLimitsTable(dirpath = "", observed=False):
     print("Making limits table...")
 
     tab = Table("Asymptotic Limits")
     tab.description = """Exclusion limits on the cross section x branching fraction for an excited tau decaying to tau and photon"""
+    tab.location = "Figures 4-7"
     tab.keywords["observables"] = ["SIG"]
-    tab.add_image("Inputs/Limits/UpperLimit.nominal.pdf")
+    tab.add_image(dirpath + "/UpperLimit.pdf")
+    tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_ETauy0.pdf")
+    tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_MuTauy0.pdf")
+    tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_TauTauy0.pdf")
 
     var_mass = Variable("${Tau}$* mass", is_independent=True, is_binned=False, units="GeV")
-    var_mass.values = [175,250,375,500,625,750,1000,1250,1500,1750,2000,2500,3000,3500,4000,4500,5000]
+    var_ch = Variable("Channel", is_independent=True, is_binned=False)
     var_expLim = Variable("Expected Limits", is_independent=False, is_binned=False, units="fb")
     var_expLim.add_qualifier("Limit", "Expected")
     var_expLim.add_qualifier("SQRT(S)", 13, "TeV")
     var_expLim.add_qualifier("LUMINOSITY", 138, "fb$^{-1}$")
-    
+    if observed:
+        var_obsLim = Variable("Observed Limit", is_independent=False, is_binned=False, units="fb")
+        var_obsLim.add_qualifier("Limit", "Observed")
+        var_obsLim.add_qualifier("SQRT(S)", 13, "TeV")
+        var_obsLim.add_qualifier("LUMINOSITY", 138, "fb$^{-1}$")
+
+    masses = [175,250,375,500,625,750,1000,1250,1500,1750,2000,2500,3000,3500,4000,4500,5000]
+    channels = {"All":".y0.nominal.root", "ETau":".y0.nominal_ETau.root", "MuTau":".y0.nominal_MuTau.root", "TauTau":".y0.nominal_TauTau.root"}
+    var_mass.values = []
+    var_ch.values = []
+
     unc_1stdDev = Uncertainty("1 std dev", is_symmetric=False)
     unc_2stdDev = Uncertainty("2 std dev", is_symmetric=False)
 
     #Crossections 
     xs = [0.0177, 0.0108, 6.639e-3, 4.069e-3, 2.494e-3, 1.529e-3, 9.371e-4, 5.744e-4, 3.521e-4, 2.159e-4, 1.323e-4, 8.12e-5, 4.97e-5, 3.05e-5, 1.87e-5, 1.14e-5, 7.02e-6, 4.30e-6, 2.64e-6, 1.62e-6]
+    for ch in channels.keys():
+        var_mass.values.extend(masses)
+        var_ch.values.extend(len(masses) * [ch])
 
-    for i, mass in enumerate(var_mass.values):
-        multiplier = 1000 * xs[i]
-        massStr = str(mass)
-        reader = RootFileReader("Inputs/Limits/12May2023/higgsCombineTest.AsymptoticLimits.m"+ massStr + "y0.nominalParam.root")
-        limits = reader.read_tree("limit","limit") #Returned array is of form [-2sd, -1sd, nom, +1sd, +2sd]
+        for i, mass in enumerate(masses):
+            multiplier = 1000 * xs[i]
+            massStr = str(mass)
+            reader = RootFileReader(dirpath + "/higgsCombineTest.AsymptoticLimits.mH"+ massStr + channels[ch])
+            limits = reader.read_tree("limit","limit") #Returned array is of form [-2sd, -1sd, nom, +1sd, +2sd] from --runblind. If not blind than obs limit is appended to end
 
-        var_expLim.values.append(multiplier * limits[2]) #Factor of 1000 converts the returned unit from combine of pb to desired unit of fb
-        unc_1stdDev.values.append((multiplier * (limits[1] - limits[2]), multiplier * (limits[3] - limits[2]))) #Calc intervals from +/-1stddev - median vals
-        unc_2stdDev.values.append((multiplier * (limits[0] - limits[2]), multiplier * (limits[4] - limits[2])))
+            var_expLim.values.append(multiplier * limits[2]) #Factor of 1000 converts the returned unit from combine of pb to desired unit of fb
+            unc_1stdDev.values.append((multiplier * (limits[1] - limits[2]), multiplier * (limits[3] - limits[2]))) #Calc intervals from +/-1stddev - median vals
+            unc_2stdDev.values.append((multiplier * (limits[0] - limits[2]), multiplier * (limits[4] - limits[2])))
+
+            if observed:
+                var_obsLim.values.append(multiplier *limits[5])
 
     var_expLim.add_uncertainty(unc_1stdDev)
     var_expLim.add_uncertainty(unc_2stdDev)
 
     tab.add_variable(var_mass)
+    tab.add_variable(var_ch)
     tab.add_variable(var_expLim)
+    if observed:
+        tab.add_variable(var_obsLim)
 
     return tab
 
@@ -683,7 +711,7 @@ def makeObsVsExpEventYieldsTable(filepath):
 
     dataframe = pd.read_csv(filepath, sep=",", header=0, index_col=False)
 
-    processMap = {"observed": "observed", "jet1" : "1-prong-jet", "jet3" : "3-prong-jet", "DB" : "di-boson", "DY":"drell-yan+ZGamma", "ST":"single-top", "TT":"ttbar" }
+    processMap = {"total": "observed", "jet1" : "1-prong-jet", "jet3" : "3-prong-jet", "DB" : "di-boson", "DY":"Z", "ST":"single-top", "TT":"ttbar" }
     for process in processMap.keys():
         dataframe.replace(process, processMap[process], inplace = True)
     
@@ -691,6 +719,10 @@ def makeObsVsExpEventYieldsTable(filepath):
     table = Table("Observed and Expected Event Yields")
     table.description = """The observed and expected event yields from backgrounds for for each channel. 
     Event yields from backgrounds are taken post-fit."""
+    table.location = "Table 2, Figure 3"
+    table.add_image("Inputs/EventYields/signalYieldsETau.pdf")
+    table.add_image("Inputs/EventYields/signalYieldsMuTau.pdf")
+    table.add_image("Inputs/EventYields/signalYieldsTauTau.pdf")
 
     process = Variable("Process", is_independent=True, is_binned=False)
     process.values = dataframe["process"]
@@ -720,7 +752,7 @@ def makeSubmission():
     print("...cutflow table added to submission")
 
     #Add covariance matrice tables
-    tables_covar = makeCovarianceTables(dirPath="CovarianceMatrices/12May2023/")
+    tables_covar = makeCovarianceTables(dirPath="Inputs/FitDiagnostics/22Nov2023/", includeSignalRegion=True)
     for table in tables_covar:
         submission.add_table(table)
     print("...covariance tables added to submission")
@@ -747,19 +779,27 @@ def makeSubmission():
     print("...Efficiency tables added to submission")
 
     #Asymptotic limits
-    table_limits = makeLimitsTable()
+    table_limits = makeLimitsTable(dirpath="Inputs/Limits/17Nov2023/", observed=True)
     submission.add_table(table_limits)
     print("...limits table added to submission")
 
     #6-bin observed vs predicted events histrograms
-    table_6BinHists = make6BinTables(masses = ["250", "1750"])
-    submission.add_table(table_6BinHists)
-    print("...6-bin histograms table added to submission")
+    #table_6BinHists = make6BinTables(masses = ["250", "1750"])
+    #submission.add_table(table_6BinHists)
+    #print("...6-bin histograms table added to submission")
 
     #Observed and expected event yields
     table_eventYields = makeObsVsExpEventYieldsTable("Inputs/EventYields/eventYields.csv")
     submission.add_table(table_eventYields)
     print("...event yields table added to submission")
+
+    # Add the pythia fragments used for signal generation
+    fragmentList = os.listdir("PythiaConfigurations/LegacyProduction/")
+    for fragmentFile in fragmentList:
+        submission.add_additional_resource(description="Pythia gen fragment", location="PythiaConfigurations/LegacyProduction/"+fragmentFile,copy_file=True)
+    fragmentList = os.listdir("PythiaConfigurations/UltraLegacyProduction/")
+    for fragmentFile in fragmentList:
+        submission.add_additional_resource(description="Pythia gen fragment", location="PythiaConfigurations/UltraLegacyProduction/"+fragmentFile,copy_file=True)
 
     #Meta data and text 
     print("Adding text...")
@@ -767,6 +807,7 @@ def makeSubmission():
         table.keywords["cmenergies"] = ["13000"] 
     submission.read_abstract("Inputs/abstract.txt")
     submission.add_link("CMS CADI", "https://cms.cern.ch/iCMS/analysisadmin/cadilines?line=EXO-22-007")
+    submission.add_additional_resource(description="Paper draft", location="Inputs/EXO-22-007-paper-v6.pdf", copy_file=True)
     print("...text added to submission") 
 
     print("Creating files...")

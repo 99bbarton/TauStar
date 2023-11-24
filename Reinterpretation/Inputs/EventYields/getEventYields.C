@@ -16,10 +16,14 @@ void runPoint(TString process, TString channel)
     if (channel=="MuTau") channel_="ch2";
     if (channel=="TauTau") channel_="ch3";
 
-    TString fname = "/uscms_data/d3/fojensen/excitedTau_04032022/CMSSW_10_6_30/src/PhysicsTools/NanoAODTools/condor/fitDiagnosticsTest.m1y0.nominal.root";
+    TString fname = "../FitDiagnostics/22Nov2023/fitDiagnosticsTest.m1y0.nominal.root";
 
     TFile * f = TFile::Open(fname, "READ");
-    TString hname = "shapes_fit_b/" + channel_ +"_A/" + process;
+    TString hname;
+    if (process == "total")
+        hname = "shapes_fit_s/" + channel_ +"_A/" + process;
+    else
+        hname = "shapes_fit_b/" + channel_ +"_A/" + process;
     //std::cout << "channel = " << channel << " channel_ = " << channel_ << " : Hist name = " <<hname << std::endl;
     TH1D * h = (TH1D*)f->Get(hname);
     //std::cout << h->GetEntries() << std::endl;
@@ -43,6 +47,7 @@ void runPoint(TString process, TString channel)
     if (process=="DY") name = "Drell-Yan/Z";
     if (process=="jet1") name = "1-prong";
     if (process=="jet3") name = "3-prong";
+    if (process=="total_background") name = "total background";
 
     std::cout << std::setprecision(3);
     std::cout << process << "," << channel << "," << x << "," << xerr << std::endl;
@@ -56,11 +61,14 @@ void finalYieldsList()
     for (int chN = 0; chN < 3; chN++)
     {
       //std::cout << "Channel passed is " << channels[chN] << std::endl;
-        runPoint("ST", channels[chN]);
-        runPoint("DB", channels[chN]);
-        runPoint("TT", channels[chN]);
-        runPoint("DY", channels[chN]);
+        
         runPoint("jet1", channels[chN]);
         runPoint("jet3", channels[chN]);
+        runPoint("DY", channels[chN]);
+        runPoint("DB", channels[chN]);
+        runPoint("TT", channels[chN]);
+        runPoint("ST", channels[chN]);
+        runPoint("total_background", channels[chN]);
+        runPoint("total", channels[chN]);
     }
 }
