@@ -62,11 +62,11 @@ def makeCutFlowTable(filepath):
 #tables : a list of HEPData_lib Table objects, one for each year in the years list initialize below
 def makeCovarianceTables(dirPath, includeSignalRegion=False):
     print("Making covariance matrice tables...")
-    if includeSignalRegion: #Safety check against including signal region information
-        print("\n\n WARNING: You have chosen to include the signal region (A) total covariance matrix in the table.")
-        response = input("Are you sure you wish to continue? Enter YES to continue or anything else to abort: ")
-        if response.upper() != "YES":
-            exit(-1)
+    #if includeSignalRegion: #Safety check against including signal region information
+    #    print("\n\n WARNING: You have chosen to include the signal region (A) total covariance matrix in the table.")
+    #    response = input("Are you sure you wish to continue? Enter YES to continue or anything else to abort: ")
+    #    if response.upper() != "YES":
+    #        exit(-1)
     
     #Initialize what data to include and how to access+label it
     years = ["2015", "2016", "2017", "2018", "0"]
@@ -558,50 +558,66 @@ def makeEffTablePho():
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
-## Make a Table containing the limits on cross section x branching fraction as a function of tau* mass (i.e. the brazil plot)
+## Make Tables containing the limits on cross section x branching fraction as a function of tau* mass (i.e. the brazil plot) for each channel and the overall limit
 # Reads in the outputs of the combine AsymptoticLimits. expected file format ishiggsCombineTest.AsymptoticLimits.m"+ massStr + "y0.nominal.root
-def makeLimitsTable(dirpath = "", observed=False):
-    print("Making limits table...")
+def makeLimitsTables(dirpath = "", observed=False):
+    print("Making limits tables...")
+    tables = []
 
-    tab = Table("Asymptotic Limits")
-    tab.description = """Exclusion limits on the cross section x branching fraction for an excited tau decaying to tau and photon"""
-    tab.location = "Figures 4-7"
-    tab.keywords["observables"] = ["SIG"]
-    tab.add_image(dirpath + "/UpperLimit.pdf")
-    tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_ETauy0.pdf")
-    tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_MuTauy0.pdf")
-    tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_TauTauy0.pdf")
+    for ch in ["", "ETau", "MuTau", "TauTau"]:
+        tab = None
+        if ch == "":
+            tab = Table("Figure 4: Asymptotic Limits")
+            tab.description = """Expected upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ"""
+            tab.location = "Figure 4"
+            tab.add_image(dirpath + "/UpperLimit.pdf")
+        elif ch == "ETau":
+            tab = Table("Figure 5: Asymptotic Limits - ETau Channel")
+            tab.description = """Expected upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. Only the e + τh signal region, e + τh low photon pT control region, and 0-τh control regions are included in the fit. """
+            tab.location = "Figure 5"
+            tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_ETauy0.pdf")
+        elif ch == "MuTau":
+            tab = Table("Figure 6: Asymptotic Limits - MuTau Channel")
+            tab.description = """Expected upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. Only the µ + τh signal region, µ + τh low photon pT control region, and 0-τh control regions are included in the fit. """
+            tab.location = "Figure 6"
+            tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_MuTauy0.pdf")
+        elif ch == "TauTau":
+            tab = Table("Figure 7: Asymptotic Limits - TauTau Channel")
+            tab.description = """Expected upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. Only the τh + τh signal region, τh + τh low photon pT control region, and 0-τh control regions are included in the fit. """
+            tab.location = "Figure 7"
+            tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_TauTauy0.pdf")
+    
+        tab.keywords["observables"] = ["SIG"]
+    
+        var_mass = Variable("${Tau}$* mass", is_independent=True, is_binned=False, units="GeV")
+        var_expLim = Variable("Expected Limits", is_independent=False, is_binned=False, units="fb")
+        var_expLim.add_qualifier("Limit", "Expected")
+        var_expLim.add_qualifier("SQRT(S)", 13, "TeV")
+        var_expLim.add_qualifier("LUMINOSITY", 138, "fb$^{-1}$")
+        if observed:
+            var_obsLim = Variable("Observed Limit", is_independent=False, is_binned=False, units="fb")
+            var_obsLim.add_qualifier("Limit", "Observed")
+            var_obsLim.add_qualifier("SQRT(S)", 13, "TeV")
+            var_obsLim.add_qualifier("LUMINOSITY", 138, "fb$^{-1}$")
 
-    var_mass = Variable("${Tau}$* mass", is_independent=True, is_binned=False, units="GeV")
-    var_ch = Variable("Channel", is_independent=True, is_binned=False)
-    var_expLim = Variable("Expected Limits", is_independent=False, is_binned=False, units="fb")
-    var_expLim.add_qualifier("Limit", "Expected")
-    var_expLim.add_qualifier("SQRT(S)", 13, "TeV")
-    var_expLim.add_qualifier("LUMINOSITY", 138, "fb$^{-1}$")
-    if observed:
-        var_obsLim = Variable("Observed Limit", is_independent=False, is_binned=False, units="fb")
-        var_obsLim.add_qualifier("Limit", "Observed")
-        var_obsLim.add_qualifier("SQRT(S)", 13, "TeV")
-        var_obsLim.add_qualifier("LUMINOSITY", 138, "fb$^{-1}$")
+        masses = [175,250,375,500,625,750,1000,1250,1500,1750,2000,2500,3000,3500,4000,4500,5000]
+        var_mass.values = masses
 
-    masses = [175,250,375,500,625,750,1000,1250,1500,1750,2000,2500,3000,3500,4000,4500,5000]
-    channels = {"All":".y0.nominal.root", "ETau":".y0.nominal_ETau.root", "MuTau":".y0.nominal_MuTau.root", "TauTau":".y0.nominal_TauTau.root"}
-    var_mass.values = []
-    var_ch.values = []
+        unc_1stdDev = Uncertainty("1 std dev", is_symmetric=False)
+        unc_2stdDev = Uncertainty("2 std dev", is_symmetric=False)
 
-    unc_1stdDev = Uncertainty("1 std dev", is_symmetric=False)
-    unc_2stdDev = Uncertainty("2 std dev", is_symmetric=False)
-
-    #Crossections 
-    xs = [0.0177, 0.0108, 6.639e-3, 4.069e-3, 2.494e-3, 1.529e-3, 9.371e-4, 5.744e-4, 3.521e-4, 2.159e-4, 1.323e-4, 8.12e-5, 4.97e-5, 3.05e-5, 1.87e-5, 1.14e-5, 7.02e-6, 4.30e-6, 2.64e-6, 1.62e-6]
-    for ch in channels.keys():
-        var_mass.values.extend(masses)
-        var_ch.values.extend(len(masses) * [ch])
+        #Crossections 
+        xs = [0.0177, 0.0108, 6.639e-3, 4.069e-3, 2.494e-3, 1.529e-3, 9.371e-4, 5.744e-4, 3.521e-4, 2.159e-4, 1.323e-4, 8.12e-5, 4.97e-5, 3.05e-5, 1.87e-5, 1.14e-5, 7.02e-6, 4.30e-6, 2.64e-6, 1.62e-6]
 
         for i, mass in enumerate(masses):
             multiplier = 1000 * xs[i]
             massStr = str(mass)
-            reader = RootFileReader(dirpath + "/higgsCombineTest.AsymptoticLimits.mH"+ massStr + channels[ch])
+
+            reader = None
+            if ch == "":
+                reader = RootFileReader(dirpath + "/higgsCombineTest.AsymptoticLimits.mH"+ massStr + ".y0.nominal.root")
+            else:
+                reader = RootFileReader(dirpath + "/higgsCombineTest.AsymptoticLimits.mH"+ massStr + ".y0.nominal_" + ch + ".root")
             limits = reader.read_tree("limit","limit") #Returned array is of form [-2sd, -1sd, nom, +1sd, +2sd] from --runblind. If not blind than obs limit is appended to end
 
             var_expLim.values.append(multiplier * limits[2]) #Factor of 1000 converts the returned unit from combine of pb to desired unit of fb
@@ -611,16 +627,17 @@ def makeLimitsTable(dirpath = "", observed=False):
             if observed:
                 var_obsLim.values.append(multiplier *limits[5])
 
-    var_expLim.add_uncertainty(unc_1stdDev)
-    var_expLim.add_uncertainty(unc_2stdDev)
+        var_expLim.add_uncertainty(unc_1stdDev)
+        var_expLim.add_uncertainty(unc_2stdDev)
 
-    tab.add_variable(var_mass)
-    tab.add_variable(var_ch)
-    tab.add_variable(var_expLim)
-    if observed:
-        tab.add_variable(var_obsLim)
+        tab.add_variable(var_mass)
+        tab.add_variable(var_expLim)
+        if observed:
+            tab.add_variable(var_obsLim)
+        
+        tables.append(tab)
 
-    return tab
+    return tables
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
@@ -703,41 +720,55 @@ def make6BinTables(masses):
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
-## Make a Table containing the observed and expected event yields for each of the three signal channels
+## Make Tables containing the observed and expected event yields for each of the three signal channels and an inclusive table
 # filepath : a string path/filename of a csv file containing the columns: "process", "channel", "events", "eventsErr"
 # Returns a HEPDataLib Table object corresponding to the equivalent table in the paper
-def makeObsVsExpEventYieldsTable(filepath):
-    print("Making observed vs expected event years table...")
+def makeObsVsExpEventYieldsTables(filepath):
+    print("Making observed vs expected event yields table...")
 
-    dataframe = pd.read_csv(filepath, sep=",", header=0, index_col=False)
-
+    tables = []
     processMap = {"total": "observed", "jet1" : "1-prong-jet", "jet3" : "3-prong-jet", "DB" : "di-boson", "DY":"Z", "ST":"single-top", "TT":"ttbar" }
-    for process in processMap.keys():
-        dataframe.replace(process, processMap[process], inplace = True)
-    
 
-    table = Table("Observed and Expected Event Yields")
-    table.description = """The observed and expected event yields from backgrounds for for each channel. 
-    Event yields from backgrounds are taken post-fit."""
-    table.location = "Table 2, Figure 3"
-    table.add_image("Inputs/EventYields/signalYieldsETau.pdf")
-    table.add_image("Inputs/EventYields/signalYieldsMuTau.pdf")
-    table.add_image("Inputs/EventYields/signalYieldsTauTau.pdf")
+    for channel in ["All","ETau", "MuTau", "TauTau"]:
+        dataframe = pd.read_csv(filepath, sep=",", header=0, index_col=False)
 
-    process = Variable("Process", is_independent=True, is_binned=False)
-    process.values = dataframe["process"]
-    table.add_variable(process)
-    channel = Variable("Channel", is_independent=True, is_binned=False)
-    channel.values = dataframe["channel"]
-    table.add_variable(channel)
-    eventYield = Variable("Event Yield", is_independent=False, is_binned=False)
-    eventYield.values = dataframe["events"]
-    eventYieldErr = Uncertainty("Event Yield Uncertainty", is_symmetric=True)
-    eventYieldErr.values = dataframe["eventsErr"]
-    eventYield.add_uncertainty(eventYieldErr)
-    table.add_variable(eventYield)
+        for process in processMap.keys():
+            dataframe.replace(process, processMap[process], inplace = True)   
 
-    return table
+        table = None
+        if channel == "All":
+            table = Table("Observed and Expected Event Yields")
+            table.description = """The observed and expected event yields from backgrounds for each channel. Event yields from backgrounds are taken post-fit."""
+            table.add_image("Inputs/EventYields/signalYieldsETau.pdf")
+            table.add_image("Inputs/EventYields/signalYieldsMuTau.pdf")
+            table.add_image("Inputs/EventYields/signalYieldsTauTau.pdf")
+        else:
+            table = Table("Observed and Expected Event Yields: " +channel + " Channel")
+            table.description = "The observed and expected event yields from backgrounds for the " + channel + ". Event yields from backgrounds are taken post-fit."
+            table.add_image("Inputs/EventYields/signalYields"+channel+".pdf")
+        table.location = "Table 2, Figure 3"
+
+
+        if channel == "All":
+            var_ch = Variable("Channel", is_independent=True, is_binned=False)
+            var_ch.values = dataframe["channel"]
+            table.add_variable(var_ch)
+        else:
+            dataframe = dataframe[dataframe["channel"] == channel]
+        
+        process = Variable("Process", is_independent=True, is_binned=False)
+        process.values = dataframe["process"]
+        table.add_variable(process)
+        eventYield = Variable("Event Yield", is_independent=False, is_binned=False)
+        eventYield.values = dataframe["events"]
+        eventYieldErr = Uncertainty("Event Yield Uncertainty", is_symmetric=True)
+        eventYieldErr.values = dataframe["eventsErr"]
+        eventYield.add_uncertainty(eventYieldErr)
+        table.add_variable(eventYield)
+
+        tables.append(table)
+
+    return tables
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
@@ -779,9 +810,10 @@ def makeSubmission():
     print("...Efficiency tables added to submission")
 
     #Asymptotic limits
-    table_limits = makeLimitsTable(dirpath="Inputs/Limits/17Nov2023/", observed=True)
-    submission.add_table(table_limits)
-    print("...limits table added to submission")
+    limitsTables = makeLimitsTables(dirpath="Inputs/Limits/17Nov2023/", observed=True)
+    for table_limits in limitsTables:
+        submission.add_table(table_limits)
+    print("...limits tables added to submission")
 
     #6-bin observed vs predicted events histrograms
     #table_6BinHists = make6BinTables(masses = ["250", "1750"])
@@ -789,8 +821,9 @@ def makeSubmission():
     #print("...6-bin histograms table added to submission")
 
     #Observed and expected event yields
-    table_eventYields = makeObsVsExpEventYieldsTable("Inputs/EventYields/eventYields.csv")
-    submission.add_table(table_eventYields)
+    tables_eventYields = makeObsVsExpEventYieldsTables("Inputs/EventYields/eventYields.csv")
+    for table_eventYields in tables_eventYields:
+        submission.add_table(table_eventYields)
     print("...event yields table added to submission")
 
     # Add the pythia fragments used for signal generation
