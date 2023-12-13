@@ -13,10 +13,16 @@ widths = []
 xWidths = []
 nMasses = len(masses)
 
-
+tableStr = ""
+print("\nMass,[BinLowEdge,BinHighEdge]")
 for massN, mass in enumerate(masses):
     widths.append(fracWidths[massN] * masses[massN])
     xWidths.append(0)
+    print(str(mass) + ", [" + "{:.6}".format(mass - widths[-1]) + ", " + "{:.6}".format(mass + widths[-1]) + "]")
+    tableStr += "[" + "{:.6}".format(mass - widths[-1]) + ", " + "{:.6}".format(mass + widths[-1]) + "]&"
+
+tableStr = tableStr[:-1]
+print("\n" + tableStr + "\n")
 
 widths = array("f", widths)
 xWidths = array("f", xWidths)
