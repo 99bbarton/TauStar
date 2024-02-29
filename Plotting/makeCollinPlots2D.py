@@ -68,13 +68,13 @@ def makePlots():
 
             lumiFrac = 1.0
             if year == "2015":
-                lumiFrac = 19.7 / 137.8;
+                lumiFrac = 19.7 / 137.8
             elif year == "2016":
-                lumiFrac = 16.9 / 137.8;
+                lumiFrac = 16.9 / 137.8
             elif year == "2017":
-                lumiFrac = 41.5 / 137.8;
+                lumiFrac = 41.5 / 137.8
             elif year == "2018":
-                lumiFrac = 59.7 / 137.8;
+                lumiFrac = 59.7 / 137.8
 
             for ch in ["ETau", "MuTau", "TauTau"]:
                 h_ch = TH2F("h_"+mass+"_"+year+"_"+ch, "Collinear Mass;Min Collinear Mass [GeV]; Max Collinear Mass [GeV]", nBins[0], minEdges[0], maxEdges[0], nBins[1], minEdges[1], maxEdges[1])
