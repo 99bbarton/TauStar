@@ -16,7 +16,7 @@ TCut returnCuts(const TString channel, const int year, const int idx, const bool
    if (channel=="ETau") {
       cuts[0] = "1>0";
       cuts[1] = "nE==1 && nMu==0";
-      cuts[2] = "ETau_HavePair>0 && ETau_qq==-1 && (32&Tau_idDeepTau2017v2p1VSjet[ETau_TauIdx]) && Tau_decayMode[ETau_TauIdx]!=5 && Tau_decayMode[ETau_TauIdx]!=6 && Tau_decayMode[ETau_TauIdx]!=7 && Electron_mvaFall17V2Iso_WP90[ETau_EIdx] && (32&Tau_idDeepTau2017v2p1VSe[ETau_TauIdx])";
+      cuts[2] = "ETau_HavePair>0 && ETau_qq==-1 && (32&Tau_idDeepTau2017v2p1VSjet[ETau_TauIdx]) && Tau_decayMode[ETau_TauIdx]!=5 && Tau_decayMode[ETau_TauIdx]!=6 && Tau_decayMode[ETau_TauIdx]!=7 && Electron_mvaFall17V2Iso_WP90[ETau_EIdx] && (32&Tau_idDeepTau2017v2p1VSe[ETau_TauIdx]) && TMath::Abs(Tau_dz[ETau_TauIdx])<0.2";
       if (year==2015||year==2016) {
          const TCut patha = "HLT_Ele27_WPTight_Gsf && (ETau_EHasTrigObj>0 && (ETau_EHasTrigObj%10)>0)";
          const TCut pathb = "HLT_Photon175 && (ETau_EHasTrigObj>=10)";
@@ -35,7 +35,10 @@ TCut returnCuts(const TString channel, const int year, const int idx, const bool
       }
       cuts[4] = "ETau_Mass>=100.";
       cuts[5] = "ZEE_HavePair==0 && ZMuMu_HavePair==0";
-      cuts[6] = "Sum$(Jet_pt_nom>=20. && TMath::Abs(Jet_eta)<2.5 && (4&Jet_jetId) && JetMask_ETau==1 && JetMask_bT==1)==0";
+      //cuts[6] = "Sum$(Jet_pt_nom>=20. && TMath::Abs(Jet_eta)<2.5 && (4&Jet_jetId) && JetMask_ETau==1 && JetMask_bT==1)==0";
+      cuts[6] = "Sum$(Jet_pt_nom>=20. && TMath::Abs(Jet_eta)<2.5 && (4&Jet_jetId) && JetMask_ETau_leptons==1 && JetMask_ETau_photon==1 && JetMask_bT==1)==0";
+      cuts[7] = "ETau_HaveTriplet>0 && !Photon_pixelSeed[ETau_PhotonIdx] && Photon_pt[ETau_PhotonIdx]>=20.";
+      cuts[8] = "Tau_genPartFlav[ETau_TauIdx]==5||Tau_genPartFlav[ETau_TauIdx]==1||Tau_genPartFlav[ETau_TauIdx]==2||Tau_genPartFlav[ETau_TauIdx]==3||Tau_genPartFlav[ETau_TauIdx]==4";
       cuts[7] = "ETau_HaveTriplet>0 && !Photon_pixelSeed[ETau_PhotonIdx] && Photon_pt[ETau_PhotonIdx]>=20.";
       cuts[8] = "Photon_pt[ETau_PhotonIdx]>=100.";
       cuts[9] = "Tau_genPartFlav[ETau_TauIdx]==5||Tau_genPartFlav[ETau_TauIdx]==1||Tau_genPartFlav[ETau_TauIdx]==2||Tau_genPartFlav[ETau_TauIdx]==3||Tau_genPartFlav[ETau_TauIdx]==4";
@@ -43,7 +46,7 @@ TCut returnCuts(const TString channel, const int year, const int idx, const bool
    if (channel=="MuTau") {
       cuts[0] = "1>0";
       cuts[1] = "nE==0 && nMu==1";
-      cuts[2] = "MuTau_HavePair && MuTau_qq==-1 && (32&Tau_idDeepTau2017v2p1VSjet[MuTau_TauIdx]) && Muon_tightId[MuTau_MuIdx] && Muon_pfIsoId[MuTau_MuIdx]>=4 && Tau_decayMode[MuTau_TauIdx]!=5 && Tau_decayMode[MuTau_TauIdx]!=6 && Tau_decayMode[MuTau_TauIdx]!=7";
+      cuts[2] = "MuTau_HavePair && MuTau_qq==-1 && (32&Tau_idDeepTau2017v2p1VSjet[MuTau_TauIdx]) && Muon_tightId[MuTau_MuIdx] && Muon_pfIsoId[MuTau_MuIdx]>=4 && Tau_decayMode[MuTau_TauIdx]!=5 && Tau_decayMode[MuTau_TauIdx]!=6 && Tau_decayMode[MuTau_TauIdx]!=7 && TMath::Abs(Tau_dz[MuTau_TauIdx])<0.2";
       if (year==2015||year==2016) {
          cuts[3] = "(MuTau_t2016_0[1] || MuTau_t2016_1[1]) && Muon_pt[MuTau_MuIdx]>=26.";
       } else if (year==2017) {
@@ -53,7 +56,8 @@ TCut returnCuts(const TString channel, const int year, const int idx, const bool
       } 
       cuts[4] = "MuTau_Mass>=100.";
       cuts[5] = "ZEE_HavePair==0 && ZMuMu_HavePair==0";
-      cuts[6] = "Sum$(Jet_pt_nom>=20. && TMath::Abs(Jet_eta)<2.5 && (4&Jet_jetId) && JetMask_MuTau==1 && JetMask_bT==1)==0";
+      //cuts[6] = "Sum$(Jet_pt_nom>=20. && TMath::Abs(Jet_eta)<2.5 && (4&Jet_jetId) && JetMask_MuTau==1 && JetMask_bT==1)==0";
+      cuts[6] = "Sum$(Jet_pt_nom>=20. && TMath::Abs(Jet_eta)<2.5 && (4&Jet_jetId) && JetMask_MuTau_leptons==1 && JetMask_MuTau_photon==1 && JetMask_bT==1)==0";
       cuts[7] = "MuTau_HaveTriplet>0 && Photon_electronVeto[MuTau_PhotonIdx] && Photon_pt[MuTau_PhotonIdx]>=20."; 
       cuts[8] = "Photon_pt[MuTau_PhotonIdx]>=100.";
       cuts[9] = "Tau_genPartFlav[MuTau_TauIdx]==5||Tau_genPartFlav[MuTau_TauIdx]==1||Tau_genPartFlav[MuTau_TauIdx]==2||Tau_genPartFlav[MuTau_TauIdx]==3||Tau_genPartFlav[MuTau_TauIdx]==4";
@@ -61,7 +65,7 @@ TCut returnCuts(const TString channel, const int year, const int idx, const bool
    if (channel=="TauTau") {
       cuts[0] = "1>0";
       cuts[1] = "nE==0 && nMu==0";
-      cuts[2] = "TauTau_HavePair>0 && TauTau_qq==-1 && (16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau0Idx]) && (16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau1Idx]) && Tau_decayMode[TauTau_Tau0Idx]!=5 && Tau_decayMode[TauTau_Tau0Idx]!=6 && Tau_decayMode[TauTau_Tau0Idx]!=7 && Tau_decayMode[TauTau_Tau1Idx]!=5 && Tau_decayMode[TauTau_Tau1Idx]!=6 && Tau_decayMode[TauTau_Tau1Idx]!=7"; 
+      cuts[2] = "TauTau_HavePair>0 && TauTau_qq==-1 && (16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau0Idx]) && (16&Tau_idDeepTau2017v2p1VSjet[TauTau_Tau1Idx]) && Tau_decayMode[TauTau_Tau0Idx]!=5 && Tau_decayMode[TauTau_Tau0Idx]!=6 && Tau_decayMode[TauTau_Tau0Idx]!=7 && Tau_decayMode[TauTau_Tau1Idx]!=5 && Tau_decayMode[TauTau_Tau1Idx]!=6 && Tau_decayMode[TauTau_Tau1Idx]!=7 && TMath::Abs(Tau_dz[TauTau_Tau0Idx])<0.2 && TMath::Abs(Tau_dz[TauTau_Tau1Idx])<0.2"; 
       cuts[3] = "Tau_pt[TauTau_Tau0Idx]>=40. && TMath::Abs(Tau_eta[TauTau_Tau0Idx])<2.1 && Tau_pt[TauTau_Tau1Idx]>=40. && TMath::Abs(Tau_eta[TauTau_Tau1Idx])<2.1";
       if (year==2015||year==2016) {
          cuts[3] = cuts[3] && TCut("TauTau_t2016_0[0] || TauTau_t2016_1[0]");
@@ -74,7 +78,8 @@ TCut returnCuts(const TString channel, const int year, const int idx, const bool
       }
       cuts[4] = "TauTau_Mass>=100.";
       cuts[5] = "ZEE_HavePair==0 && ZMuMu_HavePair==0";
-      cuts[6] = "Sum$(Jet_pt_nom>=20. && TMath::Abs(Jet_eta)<2.5 && (4&Jet_jetId) && JetMask_TauTau==1 && JetMask_bT==1)>-1";
+      //cuts[6] = "Sum$(Jet_pt_nom>=20. && TMath::Abs(Jet_eta)<2.5 && (4&Jet_jetId) && JetMask_TauTau==1 && JetMask_bT==1)>-1";
+      cuts[6] = "Sum$(Jet_pt_nom>=20. && TMath::Abs(Jet_eta)<2.5 && (4&Jet_jetId) && JetMask_TauTau_leptons==1 && JetMask_TauTau_photon==1 && JetMask_bT==1)>-1";
       cuts[7] = "TauTau_HaveTriplet>0 && Photon_electronVeto[TauTau_PhotonIdx] && Photon_pt[TauTau_PhotonIdx]>=20.";
       cuts[8] = "Photon_pt[TauTau_PhotonIdx]>=75.";
       cuts[9] = "(Tau_genPartFlav[TauTau_Tau0Idx]==5||Tau_genPartFlav[TauTau_Tau0Idx]==1||Tau_genPartFlav[TauTau_Tau0Idx]==2||Tau_genPartFlav[TauTau_Tau0Idx]==3||Tau_genPartFlav[TauTau_Tau0Idx]==4)&&(Tau_genPartFlav[TauTau_Tau1Idx]==5||Tau_genPartFlav[TauTau_Tau1Idx]==1||Tau_genPartFlav[TauTau_Tau1Idx]==2||Tau_genPartFlav[TauTau_Tau1Idx]==3||Tau_genPartFlav[TauTau_Tau1Idx]==4)";
@@ -125,10 +130,10 @@ void cutFlow_HEPData()
       for (int massN = 0; massN < nMasses; massN++)
       {  
          //TODO Ensure this line is up to date with the latest signal MC processing
-         sprintf(infile, "root://cmseos.fnal.gov//store/user/bbarton/PDFWeights/ExcitedTau_29032023/Taustar_m%s_%d.root", masses[massN].Data(), year);
+         sprintf(infile, "root://cmseos.fnal.gov//store/user/bbarton/PDFWeights/ExcitedTau_30022024/Taustar_m%s_%d.root", masses[massN].Data(), year);
          TFile *file = TFile::Open(infile);
          TTree * tree = (TTree*) file->Get("Events");
-
+	 //cout << "Processing Taustar_m" << masses[massN] << "_" << year << ".root" << endl;
          for (int chN = 0; chN < 3; chN++)
             {
                printf("\n%d,%s,%s", year, masses[massN].Data(), channels[chN].Data());

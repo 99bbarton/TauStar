@@ -16,7 +16,7 @@ void runPoint(TString process, TString channel)
     if (channel=="MuTau") channel_="ch2";
     if (channel=="TauTau") channel_="ch3";
 
-    TString fname = "../FitDiagnostics/22Nov2023/fitDiagnosticsTest.m1y0.nominal.root";
+    TString fname = "../FitDiagnostics/24Apr2024/fitDiagnosticsTest.m1y0.nominal_cmin0.root";
 
     TFile * f = TFile::Open(fname, "READ");
     TString hname;

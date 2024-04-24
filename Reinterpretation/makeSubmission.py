@@ -162,13 +162,13 @@ def makeLBandWidthsTable():
     table = Table("Signal Region L-Band Widths")
     table.description = """The signal region is defined a an L-shaped band in the 2D collinear mass plane (min vs max collinear mass). 
     The width of the band is chosen to be the value such that 90% of signal falls within the band for each taustar hypothesis mass """
-    table.location = "Figure 2"
+    table.location = "Table 1, Figure 2"
     table.add_image("Inputs/CollinMass2D/sigCollinMass2D.pdf")
 
     mass = Variable("TauStar Hypothesis Mass", is_binned = False, is_independent = True, units = "GeV")
     mass.values = [175,250,375,500,625,750,1000,1250,1500,1750,2000,2500,3000,3500,4000,4500,5000]
     widths = Variable("Fractional Width of L-Band", is_independent = False, is_binned = False)
-    widths.values = [0.47, 0.35, 0.26, 0.21, 0.19, 0.17, 0.15, 0.13, 0.12, 0.11, 0.11, 0.10, 0.10, 0.10, 0.11, 0.13, 0.16]
+    widths.values = [0.48, 0.35, 0.26, 0.21, 0.19, 0.17, 0.15, 0.13, 0.13, 0.12, 0.11, 0.10, 0.11, 0.10, 0.11, 0.13, 0.14]
 
     assert len(mass.values) == len(widths.values)
 
@@ -570,21 +570,21 @@ def makeLimitsTables(dirpath = "", observed=False):
             tab = Table("Figure 4: Asymptotic Limits")
             tab.description = """Expected upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ"""
             tab.location = "Figure 4"
-            tab.add_image(dirpath + "/UpperLimit.pdf")
+            tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominaly0.pdf")
         elif ch == "ETau":
             tab = Table("Figure 5: Asymptotic Limits - ETau Channel")
             tab.description = """Expected upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. Only the e + τh signal region, e + τh low photon pT control region, and 0-τh control regions are included in the fit. """
             tab.location = "Figure 5"
             tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_ETauy0.pdf")
         elif ch == "MuTau":
-            tab = Table("Figure 6: Asymptotic Limits - MuTau Channel")
+            tab = Table("Figure 5: Asymptotic Limits - MuTau Channel")
             tab.description = """Expected upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. Only the µ + τh signal region, µ + τh low photon pT control region, and 0-τh control regions are included in the fit. """
-            tab.location = "Figure 6"
+            tab.location = "Figure 5"
             tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_MuTauy0.pdf")
         elif ch == "TauTau":
-            tab = Table("Figure 7: Asymptotic Limits - TauTau Channel")
+            tab = Table("Figure 5: Asymptotic Limits - TauTau Channel")
             tab.description = """Expected upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. Only the τh + τh signal region, τh + τh low photon pT control region, and 0-τh control regions are included in the fit. """
-            tab.location = "Figure 7"
+            tab.location = "Figure 5"
             tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_TauTauy0.pdf")
     
         tab.keywords["observables"] = ["SIG"]
@@ -746,7 +746,7 @@ def makeObsVsExpEventYieldsTables(filepath):
             table = Table("Observed and Expected Event Yields: " +channel + " Channel")
             table.description = "The observed and expected event yields from backgrounds for the " + channel + ". Event yields from backgrounds are taken post-fit."
             table.add_image("Inputs/EventYields/signalYields"+channel+".pdf")
-        table.location = "Table 2, Figure 3"
+        table.location = "Table 4, Figure 3"
 
 
         if channel == "All":
@@ -777,13 +777,13 @@ def makeSubmission():
     submission = Submission()
 
     #Add cutflow table
-    table_cutFlow = makeCutFlowTable("Cutflows/signalCutflow_12May2023.csv")
+    table_cutFlow = makeCutFlowTable("Cutflows/signalCutflow_24Apr24.txt")
     table_cutFlow.keywords["observables"] = ["N"]
     submission.add_table(table_cutFlow)
     print("...cutflow table added to submission")
 
     #Add covariance matrice tables
-    tables_covar = makeCovarianceTables(dirPath="Inputs/FitDiagnostics/22Nov2023/", includeSignalRegion=True)
+    tables_covar = makeCovarianceTables(dirPath="Inputs/FitDiagnostics/24Apr2024/", includeSignalRegion=True)
     for table in tables_covar:
         submission.add_table(table)
     print("...covariance tables added to submission")
@@ -810,7 +810,7 @@ def makeSubmission():
     print("...Efficiency tables added to submission")
 
     #Asymptotic limits
-    limitsTables = makeLimitsTables(dirpath="Inputs/Limits/17Nov2023/", observed=True)
+    limitsTables = makeLimitsTables(dirpath="Inputs/Limits/24Apr2024/", observed=True)
     for table_limits in limitsTables:
         submission.add_table(table_limits)
     print("...limits tables added to submission")
@@ -840,7 +840,7 @@ def makeSubmission():
         table.keywords["cmenergies"] = ["13000"] 
     submission.read_abstract("Inputs/abstract.txt")
     submission.add_link("CMS CADI", "https://cms.cern.ch/iCMS/analysisadmin/cadilines?line=EXO-22-007")
-    submission.add_additional_resource(description="Paper draft", location="Inputs/EXO-22-007-paper-v6.pdf", copy_file=True)
+    submission.add_additional_resource(description="Paper draft", location="Inputs/EXO-22-007-paper-v12.pdf", copy_file=True)
     print("...text added to submission") 
 
     print("Creating files...")
