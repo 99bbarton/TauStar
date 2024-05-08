@@ -156,6 +156,8 @@ def makeCovarianceTables(dirPath, includeSignalRegion=False):
 
 #Make a HEPDataLib table of the fractional widths of the mass L-band windo used as signal regions
 #Width values are the minimum widths where 90% of the signal for each taustar hypothesis mass falls within the L-band
+#Both fractional widths and corresponding mass range are included
+#Returns a Table containing the widths and a list of the mass windows for use in sig/bkg trend plots later
 def makeLBandWidthsTable():
     print("Making L-band widths table...")
 
@@ -164,18 +166,26 @@ def makeLBandWidthsTable():
     The width of the band is chosen to be the value such that 90% of signal falls within the band for each taustar hypothesis mass """
     table.location = "Table 1, Figure 2"
     table.add_image("Inputs/CollinMass2D/sigCollinMass2D.pdf")
+    table.add_image("Inputs/CollinMass2D/binningscheme.pdf")
 
-    mass = Variable("TauStar Hypothesis Mass", is_binned = False, is_independent = True, units = "GeV")
-    mass.values = [175,250,375,500,625,750,1000,1250,1500,1750,2000,2500,3000,3500,4000,4500,5000]
-    widths = Variable("Fractional Width of L-Band", is_independent = False, is_binned = False)
+    mass_var = Variable("TauStar Hypothesis Mass", is_binned = False, is_independent = True, units = "GeV")
+    mass_var.values = [175,250,375,500,625,750,1000,1250,1500,1750,2000,2500,3000,3500,4000,4500,5000]
+    widths = Variable("Fractional Width of Signal L-Bin", is_independent = False, is_binned = False)
     widths.values = [0.48, 0.35, 0.26, 0.21, 0.19, 0.17, 0.15, 0.13, 0.13, 0.12, 0.11, 0.10, 0.11, 0.10, 0.11, 0.13, 0.14]
+    
+    massWidths = Variable("Mass Width of Signal L-Bin", is_independent=True, is_binned=True, units="GeV")
+    massWidths.values = []
+    for massN, mass in enumerate(mass_var.values):
+        halfWidth = mass * widths.values[massN]
+        massWidths.values.append((mass - halfWidth, mass + halfWidth))
 
-    assert len(mass.values) == len(widths.values)
+    assert len(mass_var.values) == len(widths.values) == len(massWidths.values)
 
-    table.add_variable(mass)
+    table.add_variable(mass_var)
+    table.add_variable(massWidths)
     table.add_variable(widths)
-
-    return table
+    
+    return table, massWidths.values
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
@@ -772,6 +782,52 @@ def makeObsVsExpEventYieldsTables(filepath):
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
+## Make Tables corresponding to the plots of signal and background contents of region A (signal region) over taustar mass 
+# combinePath : path to FitDiagnostics Combine output .root files to extract values from
+# imagePath : a string path to the directory containing the image files of makeLBandWidthsTable()
+# massBins : list of [low edge, upper edge] mass bins corresponding to each signal mass as returned from
+# Returens  a HEPDataLib Table containing pre-fit signal and post-fit background contents per signal hypoothesis mass per channel
+def makeSigBkgdTrendTables(combinePath, imagePath, binRanges):
+    table = Table("Signal Region Sig & Bkg Yields per Taustar Mass")
+    table.description = "Pre-fit signal and post-fit background yields per taustar mass hypothesis in the signal (A) region."
+    table.location = "Supplementary"
+    table.add_image(imagePath + "bkgMassTrend_ETau_sum.pdf")
+    table.add_image(imagePath + "bkgMassTrend_MuTau_sum.pdf")
+    table.add_image(imagePath + "bkgMassTrend_TauTau_sum.pdf")
+
+    var_mass = Variable("TauStar Hypothesis Mass", is_binned = False, is_independent = True, units = "GeV")
+    var_mass.values = [175,250,375,500,625,750,1000,1250,1500,1750,2000,2500,3000,3500,4000,4500,5000]
+    var_mass_width = Variable("Mass Range", is_independent=True, is_binned=True, units="GeV")
+    var_mass_width.values = binRanges
+    var_sig = Variable("Pre-Fit Signal Yields", is_independent=False, is_binned=False, units="Events")
+    var_bkgd = Variable("Post-Fit Background Yields", is_independent=False, is_binned=False, units="Events")
+
+    for mass in var_mass.values:
+        sigVal = 0
+        bkgdVal = 0
+        for year in ["2015", "2016", "2017", "2018"]:
+            filename = "fitDiagnosticsTest.m" + str(mass) + "y" + year + ".nominal.root"
+            fileReader = RootFileReader(combinePath + filename)
+
+            for chNum in ["ch1", "ch2", "ch3"]:
+                #Signal yields taken from prefit
+                histDict = fileReader.read_hist_1d("shapes_prefit/" + chNum + "_A/total_signal")
+                sigVal += histDict["y"][1]
+
+                histDict = fileReader.read_hist_1d("shapes_fit_b/" + chNum + "_A/total_background")
+                bkgdVal += histDict["y"][1]
+        var_sig.values.append(sigVal)
+        var_bkgd.values.append(bkgdVal)
+
+    table.add_variable(var_mass)
+    table.add_variable(var_mass_width)
+    table.add_variable(var_sig)
+    table.add_variable(var_bkgd)
+
+    return table
+
+##-------------------------------------------------------------------------------------------------------------------------------
+
 # Create the HEPData submission
 def makeSubmission():
     submission = Submission()
@@ -789,7 +845,7 @@ def makeSubmission():
     print("...covariance tables added to submission")
 
     #Taustar signal L-band widths
-    table_LBandWidths = makeLBandWidthsTable()
+    table_LBandWidths, binRanges = makeLBandWidthsTable()
     submission.add_table(table_LBandWidths)
     print("...L-Band widths table added to submission")
 
@@ -819,6 +875,11 @@ def makeSubmission():
     #table_6BinHists = make6BinTables(masses = ["250", "1750"])
     #submission.add_table(table_6BinHists)
     #print("...6-bin histograms table added to submission")
+
+    #Pre-fit signal and post-fit background yields in signal region per hypothesis mass
+    table_sigBkgdTrends = makeSigBkgdTrendTables(imagePath="Inputs/EventYields/", combinePath="Inputs/FitDiagnostics/24Apr2024/", binRanges=binRanges)
+    submission.add_table(table_sigBkgdTrends)
+    print("...sig & bkgd trend table added to submission")
 
     #Observed and expected event yields
     tables_eventYields = makeObsVsExpEventYieldsTables("Inputs/EventYields/eventYields.csv")
