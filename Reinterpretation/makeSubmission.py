@@ -585,16 +585,19 @@ def makeLimitsTables(dirpath = "", observed=False):
             tab = Table("Figure 5: Asymptotic Limits - ETau Channel")
             tab.description = """Expected upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. Only the e + τh signal region, e + τh low photon pT control region, and 0-τh control regions are included in the fit. """
             tab.location = "Figure 5"
+            tab.add_image(dirpath + "limits3.pdf")
             tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_ETauy0.pdf")
         elif ch == "MuTau":
             tab = Table("Figure 5: Asymptotic Limits - MuTau Channel")
             tab.description = """Expected upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. Only the µ + τh signal region, µ + τh low photon pT control region, and 0-τh control regions are included in the fit. """
             tab.location = "Figure 5"
+            tab.add_image(dirpath + "limits3.pdf")
             tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_MuTauy0.pdf")
         elif ch == "TauTau":
             tab = Table("Figure 5: Asymptotic Limits - TauTau Channel")
             tab.description = """Expected upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. Only the τh + τh signal region, τh + τh low photon pT control region, and 0-τh control regions are included in the fit. """
             tab.location = "Figure 5"
+            tab.add_image(dirpath + "limits3.pdf")
             tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_TauTauy0.pdf")
     
         tab.keywords["observables"] = ["SIG"]
@@ -791,9 +794,9 @@ def makeSigBkgdTrendTables(combinePath, imagePath, binRanges):
     table = Table("Signal Region Sig & Bkg Yields per Taustar Mass")
     table.description = "Pre-fit signal and post-fit background yields per taustar mass hypothesis in the signal (A) region."
     table.location = "Supplementary"
-    table.add_image(imagePath + "bkgMassTrend_ETau_sum.pdf")
-    table.add_image(imagePath + "bkgMassTrend_MuTau_sum.pdf")
-    table.add_image(imagePath + "bkgMassTrend_TauTau_sum.pdf")
+    table.add_image(imagePath + "bkgMassTrend_ETau.pdf")
+    table.add_image(imagePath + "bkgMassTrend_MuTau.pdf")
+    table.add_image(imagePath + "bkgMassTrend_TauTau.pdf")
 
     var_mass = Variable("TauStar Hypothesis Mass", is_binned = False, is_independent = True, units = "GeV")
     var_mass.values = [175,250,375,500,625,750,1000,1250,1500,1750,2000,2500,3000,3500,4000,4500,5000]
