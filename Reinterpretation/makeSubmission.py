@@ -568,37 +568,37 @@ def makeEffTablePho():
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
-## Make Tables containing the limits on cross section x branching fraction as a function of tau* mass (i.e. the brazil plot) for each channel and the overall limit
+## Make Tables containing the limits on cross section x branching fraction as a function of tau* mass (i.e. the brazil plot) for the overall limit
 # Reads in the outputs of the combine AsymptoticLimits. expected file format ishiggsCombineTest.AsymptoticLimits.m"+ massStr + "y0.nominal.root
 def makeLimitsTables(dirpath = "", observed=False):
-    print("Making limits tables...")
+    print("Making limit tables...")
     tables = []
 
-    for ch in ["", "ETau", "MuTau", "TauTau"]:
+    for ch in [""]:
         tab = None
         if ch == "":
             tab = Table("Figure 4: Asymptotic Limits")
-            tab.description = """Expected upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ"""
+            tab.description = """Observed upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. The dashed line shows the expected exclusion limit. The inner (green) band and the outer (yellow) band indicate the regions containing 68 and 95%, respectively, of the distribution of limits expected under the background-only hypothesis."""
             tab.location = "Figure 4"
             tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominaly0.pdf")
         elif ch == "ETau":
-            tab = Table("Figure 5: Asymptotic Limits - ETau Channel")
-            tab.description = """Expected upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. Only the e + τh signal region, e + τh low photon pT control region, and 0-τh control regions are included in the fit. """
+            tab = Table("Figure 5: Asymptotic Limits - ETauGamma Channel")
+            tab.description = """Observed upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. The limits are shown for when the final states are treated as independent. Only the ETauGamma channel is shown here."""
             tab.location = "Figure 5"
             tab.add_image(dirpath + "limits3.pdf")
-            tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_ETauy0.pdf")
+            #tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_ETauy0.pdf")
         elif ch == "MuTau":
-            tab = Table("Figure 5: Asymptotic Limits - MuTau Channel")
-            tab.description = """Expected upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. Only the µ + τh signal region, µ + τh low photon pT control region, and 0-τh control regions are included in the fit. """
+            tab = Table("Figure 5: Asymptotic Limits - MuTauGamma Channel")
+            tab.description = """Observed upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. The limits are shown for when the final states are treated as independent. Only the MuTauGamma channel is shown here."""
             tab.location = "Figure 5"
             tab.add_image(dirpath + "limits3.pdf")
-            tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_MuTauy0.pdf")
+            #tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_MuTauy0.pdf")
         elif ch == "TauTau":
-            tab = Table("Figure 5: Asymptotic Limits - TauTau Channel")
-            tab.description = """Expected upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. Only the τh + τh signal region, τh + τh low photon pT control region, and 0-τh control regions are included in the fit. """
+            tab = Table("Figure 5: Asymptotic Limits - TauTauGamma Channel")
+            tab.description = """Observed upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. The limits are shown for when the final states are treated as independent. Only the TauTauGamma channel is shown here."""
             tab.location = "Figure 5"
             tab.add_image(dirpath + "limits3.pdf")
-            tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_TauTauy0.pdf")
+            #tab.add_image(dirpath + "/UpperLimitAsymptoticLimitsnominal_TauTauy0.pdf")
     
         tab.keywords["observables"] = ["SIG"]
     
@@ -620,10 +620,14 @@ def makeLimitsTables(dirpath = "", observed=False):
         unc_2stdDev = Uncertainty("2 std dev", is_symmetric=False)
 
         #Crossections 
-        xs = [0.0177, 0.0108, 6.639e-3, 4.069e-3, 2.494e-3, 1.529e-3, 9.371e-4, 5.744e-4, 3.521e-4, 2.159e-4, 1.323e-4, 8.12e-5, 4.97e-5, 3.05e-5, 1.87e-5, 1.14e-5, 7.02e-6, 4.30e-6, 2.64e-6, 1.62e-6]
+        var_xs = Variable("Theoretical Crossection (Lambda = 10 TeV)", is_independent=True, is_binned=False, units="fb")
+        #xs = [0.0177, 0.0108, 6.639e-3, 4.069e-3, 2.494e-3, 1.529e-3, 9.371e-4, 5.744e-4, 3.521e-4, 2.159e-4, 1.323e-4, 8.12e-5, 4.97e-5, 3.05e-5, 1.87e-5, 1.14e-5, 7.02e-6, 4.30e-6, 2.64e-6, 1.62e-6]
+        xs = [2.8988E-02, 2.1568E-02, 1.5570E-02, 1.1845E-02, 9.1358E-03, 7.0675E-03, 4.2595E-03, 2.5543E-03, 1.5285E-03, 9.0690E-04, 5.3708E-04, 1.8693E-04, 7.5051E-05, 2.7155E-05, 9.8806E-06, 3.6315E-06, 1.3593E-06] 
+        var_xs.values = []
 
         for i, mass in enumerate(masses):
             multiplier = 1000 * xs[i]
+            var_xs.values.append(multiplier)
             massStr = str(mass)
 
             reader = None
@@ -644,6 +648,7 @@ def makeLimitsTables(dirpath = "", observed=False):
         var_expLim.add_uncertainty(unc_2stdDev)
 
         tab.add_variable(var_mass)
+        tab.add_variable(var_xs)
         tab.add_variable(var_expLim)
         if observed:
             tab.add_variable(var_obsLim)
@@ -651,6 +656,72 @@ def makeLimitsTables(dirpath = "", observed=False):
         tables.append(tab)
 
     return tables
+
+##--------------------------------------------------------------------------------------------------------------------------------
+
+## Make Tables containing the limits on cross section x branching fraction as a function of tau* mass (i.e. the brazil plot) for the limit from each channel
+# Reads in the outputs of the combine AsymptoticLimits. expected file format ishiggsCombineTest.AsymptoticLimits.m"+ massStr + "y0.nominal.root
+def make3ChLimitTable(dirpath, observed=False):
+    print("Making 3 ch limits tables...")
+    
+    tab = Table("Figure 5: Asymptotic Limits per Channel")
+    tab.description = """Observed upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. The limits are shown for when the final states are treated as independent. Only the ETauGamma channel is shown here."""
+    tab.location = "Figure 5"
+    tab.add_image(dirpath + "limits3.pdf")
+
+    var_mass = Variable("${Tau}$* mass", is_independent=True, is_binned=False, units="GeV")
+    masses = [175,250,375,500,625,750,1000,1250,1500,1750,2000,2500,3000,3500,4000,4500,5000]
+    var_mass.values = masses * 3
+
+    var_ch = Variable("Channel", is_independent=True, is_binned=False)
+    channels = ["ETau", "MuTau", "TauTau"]
+    var_ch.values = []
+    for ch in channels:
+        var_ch.values.extend([ch] * len(masses))
+
+    var_expLim = Variable("Expected Limits", is_independent=False, is_binned=False, units="fb")
+    var_expLim.add_qualifier("Limit", "Expected")
+    var_expLim.add_qualifier("SQRT(S)", 13, "TeV")
+    var_expLim.add_qualifier("LUMINOSITY", 138, "fb$^{-1}$")
+    if observed:
+        var_obsLim = Variable("Observed Limit", is_independent=False, is_binned=False, units="fb")
+        var_obsLim.add_qualifier("Limit", "Observed")
+        var_obsLim.add_qualifier("SQRT(S)", 13, "TeV")
+        var_obsLim.add_qualifier("LUMINOSITY", 138, "fb$^{-1}$")
+
+    unc_1stdDev = Uncertainty("1 std dev", is_symmetric=False)
+    unc_2stdDev = Uncertainty("2 std dev", is_symmetric=False)
+
+    #Crossections 
+    xs = [0.0177, 0.0108, 6.639e-3, 4.069e-3, 2.494e-3, 1.529e-3, 9.371e-4, 5.744e-4, 3.521e-4, 2.159e-4, 1.323e-4, 8.12e-5, 4.97e-5, 3.05e-5, 1.87e-5, 1.14e-5, 7.02e-6, 4.30e-6, 2.64e-6, 1.62e-6]
+
+    for ch in channels:
+        for i, mass in enumerate(masses):
+            multiplier = 1000 * xs[i]
+            massStr = str(mass)
+            
+            reader = None
+            reader = RootFileReader(dirpath + "/higgsCombineTest.AsymptoticLimits.mH"+ massStr + ".y0.nominal_" + ch + ".root")
+            limits = reader.read_tree("limit","limit") #Returned array is of form [-2sd, -1sd, nom, +1sd, +2sd] from --runblind. If not blind than obs limit is appended to end
+
+            var_expLim.values.append(multiplier * limits[2]) #Factor of 1000 converts the returned unit from combine of pb to desired unit of fb
+            unc_1stdDev.values.append((multiplier * (limits[1] - limits[2]), multiplier * (limits[3] - limits[2]))) #Calc intervals from +/-1stddev - median vals
+            unc_2stdDev.values.append((multiplier * (limits[0] - limits[2]), multiplier * (limits[4] - limits[2])))
+
+            if observed:
+                var_obsLim.values.append(multiplier *limits[5])
+    
+    var_expLim.add_uncertainty(unc_1stdDev)
+    var_expLim.add_uncertainty(unc_2stdDev)
+
+    tab.add_variable(var_ch)
+    tab.add_variable(var_mass)
+    tab.add_variable(var_expLim)
+    if observed:
+        tab.add_variable(var_obsLim)
+
+    return tab
+
 
 ##--------------------------------------------------------------------------------------------------------------------------------
 
@@ -751,13 +822,14 @@ def makeObsVsExpEventYieldsTables(filepath):
         table = None
         if channel == "All":
             table = Table("Observed and Expected Event Yields")
-            table.description = """The observed and expected event yields from backgrounds for each channel. Event yields from backgrounds are taken post-fit."""
-            table.add_image("Inputs/EventYields/signalYieldsETau.pdf")
-            table.add_image("Inputs/EventYields/signalYieldsMuTau.pdf")
-            table.add_image("Inputs/EventYields/signalYieldsTauTau.pdf")
+            table.description = "Observed signal yields in the 2-D mass plane for all final states. Of the two mass pairings, the minimum value is along the x-axis and the maximum value is along the y-axis"
+            table.add_image("Inputs/EventYields/signalYields.pdf")
+            #table.add_image("Inputs/EventYields/signalYieldsETau.pdf")
+            #table.add_image("Inputs/EventYields/signalYieldsMuTau.pdf")
+            #table.add_image("Inputs/EventYields/signalYieldsTauTau.pdf")
         else:
-            table = Table("Observed and Expected Event Yields: " +channel + " Channel")
-            table.description = "The observed and expected event yields from backgrounds for the " + channel + ". Event yields from backgrounds are taken post-fit."
+            table = Table("Observed and Expected Event Yields: " +channel + "γ Channel")
+            table.description = "Observed signal yields in the 2-D mass plane for the "  + channel + "γ final state. Of the two mass pairings, the minimum value is along the x-axis and the maximum value is along the y-axis"
             table.add_image("Inputs/EventYields/signalYields"+channel+".pdf")
         table.location = "Table 4, Figure 3"
 
@@ -792,11 +864,11 @@ def makeObsVsExpEventYieldsTables(filepath):
 # Returens  a HEPDataLib Table containing pre-fit signal and post-fit background contents per signal hypoothesis mass per channel
 def makeSigBkgdTrendTables(combinePath, imagePath, binRanges):
     table = Table("Signal Region Sig & Bkg Yields per Taustar Mass")
-    table.description = "Pre-fit signal and post-fit background yields per taustar mass hypothesis in the signal (A) region."
+    table.description = "The number of observed events, and expected background and signal yields for each of the signal bins as a function of the τ* hypothesis mass. See Table 1 for the mass ranges considered for each point. The signal points shown are the pre-fit values assuming Λ=10 TeV"
     table.location = "Supplementary"
-    table.add_image(imagePath + "bkgMassTrend_ETau.pdf")
-    table.add_image(imagePath + "bkgMassTrend_MuTau.pdf")
-    table.add_image(imagePath + "bkgMassTrend_TauTau.pdf")
+    table.add_image(imagePath + "bkgMassTrend_ETau.png")
+    table.add_image(imagePath + "bkgMassTrend_MuTau.png")
+    table.add_image(imagePath + "bkgMassTrend_TauTau.png")
 
     var_mass = Variable("TauStar Hypothesis Mass", is_binned = False, is_independent = True, units = "GeV")
     var_mass.values = [175,250,375,500,625,750,1000,1250,1500,1750,2000,2500,3000,3500,4000,4500,5000]
@@ -852,26 +924,29 @@ def makeSubmission():
     submission.add_table(table_LBandWidths)
     print("...L-Band widths table added to submission")
 
-    #Object reco, ID, and trig effs
-    print("Making object efficiency tables...")
-    print("... electrons ...")
-    table_effs_el = makeEffTableEl()
-    submission.add_table(table_effs_el)
-    print("... muons ...")
-    table_effs_mu = makeEffTableMu()
-    submission.add_table(table_effs_mu)
-    print("... taus ...")
-    table_effs_tau = makeEffTableTau()
-    submission.add_table(table_effs_tau)
-    print("... photons ...")
-    table_effs_pho = makeEffTablePho()
-    submission.add_table(table_effs_pho)
-    print("...Efficiency tables added to submission")
+    # #Object reco, ID, and trig effs
+    # print("Making object efficiency tables...")
+    # print("... electrons ...")
+    # table_effs_el = makeEffTableEl()
+    # submission.add_table(table_effs_el)
+    # print("... muons ...")
+    # table_effs_mu = makeEffTableMu()
+    # submission.add_table(table_effs_mu)
+    # print("... taus ...")
+    # table_effs_tau = makeEffTableTau()
+    # submission.add_table(table_effs_tau)
+    # print("... photons ...")
+    # table_effs_pho = makeEffTablePho()
+    # submission.add_table(table_effs_pho)
+    # print("...Efficiency tables added to submission")
 
     #Asymptotic limits
     limitsTables = makeLimitsTables(dirpath="Inputs/Limits/24Apr2024/", observed=True)
     for table_limits in limitsTables:
         submission.add_table(table_limits)
+
+    limTable3Chs = make3ChLimitTable(dirpath="Inputs/Limits/24Apr2024/", observed=True)
+    submission.add_table(limTable3Chs)
     print("...limits tables added to submission")
 
     #6-bin observed vs predicted events histrograms
@@ -891,12 +966,14 @@ def makeSubmission():
     print("...event yields table added to submission")
 
     # Add the pythia fragments used for signal generation
-    fragmentList = os.listdir("PythiaConfigurations/LegacyProduction/")
-    for fragmentFile in fragmentList:
-        submission.add_additional_resource(description="Pythia gen fragment", location="PythiaConfigurations/LegacyProduction/"+fragmentFile,copy_file=True)
-    fragmentList = os.listdir("PythiaConfigurations/UltraLegacyProduction/")
-    for fragmentFile in fragmentList:
-        submission.add_additional_resource(description="Pythia gen fragment", location="PythiaConfigurations/UltraLegacyProduction/"+fragmentFile,copy_file=True)
+    #fragmentList = os.listdir("PythiaConfigurations/LegacyProduction/")
+    #for fragmentFile in fragmentList:
+        #submission.add_additional_resource(description="Pythia gen fragment", location="PythiaConfigurations/LegacyProduction/"+fragmentFile, copy_file=True)
+    #fragmentList = os.listdir("PythiaConfigurations/UltraLegacyProduction/")
+    #for fragmentFile in fragmentList:
+    #    submission.add_additional_resource(description="Pythia gen fragment", location="PythiaConfigurations/UltraLegacyProduction/"+fragmentFile, copy_file=True)
+    submission.add_additional_resource(description="Relevant Pythia8 configuration parameters", location="PythiaConfigurations/pythiaConfig.txt", copy_file=True)
+
 
     #Meta data and text 
     print("Adding text...")
@@ -904,7 +981,8 @@ def makeSubmission():
         table.keywords["cmenergies"] = ["13000"] 
     submission.read_abstract("Inputs/abstract.txt")
     submission.add_link("CMS CADI", "https://cms.cern.ch/iCMS/analysisadmin/cadilines?line=EXO-22-007")
-    submission.add_additional_resource(description="Paper draft", location="Inputs/EXO-22-007-paper-v12.pdf", copy_file=True)
+    submission.add_additional_resource(description="Paper draft", location="Inputs/EXO-22-007-paper-v21.pdf", copy_file=True)
+    submission.add_additional_resource("Physics Analysis Summary", "http://cds.cern.ch/record/2899714?ln=en")
     print("...text added to submission") 
 
     print("Creating files...")

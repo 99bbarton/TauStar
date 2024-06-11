@@ -9,8 +9,8 @@
 void UpperLimitAsymptoticLimitsnominaly0()
 {
     //=========Macro generated from canvas: c/c
-    //=========  (Wed May  8 09:39:16 2024) by ROOT version 6.14/09
-    TCanvas *c = new TCanvas("c", "c",1247,106,600,400);
+    //=========  (Wed May 29 09:51:43 2024) by ROOT version 6.14/09
+    TCanvas *c = new TCanvas("c", "c",0,0,600,400);
     gStyle->SetOptFit(1);
     gStyle->SetOptStat(0);
     gStyle->SetOptTitle(0);
@@ -109,7 +109,7 @@ void UpperLimitAsymptoticLimitsnominaly0()
     250,
     175};
     Double_t Graph0_fy1[34] = {
-    9.378473,
+    6.706834,
     7.075887,
     3.562774,
     2.035054,
@@ -142,7 +142,7 @@ void UpperLimitAsymptoticLimitsnominaly0()
     0.5297952,
     0.9733626,
     2.079099,
-    2.735981};
+    1.907513};
     TGraph *graph = new TGraph(34,Graph0_fx1,Graph0_fy1);
     graph->SetName("Graph0");
     graph->SetTitle("Graph");
@@ -155,7 +155,7 @@ void UpperLimitAsymptoticLimitsnominaly0()
     
     TH1F *Graph_Graph01 = new TH1F("Graph_Graph01","Graph",100,0,5482.5);
     Graph_Graph01->SetMinimum(0.01003546);
-    Graph_Graph01->SetMaximum(10.3152);
+    Graph_Graph01->SetMaximum(7.782361);
     Graph_Graph01->SetDirectory(0);
     Graph_Graph01->SetStats(0);
     Graph_Graph01->SetLineStyle(0);
@@ -217,7 +217,7 @@ void UpperLimitAsymptoticLimitsnominaly0()
     250,
     175};
     Double_t Graph1_fy2[34] = {
-    7.007298,
+    4.96317,
     5.286879,
     2.599056,
     1.459971,
@@ -250,7 +250,7 @@ void UpperLimitAsymptoticLimitsnominaly0()
     0.7144451,
     1.308851,
     2.752022,
-    3.635571};
+    2.544646};
     graph = new TGraph(34,Graph1_fx2,Graph1_fy2);
     graph->SetName("Graph1");
     graph->SetTitle("Graph");
@@ -261,7 +261,7 @@ void UpperLimitAsymptoticLimitsnominaly0()
     
     TH1F *Graph_Graph12 = new TH1F("Graph_Graph12","Graph",100,0,5482.5);
     Graph_Graph12->SetMinimum(0.01645695);
-    Graph_Graph12->SetMaximum(7.706199);
+    Graph_Graph12->SetMaximum(5.813739);
     Graph_Graph12->SetDirectory(0);
     Graph_Graph12->SetStats(0);
     Graph_Graph12->SetLineStyle(0);
@@ -306,7 +306,7 @@ void UpperLimitAsymptoticLimitsnominaly0()
     4500,
     5000};
     Double_t Graph2_fy3[17] = {
-    5.03893,
+    3.538574,
     3.801781,
     1.832212,
     1.012146,
@@ -333,7 +333,7 @@ void UpperLimitAsymptoticLimitsnominaly0()
     
     TH1F *Graph_Graph23 = new TH1F("Graph_Graph23","Graph",100,0,5482.5);
     Graph_Graph23->SetMinimum(0.03058425);
-    Graph_Graph23->SetMaximum(5.539424);
+    Graph_Graph23->SetMaximum(4.178561);
     Graph_Graph23->SetDirectory(0);
     Graph_Graph23->SetStats(0);
     Graph_Graph23->SetLineStyle(0);
@@ -378,7 +378,7 @@ void UpperLimitAsymptoticLimitsnominaly0()
     4500,
     5000};
     Double_t Graph3_fy4[17] = {
-    4.364018,
+    5.969321,
     3.115016,
     1.734783,
     0.9596739,
@@ -404,7 +404,7 @@ void UpperLimitAsymptoticLimitsnominaly0()
     
     TH1F *Graph_Graph34 = new TH1F("Graph_Graph34","Graph",100,0,5482.5);
     Graph_Graph34->SetMinimum(0.03052848);
-    Graph_Graph34->SetMaximum(4.797027);
+    Graph_Graph34->SetMaximum(6.562862);
     Graph_Graph34->SetDirectory(0);
     Graph_Graph34->SetStats(0);
     Graph_Graph34->SetLineStyle(0);
@@ -442,7 +442,7 @@ void UpperLimitAsymptoticLimitsnominaly0()
     tex->SetTextSize(0.052);
     tex->SetLineWidth(2);
     tex->Draw();
-        tex = new TLatex(0.1578,0.892,"");
+        tex = new TLatex(0.1578,0.892,"Preliminary");
     tex->SetNDC();
     tex->SetTextAlign(13);
     tex->SetTextFont(52);
@@ -575,9 +575,9 @@ void UpperLimitAsymptoticLimitsnominaly0()
     graph->SetName("Graph5");
     graph->SetTitle("Graph");
     graph->SetFillStyle(1000);
-    graph->SetLineColor(7);
+    graph->SetLineColor(4);
     graph->SetLineStyle(8);
-    graph->SetMarkerColor(7);
+    graph->SetMarkerColor(4);
     graph->SetMarkerStyle(7);
     
     TH1F *Graph_Graph56 = new TH1F("Graph_Graph56","Graph",100,600,5400);
@@ -624,7 +624,7 @@ void UpperLimitAsymptoticLimitsnominaly0()
     entry->SetMarkerStyle(21);
     entry->SetMarkerSize(1);
     entry->SetTextFont(42);
-    entry=leg->AddEntry("Graph1","68% expected","F");
+    entry=leg->AddEntry("Graph1","68% Expected","F");
 
     ci = TColor::GetColor("#607641");
     entry->SetFillColor(ci);
@@ -636,7 +636,7 @@ void UpperLimitAsymptoticLimitsnominaly0()
     entry->SetMarkerStyle(21);
     entry->SetMarkerSize(1);
     entry->SetTextFont(42);
-    entry=leg->AddEntry("Graph0","95% expected","F");
+    entry=leg->AddEntry("Graph0","95% Expected","F");
 
     ci = TColor::GetColor("#f5bb54");
     entry->SetFillColor(ci);
@@ -648,7 +648,7 @@ void UpperLimitAsymptoticLimitsnominaly0()
     entry->SetMarkerStyle(21);
     entry->SetMarkerSize(1);
     entry->SetTextFont(42);
-    entry=leg->AddEntry("Graph3","observed","L");
+    entry=leg->AddEntry("Graph3","Observed","L");
     entry->SetLineColor(1);
     entry->SetLineStyle(1);
     entry->SetLineWidth(2);
@@ -665,7 +665,7 @@ void UpperLimitAsymptoticLimitsnominaly0()
     entry->SetMarkerSize(1);
     entry->SetTextFont(42);
     entry=leg->AddEntry("Graph5","#Lambda = m_{#tau*}","L");
-    entry->SetLineColor(7);
+    entry->SetLineColor(4);
     entry->SetLineStyle(8);
     entry->SetLineWidth(1);
     entry->SetMarkerColor(1);
@@ -678,12 +678,13 @@ void UpperLimitAsymptoticLimitsnominaly0()
     c->SetSelected(c);
 }
 
+
 //Figure 5. Limit plot by channel
 void limits3()
 {
     //=========Macro generated from canvas: c/c
-    //=========  (Wed May  8 09:58:13 2024) by ROOT version 6.14/09
-    TCanvas *c2 = new TCanvas("c2", "c2",815,241,600,400);
+    //=========  (Tue May 28 21:40:29 2024) by ROOT version 6.14/09
+    TCanvas *c2 = new TCanvas("c2", "c2",0,0,600,400);
     gStyle->SetOptFit(1);
     gStyle->SetOptStat(0);
     gStyle->SetOptTitle(0);
@@ -703,7 +704,7 @@ void limits3()
     c2->SetFrameBorderMode(0);
     c2->SetFrameFillStyle(0);
     c2->SetFrameBorderMode(0);
-    
+
     TH1F *hframe__1 = new TH1F("hframe__1","",1000,0,5000);
     hframe__1->SetMinimum(0.01);
     hframe__1->SetMaximum(100);
@@ -731,21 +732,21 @@ void limits3()
     hframe__1->GetZaxis()->SetTitleSize(0.06);
     hframe__1->GetZaxis()->SetTitleFont(42);
     hframe__1->Draw(" ");
-    
+
     TPaveText *pt = new TPaveText(0.2,0.675,0.3,0.775,"NDC, NB");
     pt->SetFillColor(0);
     TText *pt_LaTex = pt->AddText("#Lambda = 10 TeV");
     pt_LaTex->SetTextAngle(-40);
     pt_LaTex->SetTextAlign(22);
     pt->Draw();
-    
+
     pt = new TPaveText(0.5,0.7,0.6,0.8,"NDC, NB");
     pt->SetFillColor(0);
     pt_LaTex = pt->AddText("#Lambda = #tau* mass");
     pt_LaTex->SetTextAngle(-45);
     pt_LaTex->SetTextAlign(22);
     pt->Draw();
-    
+
     Double_t expected_fx1[17] = {
     175,
     250,
@@ -791,7 +792,7 @@ void limits3()
     graph->SetLineWidth(2);
     graph->SetMarkerColor(97);
     graph->SetMarkerStyle(7);
-    
+
     TH1F *Graph_expected1 = new TH1F("Graph_expected1","Graph",100,0,5482.5);
     Graph_expected1->SetMinimum(0.1061273);
     Graph_expected1->SetMaximum(13.75185);
@@ -817,9 +818,9 @@ void limits3()
     Graph_expected1->GetZaxis()->SetTitleSize(0.06);
     Graph_expected1->GetZaxis()->SetTitleFont(42);
     graph->SetHistogram(Graph_expected1);
-    
+
     graph->Draw("pl");
-    
+
     Double_t observed_fx2[17] = {
     175,
     250,
@@ -864,7 +865,7 @@ void limits3()
     graph->SetLineWidth(2);
     graph->SetMarkerColor(97);
     graph->SetMarkerStyle(7);
-    
+
     TH1F *Graph_observed2 = new TH1F("Graph_observed2","Graph",100,0,5482.5);
     Graph_observed2->SetMinimum(0.1302605);
     Graph_observed2->SetMaximum(14.60383);
@@ -890,9 +891,9 @@ void limits3()
     Graph_observed2->GetZaxis()->SetTitleSize(0.06);
     Graph_observed2->GetZaxis()->SetTitleFont(42);
     graph->SetHistogram(Graph_observed2);
-    
+
     graph->Draw("pl, ");
-    
+
     Double_t expected_fx3[17] = {
     175,
     250,
@@ -938,7 +939,7 @@ void limits3()
     graph->SetLineWidth(2);
     graph->SetMarkerColor(214);
     graph->SetMarkerStyle(7);
-    
+
     TH1F *Graph_expected3 = new TH1F("Graph_expected3","Graph",100,0,5482.5);
     Graph_expected3->SetMinimum(0.09603455);
     Graph_expected3->SetMaximum(7.400519);
@@ -964,9 +965,9 @@ void limits3()
     Graph_expected3->GetZaxis()->SetTitleSize(0.06);
     Graph_expected3->GetZaxis()->SetTitleFont(42);
     graph->SetHistogram(Graph_expected3);
-    
+
     graph->Draw("pl, ");
-    
+
     Double_t observed_fx4[17] = {
     175,
     250,
@@ -1011,7 +1012,7 @@ void limits3()
     graph->SetLineWidth(2);
     graph->SetMarkerColor(214);
     graph->SetMarkerStyle(7);
-    
+
     TH1F *Graph_observed4 = new TH1F("Graph_observed4","Graph",100,0,5482.5);
     Graph_observed4->SetMinimum(0.07498703);
     Graph_observed4->SetMaximum(6.192138);
@@ -1037,9 +1038,9 @@ void limits3()
     Graph_observed4->GetZaxis()->SetTitleSize(0.06);
     Graph_observed4->GetZaxis()->SetTitleFont(42);
     graph->SetHistogram(Graph_observed4);
-    
+
     graph->Draw("pl, ");
-    
+
     Double_t expected_fx5[17] = {
     175,
     250,
@@ -1085,7 +1086,7 @@ void limits3()
     graph->SetLineWidth(2);
     graph->SetMarkerColor(210);
     graph->SetMarkerStyle(7);
-    
+
     TH1F *Graph_expected5 = new TH1F("Graph_expected5","Graph",100,0,5482.5);
     Graph_expected5->SetMinimum(0.05535749);
     Graph_expected5->SetMaximum(10.33215);
@@ -1111,9 +1112,9 @@ void limits3()
     Graph_expected5->GetZaxis()->SetTitleSize(0.06);
     Graph_expected5->GetZaxis()->SetTitleFont(42);
     graph->SetHistogram(Graph_expected5);
-    
+
     graph->Draw("pl, ");
-    
+
     Double_t observed_fx6[17] = {
     175,
     250,
@@ -1158,7 +1159,7 @@ void limits3()
     graph->SetLineWidth(2);
     graph->SetMarkerColor(210);
     graph->SetMarkerStyle(7);
-    
+
     TH1F *Graph_observed6 = new TH1F("Graph_observed6","Graph",100,0,5482.5);
     Graph_observed6->SetMinimum(0.05093064);
     Graph_observed6->SetMaximum(8.725164);
@@ -1184,7 +1185,7 @@ void limits3()
     Graph_observed6->GetZaxis()->SetTitleSize(0.06);
     Graph_observed6->GetZaxis()->SetTitleFont(42);
     graph->SetHistogram(Graph_observed6);
-    
+
     graph->Draw("pl, ");
     TLatex *   tex = new TLatex(0.96,0.936,"138 fb^{-1} (13 TeV)");
     tex->SetNDC();
@@ -1193,20 +1194,20 @@ void limits3()
     tex->SetTextSize(0.048);
     tex->SetLineWidth(2);
     tex->Draw();
-        tex = new TLatex(0.12,0.936,"CMS");
+    tex = new TLatex(0.12,0.936,"CMS");
     tex->SetNDC();
     tex->SetTextFont(61);
     tex->SetTextSize(0.052);
     tex->SetLineWidth(2);
     tex->Draw();
-        tex = new TLatex(0.1578,0.892,"");
+    tex = new TLatex(0.1578,0.892,"Preliminary");
     tex->SetNDC();
     tex->SetTextAlign(13);
     tex->SetTextFont(52);
     tex->SetTextSize(0.03952);
     tex->SetLineWidth(2);
     tex->Draw();
-    
+
     TH1F *hframe__2 = new TH1F("hframe__2","",1000,0,5000);
     hframe__2->SetMinimum(0.01);
     hframe__2->SetMaximum(100);
@@ -1234,7 +1235,7 @@ void limits3()
     hframe__2->GetZaxis()->SetTitleSize(0.06);
     hframe__2->GetZaxis()->SetTitleFont(42);
     hframe__2->Draw("sameaxis");
-    
+
     TLegend *leg = new TLegend(0.7,0.6,0.95,0.89,NULL,"brNDC");
     leg->SetBorderSize(0);
     leg->SetTextSize(0.041);
@@ -1243,7 +1244,7 @@ void limits3()
     leg->SetLineWidth(1);
     leg->SetFillColor(0);
     leg->SetFillStyle(0);
-    TLegendEntry *entry=leg->AddEntry("expected","e+#tau_{h} expected","L");
+    TLegendEntry *entry=leg->AddEntry("expected","e#tau_{h}#gamma Expected","L");
     entry->SetLineColor(97);
     entry->SetLineStyle(2);
     entry->SetLineWidth(2);
@@ -1251,7 +1252,7 @@ void limits3()
     entry->SetMarkerStyle(21);
     entry->SetMarkerSize(1);
     entry->SetTextFont(42);
-    entry=leg->AddEntry("observed","e+#tau_{h} observed","L");
+    entry=leg->AddEntry("observed","e#tau_{h}#gamma Observed","L");
     entry->SetLineColor(97);
     entry->SetLineStyle(1);
     entry->SetLineWidth(2);
@@ -1259,7 +1260,7 @@ void limits3()
     entry->SetMarkerStyle(21);
     entry->SetMarkerSize(1);
     entry->SetTextFont(42);
-    entry=leg->AddEntry("expected","#mu+#tau_{h} expected","L");
+    entry=leg->AddEntry("expected","#mu#tau_{h}#gamma Expected","L");
     entry->SetLineColor(214);
     entry->SetLineStyle(2);
     entry->SetLineWidth(2);
@@ -1267,7 +1268,7 @@ void limits3()
     entry->SetMarkerStyle(21);
     entry->SetMarkerSize(1);
     entry->SetTextFont(42);
-    entry=leg->AddEntry("observed","#mu+#tau_{h} observed","L");
+    entry=leg->AddEntry("observed","#mu#tau_{h}#gamma Observed","L");
     entry->SetLineColor(214);
     entry->SetLineStyle(1);
     entry->SetLineWidth(2);
@@ -1275,7 +1276,7 @@ void limits3()
     entry->SetMarkerStyle(21);
     entry->SetMarkerSize(1);
     entry->SetTextFont(42);
-    entry=leg->AddEntry("expected","#tau_{h}+#tau_{h} expected","L");
+    entry=leg->AddEntry("expected","#tau_{h}#tau_{h}#gamma Expected","L");
     entry->SetLineColor(210);
     entry->SetLineStyle(2);
     entry->SetLineWidth(2);
@@ -1283,7 +1284,7 @@ void limits3()
     entry->SetMarkerStyle(21);
     entry->SetMarkerSize(1);
     entry->SetTextFont(42);
-    entry=leg->AddEntry("observed","#tau_{h}+#tau_{h} observed","L");
+    entry=leg->AddEntry("observed","#tau_{h}#tau_{h}#gamma Observed","L");
     entry->SetLineColor(210);
     entry->SetLineStyle(1);
     entry->SetLineWidth(2);
@@ -1292,7 +1293,7 @@ void limits3()
     entry->SetMarkerSize(1);
     entry->SetTextFont(42);
     leg->Draw();
-    
+
     Double_t Graph0_fx7[17] = {
     175,
     250,
@@ -1334,7 +1335,7 @@ void limits3()
     graph->SetTitle("Graph");
     graph->SetFillStyle(1000);
     graph->SetMarkerStyle(7);
-    
+
     TH1F *Graph_Graph07 = new TH1F("Graph_Graph07","Graph",100,0,5482.5);
     Graph_Graph07->SetMinimum(0.00122337);
     Graph_Graph07->SetMaximum(31.88666);
@@ -1360,9 +1361,9 @@ void limits3()
     Graph_Graph07->GetZaxis()->SetTitleSize(0.06);
     Graph_Graph07->GetZaxis()->SetTitleFont(42);
     graph->SetHistogram(Graph_Graph07);
-    
+
     graph->Draw("l, p, ");
-    
+
     Double_t Graph1_fx8[9] = {
     1000,
     1500,
@@ -1388,7 +1389,7 @@ void limits3()
     graph->SetTitle("Graph");
     graph->SetFillStyle(1000);
     graph->SetMarkerStyle(7);
-    
+
     TH1F *Graph_Graph18 = new TH1F("Graph_Graph18","Graph",100,600,5400);
     Graph_Graph18->SetMinimum(0.018324);
     Graph_Graph18->SetMaximum(4762.998);
@@ -1414,7 +1415,7 @@ void limits3()
     Graph_Graph18->GetZaxis()->SetTitleSize(0.06);
     Graph_Graph18->GetZaxis()->SetTitleFont(42);
     graph->SetHistogram(Graph_Graph18);
-    
+
     graph->Draw("l, p, ");
     c2->Modified();
     c2->cd();
@@ -1422,11 +1423,11 @@ void limits3()
 }
 
 //Figure 3. 2D event yields - ETau channel
-void SignalRegion_ETau()
+void signalYields_ETau()
 {
-    //=========Macro generated from canvas: c_ETau/ETau
-    //=========  (Thu May  9 09:07:34 2024) by ROOT version 6.30/03
-    TCanvas *c_ETau = new TCanvas("c_ETau", "ETau",103,537,400,400);
+    //=========Macro generated from canvas: c_ETau/c_ETau
+    //========  (Tue May 28 21:14:55 2024) by ROOT version 6.14/09
+    TCanvas *c_ETau = new TCanvas("c_ETau", "c_ETau",120,143,400,400);
     gStyle->SetOptFit(1);
     gStyle->SetOptStat(0);
     gStyle->SetOptTitle(0);
@@ -1445,91 +1446,209 @@ void SignalRegion_ETau()
     c_ETau->SetFrameFillStyle(0);
     c_ETau->SetFrameBorderMode(0);
     
-    Double_t Graph_fx1[41] = { 129.0576, 189.9817, 373.4706, 155.5825, 263.0032, 296.9265, 251.7598, 183.7128, 169.6233, 177.0053, 226.6913, 121.5156, 257.1689, 419.9987, 101.8109, 728.4952, 60.17837,
-    817.201, 370.5422, 144.5045, 69.13374, 134.9233, 166.9688, 104.9206, 218.3362, 133.5971, 532.2877, 182.3528, 86.36743, 122.3882, 718.7362, 1761.813, 52.47724,
-    280.1347, 408.4519, 54.74392, 235.4891, 111.0667, 495.6254, 206.7441, 90.16321 };
-    Double_t Graph_fy1[41] = { 286.6593, 491.2535, 483.7285, 432.763, 387.1464, 307.2563, 416.8382, 686.5387, 518.0114, 389.7571, 269.7402, 235.8688, 438.1288, 876.5725, 142.5102, 1014.82, 355.0847,
-    871.4875, 452.6487, 415.9586, 411.8144, 223.5249, 197.9058, 238.3413, 528.7435, 232.7145, 678.4143, 462.2296, 353.8559, 163.9141, 949.9609, 5181.479, 294.0331,
-    332.893, 516.9855, 295.4889, 290.1168, 208.8233, 756.6091, 292.7796, 99.3961 };
-    TGraph *graph = new TGraph(41,Graph_fx1,Graph_fy1);
+    Double_t _fx19[41] = {
+    129.0576,
+    189.9817,
+    373.4706,
+    155.5825,
+    263.0032,
+    296.9265,
+    251.7598,
+    183.7128,
+    169.6233,
+    177.0053,
+    226.6913,
+    121.5156,
+    257.1689,
+    419.9987,
+    101.8109,
+    728.4952,
+    60.17837,
+    817.201,
+    370.5422,
+    144.5045,
+    69.13374,
+    134.9233,
+    166.9688,
+    104.9206,
+    218.3362,
+    133.5971,
+    532.2877,
+    182.3528,
+    86.36743,
+    122.3882,
+    718.7362,
+    1761.813,
+    52.47724,
+    280.1347,
+    408.4519,
+    54.74392,
+    235.4891,
+    111.0667,
+    495.6254,
+    206.7441,
+    90.16321};
+    Double_t _fy19[41] = {
+    286.6593,
+    491.2535,
+    483.7285,
+    432.763,
+    387.1464,
+    307.2563,
+    416.8382,
+    686.5387,
+    518.0114,
+    389.7571,
+    269.7402,
+    235.8688,
+    438.1288,
+    876.5725,
+    142.5102,
+    1014.82,
+    355.0847,
+    871.4875,
+    452.6487,
+    415.9586,
+    411.8144,
+    223.5249,
+    197.9058,
+    238.3413,
+    528.7435,
+    232.7145,
+    678.4143,
+    462.2296,
+    353.8559,
+    163.9141,
+    949.9609,
+    5181.479,
+    294.0331,
+    332.893,
+    516.9855,
+    295.4889,
+    290.1168,
+    208.8233,
+    756.6091,
+    292.7796,
+    99.3961};
+    TGraph *graph = new TGraph(41,_fx19,_fy19);
     graph->SetName("");
-    graph->SetTitle("e#tau_{h}#gamma");
+    graph->SetTitle(";Min Collinear Mass [GeV];Max Collinear Mass [GeV]");
     graph->SetFillStyle(1000);
     graph->SetMarkerColor(8);
     graph->SetMarkerStyle(20);
     
-    TH1F *Graph_Graph1 = new TH1F("Graph_Graph1","e#tau_{h}#gamma",100,0,6000);
-    Graph_Graph1->SetMinimum(0);
-    Graph_Graph1->SetMaximum(6000);
-    Graph_Graph1->SetDirectory(nullptr);
-    Graph_Graph1->SetStats(0);
-    Graph_Graph1->SetLineStyle(0);
-    Graph_Graph1->SetMarkerStyle(20);
-    Graph_Graph1->GetXaxis()->SetTitle("min collinear mass [GeV]");
-    Graph_Graph1->GetXaxis()->SetLabelFont(42);
-    Graph_Graph1->GetXaxis()->SetLabelOffset(0.007);
-    Graph_Graph1->GetXaxis()->SetLabelSize(0.04);
-    Graph_Graph1->GetXaxis()->SetTitleSize(0.06);
-    Graph_Graph1->GetXaxis()->SetTitleOffset(0.9);
-    Graph_Graph1->GetXaxis()->SetTitleFont(42);
-    Graph_Graph1->GetYaxis()->SetTitle("max collinear mass [GeV]");
-    Graph_Graph1->GetYaxis()->SetLabelFont(42);
-    Graph_Graph1->GetYaxis()->SetLabelOffset(0.007);
-    Graph_Graph1->GetYaxis()->SetLabelSize(0.04);
-    Graph_Graph1->GetYaxis()->SetTitleSize(0.06);
-    Graph_Graph1->GetYaxis()->SetTitleOffset(1.2);
-    Graph_Graph1->GetYaxis()->SetTitleFont(42);
-    Graph_Graph1->GetZaxis()->SetLabelFont(42);
-    Graph_Graph1->GetZaxis()->SetLabelOffset(0.007);
-    Graph_Graph1->GetZaxis()->SetLabelSize(0.05);
-    Graph_Graph1->GetZaxis()->SetTitleSize(0.06);
-    Graph_Graph1->GetZaxis()->SetTitleOffset(1);
-    Graph_Graph1->GetZaxis()->SetTitleFont(42);
-    graph->SetHistogram(Graph_Graph1);
+    TH1F *Graph_Graph19 = new TH1F("Graph_Graph19","",100,0,6000);
+    Graph_Graph19->SetMinimum(0);
+    Graph_Graph19->SetMaximum(6000);
+    Graph_Graph19->SetDirectory(0);
+    Graph_Graph19->SetStats(0);
+    Graph_Graph19->SetLineStyle(0);
+    Graph_Graph19->SetMarkerStyle(20);
+    Graph_Graph19->GetXaxis()->SetTitle("Min Collinear Mass [GeV]");
+    Graph_Graph19->GetXaxis()->SetLabelFont(42);
+    Graph_Graph19->GetXaxis()->SetLabelOffset(0.007);
+    Graph_Graph19->GetXaxis()->SetTitleSize(0.06);
+    Graph_Graph19->GetXaxis()->SetTitleOffset(0.9);
+    Graph_Graph19->GetXaxis()->SetTitleFont(42);
+    Graph_Graph19->GetYaxis()->SetTitle("Max Collinear Mass [GeV]");
+    Graph_Graph19->GetYaxis()->SetLabelFont(42);
+    Graph_Graph19->GetYaxis()->SetLabelOffset(0.007);
+    Graph_Graph19->GetYaxis()->SetTitleSize(0.06);
+    Graph_Graph19->GetYaxis()->SetTitleOffset(1.2);
+    Graph_Graph19->GetYaxis()->SetTitleFont(42);
+    Graph_Graph19->GetZaxis()->SetLabelFont(42);
+    Graph_Graph19->GetZaxis()->SetLabelOffset(0.007);
+    Graph_Graph19->GetZaxis()->SetLabelSize(0.05);
+    Graph_Graph19->GetZaxis()->SetTitleSize(0.06);
+    Graph_Graph19->GetZaxis()->SetTitleFont(42);
+    graph->SetHistogram(Graph_Graph19);
     
     graph->Draw("ap");
     
-    Double_t Graph_fx2[22] = { 145.41, 72.99173, 70.92158, 204.1326, 340.5949, 123.9075, 400.8178, 111.05, 63.98508, 213.2921, 446.543, 226.8407, 117.2659, 136.6524, 96.85616, 532.5793, 126.432,
-    214.3904, 319.9348, 487.524, 179.112, 184.8359 };
-    Double_t Graph_fy2[22] = { 236.3533, 241.617, 285.261, 340.7227, 357.9142, 226.6367, 421.8664, 373.7509, 412.2383, 271.8565, 530.1425, 305.2176, 456.3667, 394.8323, 270.9519, 1080.658, 147.9153,
-    544.3028, 352.7005, 869.0994, 347.6511, 248.7342 };
-    graph = new TGraph(22,Graph_fx2,Graph_fy2);
+    Double_t _fx20[22] = {
+    145.41,
+    72.99173,
+    70.92158,
+    204.1326,
+    340.5949,
+    123.9075,
+    400.8178,
+    111.05,
+    63.98508,
+    213.2921,
+    446.543,
+    226.8407,
+    117.2659,
+    136.6524,
+    96.85616,
+    532.5793,
+    126.432,
+    214.3904,
+    319.9348,
+    487.524,
+    179.112,
+    184.8359};
+    Double_t _fy20[22] = {
+    236.3533,
+    241.617,
+    285.261,
+    340.7227,
+    357.9142,
+    226.6367,
+    421.8664,
+    373.7509,
+    412.2383,
+    271.8565,
+    530.1425,
+    305.2176,
+    456.3667,
+    394.8323,
+    270.9519,
+    1080.658,
+    147.9153,
+    544.3028,
+    352.7005,
+    869.0994,
+    347.6511,
+    248.7342};
+    graph = new TGraph(22,_fx20,_fy20);
     graph->SetName("");
-    graph->SetTitle("");
+    graph->SetTitle(";Min Collinear Mass [GeV];Max Collinear Mass [GeV]");
     graph->SetFillStyle(1000);
     graph->SetMarkerColor(9);
     graph->SetMarkerStyle(20);
     
-    TH1F *Graph_Graph2 = new TH1F("Graph_Graph2","",100,17.12566,579.4387);
-    Graph_Graph2->SetMinimum(54.64096);
-    Graph_Graph2->SetMaximum(1173.932);
-    Graph_Graph2->SetDirectory(nullptr);
-    Graph_Graph2->SetStats(0);
-    Graph_Graph2->SetLineStyle(0);
-    Graph_Graph2->SetMarkerStyle(20);
-    Graph_Graph2->GetXaxis()->SetLabelFont(42);
-    Graph_Graph2->GetXaxis()->SetLabelOffset(0.007);
-    Graph_Graph2->GetXaxis()->SetLabelSize(0.05);
-    Graph_Graph2->GetXaxis()->SetTitleSize(0.06);
-    Graph_Graph2->GetXaxis()->SetTitleOffset(0.9);
-    Graph_Graph2->GetXaxis()->SetTitleFont(42);
-    Graph_Graph2->GetYaxis()->SetLabelFont(42);
-    Graph_Graph2->GetYaxis()->SetLabelOffset(0.007);
-    Graph_Graph2->GetYaxis()->SetLabelSize(0.05);
-    Graph_Graph2->GetYaxis()->SetTitleSize(0.06);
-    Graph_Graph2->GetYaxis()->SetTitleOffset(1.25);
-    Graph_Graph2->GetYaxis()->SetTitleFont(42);
-    Graph_Graph2->GetZaxis()->SetLabelFont(42);
-    Graph_Graph2->GetZaxis()->SetLabelOffset(0.007);
-    Graph_Graph2->GetZaxis()->SetLabelSize(0.05);
-    Graph_Graph2->GetZaxis()->SetTitleSize(0.06);
-    Graph_Graph2->GetZaxis()->SetTitleOffset(1);
-    Graph_Graph2->GetZaxis()->SetTitleFont(42);
-    graph->SetHistogram(Graph_Graph2);
+    TH1F *Graph_Graph20 = new TH1F("Graph_Graph20","",100,17.12566,579.4387);
+    Graph_Graph20->SetMinimum(54.64096);
+    Graph_Graph20->SetMaximum(1173.932);
+    Graph_Graph20->SetDirectory(0);
+    Graph_Graph20->SetStats(0);
+    Graph_Graph20->SetLineStyle(0);
+    Graph_Graph20->SetMarkerStyle(20);
+    Graph_Graph20->GetXaxis()->SetTitle("Min Collinear Mass [GeV]");
+    Graph_Graph20->GetXaxis()->SetLabelFont(42);
+    Graph_Graph20->GetXaxis()->SetLabelOffset(0.007);
+    Graph_Graph20->GetXaxis()->SetLabelSize(0.05);
+    Graph_Graph20->GetXaxis()->SetTitleSize(0.06);
+    Graph_Graph20->GetXaxis()->SetTitleOffset(0.9);
+    Graph_Graph20->GetXaxis()->SetTitleFont(42);
+    Graph_Graph20->GetYaxis()->SetTitle("Max Collinear Mass [GeV]");
+    Graph_Graph20->GetYaxis()->SetLabelFont(42);
+    Graph_Graph20->GetYaxis()->SetLabelOffset(0.007);
+    Graph_Graph20->GetYaxis()->SetLabelSize(0.05);
+    Graph_Graph20->GetYaxis()->SetTitleSize(0.06);
+    Graph_Graph20->GetYaxis()->SetTitleOffset(1.25);
+    Graph_Graph20->GetYaxis()->SetTitleFont(42);
+    Graph_Graph20->GetZaxis()->SetLabelFont(42);
+    Graph_Graph20->GetZaxis()->SetLabelOffset(0.007);
+    Graph_Graph20->GetZaxis()->SetLabelSize(0.05);
+    Graph_Graph20->GetZaxis()->SetTitleSize(0.06);
+    Graph_Graph20->GetZaxis()->SetTitleFont(42);
+    graph->SetHistogram(Graph_Graph20);
     
     graph->Draw("p, ");
     
-    TLegend *leg = new TLegend(0.6,0.2,0.875,0.4,NULL,"brNDC");
+    TLegend *leg = new TLegend(0.525,0.15,0.925,0.35,NULL,"brNDC");
     leg->SetBorderSize(0);
     leg->SetTextFont(62);
     leg->SetLineColor(1);
@@ -1554,6 +1673,11 @@ void SignalRegion_ETau()
     entry->SetMarkerSize(1);
     entry->SetTextFont(62);
     leg->Draw();
+    
+    TPaveText *pt = new TPaveText(0.8,0.35,0.925,0.45,"NDC, NB");
+    pt->SetFillColor(0);
+    TText *pt_LaTex = pt->AddText("e#tau_{h}#gamma");
+    pt->Draw();
     TLatex *   tex = new TLatex(0.96,0.96,"138 fb^{-1} (13 TeV)");
     tex->SetNDC();
     tex->SetTextAlign(31);
@@ -1561,23 +1685,31 @@ void SignalRegion_ETau()
     tex->SetTextSize(0.03);
     tex->SetLineWidth(2);
     tex->Draw();
-        tex = new TLatex(0.2342,0.9213,"CMS");
+    tex = new TLatex(0.2,0.96,"CMS");
     tex->SetNDC();
-    tex->SetTextAlign(13);
     tex->SetTextFont(61);
     tex->SetTextSize(0.0375);
     tex->SetLineWidth(2);
     tex->Draw();
+    tex = new TLatex(0.29275,0.9213,"Supplementary");
+    tex->SetNDC();
+    tex->SetTextAlign(13);
+    tex->SetTextFont(52);
+    tex->SetTextSize(0.0285);
+    tex->SetLineWidth(2);
+    tex->Draw();
     c_ETau->Modified();
+    c_ETau->cd();
     c_ETau->SetSelected(c_ETau);
 }
 
+
 //Figure 3. 2D event yields - MuTau channel
-void SignalRegion_MuTau()
+void signalYields_MuTau()
 {
-    //=========Macro generated from canvas: c_MuTau/MuTau
-    //=========  (Thu May  9 09:08:01 2024) by ROOT version 6.30/03
-    TCanvas *c_MuTau = new TCanvas("c_MuTau", "MuTau",1327,410,400,400);
+    //=========Macro generated from canvas: c_MuTau/c_MuTau
+    //=========  (Tue May 28 21:15:11 2024) by ROOT version 6.14/09
+    TCanvas *c_MuTau = new TCanvas("c_MuTau", "c_MuTau",140,163,400,400);
     gStyle->SetOptFit(1);
     gStyle->SetOptStat(0);
     gStyle->SetOptTitle(0);
@@ -1595,94 +1727,252 @@ void SignalRegion_MuTau()
     c_MuTau->SetFrameBorderMode(0);
     c_MuTau->SetFrameFillStyle(0);
     c_MuTau->SetFrameBorderMode(0);
-    
-    Double_t Graph_fx3[59] = { 605.7923, 269.5406, 222.4218, 139.1774, 374.9521, 80.11356, 116.4307, 167.4353, 354.7954, 817.0861, 226.4585, 180.1461, 170.1951, 466.1736, 418.3397, 73.26794, 135.5459,
-    237.8125, 90.15318, 276.9532, 169.2311, 241.189, 146.515, 255.9955, 75.79166, 144.0586, 77.50301, 168.2577, 74.89553, 60.79702, 80.65092, 146.3037, 340.4062,
-    158.1058, 132.1845, 76.79939, 192.2447, 81.71536, 238.9268, 121.7196, 278.2382, 411.0194, 296.4488, 105.9713, 235.7162, 103.121, 168.6971, 330.1744, 208.5681,
-    162.0742, 230.591, 241.9389, 409.4367, 187.455, 438.8088, 53.86158, 324.5135, 239.8727, 528.6748 };
-    Double_t Graph_fy3[59] = { 3061.212, 860.0612, 553.5316, 366.1831, 390.1561, 175.2122, 280.5847, 282.9319, 365.1354, 1164.25, 238.5354, 525.7245, 299.6199, 1455.529, 432.7328, 424.3882, 326.7497,
-    473.513, 238.9915, 393.3286, 244.6445, 307.3699, 373.408, 1180.591, 475.6068, 361.4314, 530.8965, 286.448, 266.0496, 367.6233, 818.8204, 346.3422, 793.036,
-    196.6217, 371.3661, 474.4624, 266.2256, 268.2168, 338.6946, 742.7189, 683.1901, 489.8635, 471.5176, 230.3093, 237.9462, 462.8308, 452.9666, 768.6513, 283.7946,
-    232.2131, 256.6821, 262.1749, 1128.003, 335.241, 483.3431, 305.261, 989.7498, 479.3239, 671.1223 };
-    TGraph *graph = new TGraph(59,Graph_fx3,Graph_fy3);
+
+    Double_t _fx21[59] = {
+    605.7923,
+    269.5406,
+    222.4218,
+    139.1774,
+    374.9521,
+    80.11356,
+    116.4307,
+    167.4353,
+    354.7954,
+    817.0861,
+    226.4585,
+    180.1461,
+    170.1951,
+    466.1736,
+    418.3397,
+    73.26794,
+    135.5459,
+    237.8125,
+    90.15318,
+    276.9532,
+    169.2311,
+    241.189,
+    146.515,
+    255.9955,
+    75.79166,
+    144.0586,
+    77.50301,
+    168.2577,
+    74.89553,
+    60.79702,
+    80.65092,
+    146.3037,
+    340.4062,
+    158.1058,
+    132.1845,
+    76.79939,
+    192.2447,
+    81.71536,
+    238.9268,
+    121.7196,
+    278.2382,
+    411.0194,
+    296.4488,
+    105.9713,
+    235.7162,
+    103.121,
+    168.6971,
+    330.1744,
+    208.5681,
+    162.0742,
+    230.591,
+    241.9389,
+    409.4367,
+    187.455,
+    438.8088,
+    53.86158,
+    324.5135,
+    239.8727,
+    528.6748};
+    Double_t _fy21[59] = {
+    3061.212,
+    860.0612,
+    553.5316,
+    366.1831,
+    390.1561,
+    175.2122,
+    280.5847,
+    282.9319,
+    365.1354,
+    1164.25,
+    238.5354,
+    525.7245,
+    299.6199,
+    1455.529,
+    432.7328,
+    424.3882,
+    326.7497,
+    473.513,
+    238.9915,
+    393.3286,
+    244.6445,
+    307.3699,
+    373.408,
+    1180.591,
+    475.6068,
+    361.4314,
+    530.8965,
+    286.448,
+    266.0496,
+    367.6233,
+    818.8204,
+    346.3422,
+    793.036,
+    196.6217,
+    371.3661,
+    474.4624,
+    266.2256,
+    268.2168,
+    338.6946,
+    742.7189,
+    683.1901,
+    489.8635,
+    471.5176,
+    230.3093,
+    237.9462,
+    462.8308,
+    452.9666,
+    768.6513,
+    283.7946,
+    232.2131,
+    256.6821,
+    262.1749,
+    1128.003,
+    335.241,
+    483.3431,
+    305.261,
+    989.7498,
+    479.3239,
+    671.1223};
+    TGraph *graph = new TGraph(59,_fx21,_fy21);
     graph->SetName("");
-    graph->SetTitle("#mu#tau_{h}#gamma");
+    graph->SetTitle(";Min Collinear Mass [GeV];Max Collinear Mass [GeV]");
     graph->SetFillStyle(1000);
     graph->SetMarkerColor(8);
     graph->SetMarkerStyle(20);
-    
-    TH1F *Graph_Graph3 = new TH1F("Graph_Graph3","#mu#tau_{h}#gamma",100,0,6000);
-    Graph_Graph3->SetMinimum(0);
-    Graph_Graph3->SetMaximum(6000);
-    Graph_Graph3->SetDirectory(nullptr);
-    Graph_Graph3->SetStats(0);
-    Graph_Graph3->SetLineStyle(0);
-    Graph_Graph3->SetMarkerStyle(20);
-    Graph_Graph3->GetXaxis()->SetTitle("min collinear mass [GeV]");
-    Graph_Graph3->GetXaxis()->SetLabelFont(42);
-    Graph_Graph3->GetXaxis()->SetLabelOffset(0.007);
-    Graph_Graph3->GetXaxis()->SetLabelSize(0.04);
-    Graph_Graph3->GetXaxis()->SetTitleSize(0.06);
-    Graph_Graph3->GetXaxis()->SetTitleOffset(0.9);
-    Graph_Graph3->GetXaxis()->SetTitleFont(42);
-    Graph_Graph3->GetYaxis()->SetTitle("max collinear mass [GeV]");
-    Graph_Graph3->GetYaxis()->SetLabelFont(42);
-    Graph_Graph3->GetYaxis()->SetLabelOffset(0.007);
-    Graph_Graph3->GetYaxis()->SetLabelSize(0.04);
-    Graph_Graph3->GetYaxis()->SetTitleSize(0.06);
-    Graph_Graph3->GetYaxis()->SetTitleOffset(1.2);
-    Graph_Graph3->GetYaxis()->SetTitleFont(42);
-    Graph_Graph3->GetZaxis()->SetLabelFont(42);
-    Graph_Graph3->GetZaxis()->SetLabelOffset(0.007);
-    Graph_Graph3->GetZaxis()->SetLabelSize(0.05);
-    Graph_Graph3->GetZaxis()->SetTitleSize(0.06);
-    Graph_Graph3->GetZaxis()->SetTitleOffset(1.1);
-    Graph_Graph3->GetZaxis()->SetTitleFont(42);
-    graph->SetHistogram(Graph_Graph3);
-    
+
+    TH1F *Graph_Graph21 = new TH1F("Graph_Graph21","",100,0,6000);
+    Graph_Graph21->SetMinimum(0);
+    Graph_Graph21->SetMaximum(6000);
+    Graph_Graph21->SetDirectory(0);
+    Graph_Graph21->SetStats(0);
+    Graph_Graph21->SetLineStyle(0);
+    Graph_Graph21->SetMarkerStyle(20);
+    Graph_Graph21->GetXaxis()->SetTitle("Min Collinear Mass [GeV]");
+    Graph_Graph21->GetXaxis()->SetLabelFont(42);
+    Graph_Graph21->GetXaxis()->SetLabelOffset(0.007);
+    Graph_Graph21->GetXaxis()->SetTitleSize(0.06);
+    Graph_Graph21->GetXaxis()->SetTitleOffset(0.9);
+    Graph_Graph21->GetXaxis()->SetTitleFont(42);
+    Graph_Graph21->GetYaxis()->SetTitle("Max Collinear Mass [GeV]");
+    Graph_Graph21->GetYaxis()->SetLabelFont(42);
+    Graph_Graph21->GetYaxis()->SetLabelOffset(0.007);
+    Graph_Graph21->GetYaxis()->SetTitleSize(0.06);
+    Graph_Graph21->GetYaxis()->SetTitleOffset(1.2);
+    Graph_Graph21->GetYaxis()->SetTitleFont(42);
+    Graph_Graph21->GetZaxis()->SetLabelFont(42);
+    Graph_Graph21->GetZaxis()->SetLabelOffset(0.007);
+    Graph_Graph21->GetZaxis()->SetLabelSize(0.05);
+    Graph_Graph21->GetZaxis()->SetTitleSize(0.06);
+    Graph_Graph21->GetZaxis()->SetTitleFont(42);
+    graph->SetHistogram(Graph_Graph21);
+
     graph->Draw("ap");
-    
-    Double_t Graph_fx4[25] = { 351.9449, 514.6376, 211.3599, 803.6651, 283.4612, 326.1252, 186.9784, 2339.261, 108.5588, 67.17348, 285.0274, 196.226, 715.8615, 147.2868, 748.5622, 149.1228, 243.8761,
-    147.0076, 330.3368, 197.144, 78.37581, 142.1521, 231.8228, 62.55448, 427.4041 };
-    Double_t Graph_fy4[25] = { 979.2516, 531.6962, 393.2299, 910.1262, 298.0349, 381.1622, 233.9064, 3125.72, 389.0256, 513.2703, 360.7074, 202.8891, 1106.187, 282.0168, 841.3004, 330.8831, 816.1414,
-    218.9953, 580.5537, 223.2874, 282.7703, 267.3118, 247.4021, 410.4667, 626.7664 };
-    graph = new TGraph(25,Graph_fx4,Graph_fy4);
+
+    Double_t _fx22[25] = {
+    351.9449,
+    514.6376,
+    211.3599,
+    803.6651,
+    283.4612,
+    326.1252,
+    186.9784,
+    2339.261,
+    108.5588,
+    67.17348,
+    285.0274,
+    196.226,
+    715.8615,
+    147.2868,
+    748.5622,
+    149.1228,
+    243.8761,
+    147.0076,
+    330.3368,
+    197.144,
+    78.37581,
+    142.1521,
+    231.8228,
+    62.55448,
+    427.4041};
+    Double_t _fy22[25] = {
+    979.2516,
+    531.6962,
+    393.2299,
+    910.1262,
+    298.0349,
+    381.1622,
+    233.9064,
+    3125.72,
+    389.0256,
+    513.2703,
+    360.7074,
+    202.8891,
+    1106.187,
+    282.0168,
+    841.3004,
+    330.8831,
+    816.1414,
+    218.9953,
+    580.5537,
+    223.2874,
+    282.7703,
+    267.3118,
+    247.4021,
+    410.4667,
+    626.7664};
+    graph = new TGraph(25,_fx22,_fy22);
     graph->SetName("");
-    graph->SetTitle("");
+    graph->SetTitle(";Min Collinear Mass [GeV];Max Collinear Mass [GeV]");
     graph->SetFillStyle(1000);
     graph->SetMarkerColor(9);
     graph->SetMarkerStyle(20);
-    
-    TH1F *Graph_Graph4 = new TH1F("Graph_Graph4","",100,0,2566.932);
-    Graph_Graph4->SetMinimum(182.6002);
-    Graph_Graph4->SetMaximum(3418.003);
-    Graph_Graph4->SetDirectory(nullptr);
-    Graph_Graph4->SetStats(0);
-    Graph_Graph4->SetLineStyle(0);
-    Graph_Graph4->SetMarkerStyle(20);
-    Graph_Graph4->GetXaxis()->SetLabelFont(42);
-    Graph_Graph4->GetXaxis()->SetLabelOffset(0.007);
-    Graph_Graph4->GetXaxis()->SetLabelSize(0.05);
-    Graph_Graph4->GetXaxis()->SetTitleSize(0.06);
-    Graph_Graph4->GetXaxis()->SetTitleOffset(0.9);
-    Graph_Graph4->GetXaxis()->SetTitleFont(42);
-    Graph_Graph4->GetYaxis()->SetLabelFont(42);
-    Graph_Graph4->GetYaxis()->SetLabelOffset(0.007);
-    Graph_Graph4->GetYaxis()->SetLabelSize(0.05);
-    Graph_Graph4->GetYaxis()->SetTitleSize(0.06);
-    Graph_Graph4->GetYaxis()->SetTitleOffset(1.25);
-    Graph_Graph4->GetYaxis()->SetTitleFont(42);
-    Graph_Graph4->GetZaxis()->SetLabelFont(42);
-    Graph_Graph4->GetZaxis()->SetLabelOffset(0.007);
-    Graph_Graph4->GetZaxis()->SetLabelSize(0.05);
-    Graph_Graph4->GetZaxis()->SetTitleSize(0.06);
-    Graph_Graph4->GetZaxis()->SetTitleOffset(1.1);
-    Graph_Graph4->GetZaxis()->SetTitleFont(42);
-    graph->SetHistogram(Graph_Graph4);
-    
+
+    TH1F *Graph_Graph22 = new TH1F("Graph_Graph22","",100,0,2566.932);
+    Graph_Graph22->SetMinimum(182.6002);
+    Graph_Graph22->SetMaximum(3418.003);
+    Graph_Graph22->SetDirectory(0);
+    Graph_Graph22->SetStats(0);
+    Graph_Graph22->SetLineStyle(0);
+    Graph_Graph22->SetMarkerStyle(20);
+    Graph_Graph22->GetXaxis()->SetTitle("Min Collinear Mass [GeV]");
+    Graph_Graph22->GetXaxis()->SetLabelFont(42);
+    Graph_Graph22->GetXaxis()->SetLabelOffset(0.007);
+    Graph_Graph22->GetXaxis()->SetLabelSize(0.05);
+    Graph_Graph22->GetXaxis()->SetTitleSize(0.06);
+    Graph_Graph22->GetXaxis()->SetTitleOffset(0.9);
+    Graph_Graph22->GetXaxis()->SetTitleFont(42);
+    Graph_Graph22->GetYaxis()->SetTitle("Max Collinear Mass [GeV]");
+    Graph_Graph22->GetYaxis()->SetLabelFont(42);
+    Graph_Graph22->GetYaxis()->SetLabelOffset(0.007);
+    Graph_Graph22->GetYaxis()->SetLabelSize(0.05);
+    Graph_Graph22->GetYaxis()->SetTitleSize(0.06);
+    Graph_Graph22->GetYaxis()->SetTitleOffset(1.25);
+    Graph_Graph22->GetYaxis()->SetTitleFont(42);
+    Graph_Graph22->GetZaxis()->SetLabelFont(42);
+    Graph_Graph22->GetZaxis()->SetLabelOffset(0.007);
+    Graph_Graph22->GetZaxis()->SetLabelSize(0.05);
+    Graph_Graph22->GetZaxis()->SetTitleSize(0.06);
+    Graph_Graph22->GetZaxis()->SetTitleFont(42);
+    graph->SetHistogram(Graph_Graph22);
+
     graph->Draw("p, ");
-    
-    TLegend *leg = new TLegend(0.6,0.2,0.875,0.4,NULL,"brNDC");
+
+    TLegend *leg = new TLegend(0.525,0.15,0.925,0.35,NULL,"brNDC");
     leg->SetBorderSize(0);
     leg->SetTextFont(62);
     leg->SetLineColor(1);
@@ -1707,6 +1997,11 @@ void SignalRegion_MuTau()
     entry->SetMarkerSize(1);
     entry->SetTextFont(62);
     leg->Draw();
+
+    TPaveText *pt = new TPaveText(0.8,0.35,0.925,0.45,"NDC, NB");
+    pt->SetFillColor(0);
+    TText *pt_LaTex = pt->AddText("#mu#tau_{h}#gamma");
+    pt->Draw();
     TLatex *   tex = new TLatex(0.96,0.96,"138 fb^{-1} (13 TeV)");
     tex->SetNDC();
     tex->SetTextAlign(31);
@@ -1714,23 +2009,31 @@ void SignalRegion_MuTau()
     tex->SetTextSize(0.03);
     tex->SetLineWidth(2);
     tex->Draw();
-        tex = new TLatex(0.2342,0.9213,"CMS");
+    tex = new TLatex(0.2,0.96,"CMS");
     tex->SetNDC();
-    tex->SetTextAlign(13);
     tex->SetTextFont(61);
     tex->SetTextSize(0.0375);
     tex->SetLineWidth(2);
     tex->Draw();
+    tex = new TLatex(0.29275,0.9213,"Supplementary");
+    tex->SetNDC();
+    tex->SetTextAlign(13);
+    tex->SetTextFont(52);
+    tex->SetTextSize(0.0285);
+    tex->SetLineWidth(2);
+    tex->Draw();
     c_MuTau->Modified();
+    c_MuTau->cd();
     c_MuTau->SetSelected(c_MuTau);
 }
 
+
 //Figure 3. 2D event yields - TauTau channel
-void SignalRegion_TauTau()
+void signalYields_TauTau()
 {
-    //=========Macro generated from canvas: c_TauTau/TauTau
-    //=========  (Thu May  9 09:08:27 2024) by ROOT version 6.30/03
-    TCanvas *c_TauTau = new TCanvas("c_TauTau", "TauTau",67,382,400,400);
+    //=========Macro generated from canvas: c_TauTau/c_TauTau
+    //=========  (Tue May 28 21:15:28 2024) by ROOT version 6.14/09
+    TCanvas *c_TauTau = new TCanvas("c_TauTau", "c_TauTau",160,183,400,400);
     gStyle->SetOptFit(1);
     gStyle->SetOptStat(0);
     gStyle->SetOptTitle(0);
@@ -1749,93 +2052,259 @@ void SignalRegion_TauTau()
     c_TauTau->SetFrameFillStyle(0);
     c_TauTau->SetFrameBorderMode(0);
     
-    Double_t Graph_fx5[60] = { 151.3547, 231.0141, 778.3325, 86.54205, 525.8122, 145.0286, 206.9138, 137.7002, 212.3169, 291.6674, 152.8056, 107.2275, 277.1103, 59.43156, 328.7989, 151.2296, 106.5608,
-    98.4726, 169.1531, 143.726, 109.0544, 565.2507, 179.6461, 407.0396, 108.8802, 134.7443, 202.7484, 360.4036, 275.9856, 394.6246, 140.1145, 175.6763, 185.5105,
-    129.9887, 216.9445, 99.85422, 532.3759, 105.7108, 136.6489, 146.9976, 259.9381, 209.8997, 78.94966, 120.1665, 235.7826, 282.0501, 231.2387, 395.4024, 50.48038,
-    112.6312, 140.9106, 152.9212, 481.5781, 142.3033, 170.6667, 178.7946, 121.4075, 111.53, 413.5515, 132.1305 };
-    Double_t Graph_fy5[60] = { 350.8557, 287.2748, 1542.52, 276.3183, 1512.186, 268.1361, 229.2807, 262.5666, 304.8028, 345.1287, 276.0703, 566.4855, 338.4816, 287.6259, 638.3698, 303.4715, 258.8474,
-    194.4475, 427.6865, 149.0745, 168.7584, 593.1776, 370.9439, 798.4213, 551.0842, 273.207, 395.8518, 425.1862, 337.0548, 642.681, 240.5083, 420.9118, 422.2477,
-    197.4932, 287.2578, 171.3329, 708.3751, 400.2828, 397.4517, 276.3179, 512.1372, 239.7927, 352.7623, 425.0085, 600.7783, 384.1601, 314.3991, 643.4521, 262.7697,
-    552.961, 249.7244, 166.1886, 1149.239, 222.2063, 589.6366, 221.0975, 356.6824, 352.8158, 541.4108, 181.9854 };
-    TGraph *graph = new TGraph(60,Graph_fx5,Graph_fy5);
+    Double_t _fx23[60] = {
+    151.3547,
+    231.0141,
+    778.3325,
+    86.54205,
+    525.8122,
+    145.0286,
+    206.9138,
+    137.7002,
+    212.3169,
+    291.6674,
+    152.8056,
+    107.2275,
+    277.1103,
+    59.43156,
+    328.7989,
+    151.2296,
+    106.5608,
+    98.4726,
+    169.1531,
+    143.726,
+    109.0544,
+    565.2507,
+    179.6461,
+    407.0396,
+    108.8802,
+    134.7443,
+    202.7484,
+    360.4036,
+    275.9856,
+    394.6246,
+    140.1145,
+    175.6763,
+    185.5105,
+    129.9887,
+    216.9445,
+    99.85422,
+    532.3759,
+    105.7108,
+    136.6489,
+    146.9976,
+    259.9381,
+    209.8997,
+    78.94966,
+    120.1665,
+    235.7826,
+    282.0501,
+    231.2387,
+    395.4024,
+    50.48038,
+    112.6312,
+    140.9106,
+    152.9212,
+    481.5781,
+    142.3033,
+    170.6667,
+    178.7946,
+    121.4075,
+    111.53,
+    413.5515,
+    132.1305};
+    Double_t _fy23[60] = {
+    350.8557,
+    287.2748,
+    1542.52,
+    276.3183,
+    1512.186,
+    268.1361,
+    229.2807,
+    262.5666,
+    304.8028,
+    345.1287,
+    276.0703,
+    566.4855,
+    338.4816,
+    287.6259,
+    638.3698,
+    303.4715,
+    258.8474,
+    194.4475,
+    427.6865,
+    149.0745,
+    168.7584,
+    593.1776,
+    370.9439,
+    798.4213,
+    551.0842,
+    273.207,
+    395.8518,
+    425.1862,
+    337.0548,
+    642.681,
+    240.5083,
+    420.9118,
+    422.2477,
+    197.4932,
+    287.2578,
+    171.3329,
+    708.3751,
+    400.2828,
+    397.4517,
+    276.3179,
+    512.1372,
+    239.7927,
+    352.7623,
+    425.0085,
+    600.7783,
+    384.1601,
+    314.3991,
+    643.4521,
+    262.7697,
+    552.961,
+    249.7244,
+    166.1886,
+    1149.239,
+    222.2063,
+    589.6366,
+    221.0975,
+    356.6824,
+    352.8158,
+    541.4108,
+    181.9854};
+    TGraph *graph = new TGraph(60,_fx23,_fy23);
     graph->SetName("");
-    graph->SetTitle("#tau_{h}#tau_{h}#gamma");
+    graph->SetTitle(";Min Collinear Mass [GeV];Max Collinear Mass [GeV]");
     graph->SetFillStyle(1000);
     graph->SetMarkerColor(8);
     graph->SetMarkerStyle(20);
     
-    TH1F *Graph_Graph5 = new TH1F("Graph_Graph5","#tau_{h}#tau_{h}#gamma",100,0,6000);
-    Graph_Graph5->SetMinimum(0);
-    Graph_Graph5->SetMaximum(6000);
-    Graph_Graph5->SetDirectory(nullptr);
-    Graph_Graph5->SetStats(0);
-    Graph_Graph5->SetLineStyle(0);
-    Graph_Graph5->SetMarkerStyle(20);
-    Graph_Graph5->GetXaxis()->SetTitle("min collinear mass [GeV]");
-    Graph_Graph5->GetXaxis()->SetLabelFont(42);
-    Graph_Graph5->GetXaxis()->SetLabelOffset(0.007);
-    Graph_Graph5->GetXaxis()->SetLabelSize(0.04);
-    Graph_Graph5->GetXaxis()->SetTitleSize(0.06);
-    Graph_Graph5->GetXaxis()->SetTitleOffset(0.9);
-    Graph_Graph5->GetXaxis()->SetTitleFont(42);
-    Graph_Graph5->GetYaxis()->SetTitle("max collinear mass [GeV]");
-    Graph_Graph5->GetYaxis()->SetLabelFont(42);
-    Graph_Graph5->GetYaxis()->SetLabelOffset(0.007);
-    Graph_Graph5->GetYaxis()->SetLabelSize(0.04);
-    Graph_Graph5->GetYaxis()->SetTitleSize(0.06);
-    Graph_Graph5->GetYaxis()->SetTitleOffset(1.2);
-    Graph_Graph5->GetYaxis()->SetTitleFont(42);
-    Graph_Graph5->GetZaxis()->SetLabelFont(42);
-    Graph_Graph5->GetZaxis()->SetLabelOffset(0.007);
-    Graph_Graph5->GetZaxis()->SetLabelSize(0.05);
-    Graph_Graph5->GetZaxis()->SetTitleSize(0.06);
-    Graph_Graph5->GetZaxis()->SetTitleOffset(1.1);
-    Graph_Graph5->GetZaxis()->SetTitleFont(42);
-    graph->SetHistogram(Graph_Graph5);
+    TH1F *Graph_Graph23 = new TH1F("Graph_Graph23","",100,0,6000);
+    Graph_Graph23->SetMinimum(0);
+    Graph_Graph23->SetMaximum(6000);
+    Graph_Graph23->SetDirectory(0);
+    Graph_Graph23->SetStats(0);
+    Graph_Graph23->SetLineStyle(0);
+    Graph_Graph23->SetMarkerStyle(20);
+    Graph_Graph23->GetXaxis()->SetTitle("Min Collinear Mass [GeV]");
+    Graph_Graph23->GetXaxis()->SetLabelFont(42);
+    Graph_Graph23->GetXaxis()->SetLabelOffset(0.007);
+    Graph_Graph23->GetXaxis()->SetTitleSize(0.06);
+    Graph_Graph23->GetXaxis()->SetTitleOffset(0.9);
+    Graph_Graph23->GetXaxis()->SetTitleFont(42);
+    Graph_Graph23->GetYaxis()->SetTitle("Max Collinear Mass [GeV]");
+    Graph_Graph23->GetYaxis()->SetLabelFont(42);
+    Graph_Graph23->GetYaxis()->SetLabelOffset(0.007);
+    Graph_Graph23->GetYaxis()->SetTitleSize(0.06);
+    Graph_Graph23->GetYaxis()->SetTitleOffset(1.2);
+    Graph_Graph23->GetYaxis()->SetTitleFont(42);
+    Graph_Graph23->GetZaxis()->SetLabelFont(42);
+    Graph_Graph23->GetZaxis()->SetLabelOffset(0.007);
+    Graph_Graph23->GetZaxis()->SetLabelSize(0.05);
+    Graph_Graph23->GetZaxis()->SetTitleSize(0.06);
+    Graph_Graph23->GetZaxis()->SetTitleFont(42);
+    graph->SetHistogram(Graph_Graph23);
     
     graph->Draw("ap");
     
-    Double_t Graph_fx6[28] = { 136.4825, 82.47861, 105.1947, 636.8141, 134.7858, 43.53759, 207.2553, 276.535, 165.7324, 115.6749, 135.6037, 271.5265, 157.7349, 284.776, 370.9437, 216.5126, 147.365,
-    88.03145, 131.8063, 201.3382, 92.51708, 157.7895, 249.3754, 143.3967, 139.4203, 166.7797, 219.6564, 176.0669 };
-    Double_t Graph_fy6[28] = { 233.2085, 157.9795, 224.0422, 906.8841, 138.751, 356.7756, 821.1541, 296.8181, 406.9968, 196.5328, 172.3978, 481.523, 276.5338, 391.124, 388.8084, 271.2009, 319.2422,
-    378.0294, 419.824, 242.353, 178.0424, 220.707, 381.5013, 264.1662, 156.3705, 290.3495, 319.5273, 344.5213 };
-    graph = new TGraph(28,Graph_fx6,Graph_fy6);
+    Double_t _fx24[28] = {
+    136.4825,
+    82.47861,
+    105.1947,
+    636.8141,
+    134.7858,
+    43.53759,
+    207.2553,
+    276.535,
+    165.7324,
+    115.6749,
+    135.6037,
+    271.5265,
+    157.7349,
+    284.776,
+    370.9437,
+    216.5126,
+    147.365,
+    88.03145,
+    131.8063,
+    201.3382,
+    92.51708,
+    157.7895,
+    249.3754,
+    143.3967,
+    139.4203,
+    166.7797,
+    219.6564,
+    176.0669};
+    Double_t _fy24[28] = {
+    233.2085,
+    157.9795,
+    224.0422,
+    906.8841,
+    138.751,
+    356.7756,
+    821.1541,
+    296.8181,
+    406.9968,
+    196.5328,
+    172.3978,
+    481.523,
+    276.5338,
+    391.124,
+    388.8084,
+    271.2009,
+    319.2422,
+    378.0294,
+    419.824,
+    242.353,
+    178.0424,
+    220.707,
+    381.5013,
+    264.1662,
+    156.3705,
+    290.3495,
+    319.5273,
+    344.5213};
+    graph = new TGraph(28,_fx24,_fy24);
     graph->SetName("");
-    graph->SetTitle("");
+    graph->SetTitle(";Min Collinear Mass [GeV];Max Collinear Mass [GeV]");
     graph->SetFillStyle(1000);
     graph->SetMarkerColor(9);
     graph->SetMarkerStyle(20);
     
-    TH1F *Graph_Graph6 = new TH1F("Graph_Graph6","",100,0,696.1417);
-    Graph_Graph6->SetMinimum(61.9377);
-    Graph_Graph6->SetMaximum(983.6974);
-    Graph_Graph6->SetDirectory(nullptr);
-    Graph_Graph6->SetStats(0);
-    Graph_Graph6->SetLineStyle(0);
-    Graph_Graph6->SetMarkerStyle(20);
-    Graph_Graph6->GetXaxis()->SetLabelFont(42);
-    Graph_Graph6->GetXaxis()->SetLabelOffset(0.007);
-    Graph_Graph6->GetXaxis()->SetLabelSize(0.05);
-    Graph_Graph6->GetXaxis()->SetTitleSize(0.06);
-    Graph_Graph6->GetXaxis()->SetTitleOffset(0.9);
-    Graph_Graph6->GetXaxis()->SetTitleFont(42);
-    Graph_Graph6->GetYaxis()->SetLabelFont(42);
-    Graph_Graph6->GetYaxis()->SetLabelOffset(0.007);
-    Graph_Graph6->GetYaxis()->SetLabelSize(0.05);
-    Graph_Graph6->GetYaxis()->SetTitleSize(0.06);
-    Graph_Graph6->GetYaxis()->SetTitleOffset(1.25);
-    Graph_Graph6->GetYaxis()->SetTitleFont(42);
-    Graph_Graph6->GetZaxis()->SetLabelFont(42);
-    Graph_Graph6->GetZaxis()->SetLabelOffset(0.007);
-    Graph_Graph6->GetZaxis()->SetLabelSize(0.05);
-    Graph_Graph6->GetZaxis()->SetTitleSize(0.06);
-    Graph_Graph6->GetZaxis()->SetTitleOffset(1.1);
-    Graph_Graph6->GetZaxis()->SetTitleFont(42);
-    graph->SetHistogram(Graph_Graph6);
+    TH1F *Graph_Graph24 = new TH1F("Graph_Graph24","",100,0,696.1417);
+    Graph_Graph24->SetMinimum(61.9377);
+    Graph_Graph24->SetMaximum(983.6974);
+    Graph_Graph24->SetDirectory(0);
+    Graph_Graph24->SetStats(0);
+    Graph_Graph24->SetLineStyle(0);
+    Graph_Graph24->SetMarkerStyle(20);
+    Graph_Graph24->GetXaxis()->SetTitle("Min Collinear Mass [GeV]");
+    Graph_Graph24->GetXaxis()->SetLabelFont(42);
+    Graph_Graph24->GetXaxis()->SetLabelOffset(0.007);
+    Graph_Graph24->GetXaxis()->SetLabelSize(0.05);
+    Graph_Graph24->GetXaxis()->SetTitleSize(0.06);
+    Graph_Graph24->GetXaxis()->SetTitleOffset(0.9);
+    Graph_Graph24->GetXaxis()->SetTitleFont(42);
+    Graph_Graph24->GetYaxis()->SetTitle("Max Collinear Mass [GeV]");
+    Graph_Graph24->GetYaxis()->SetLabelFont(42);
+    Graph_Graph24->GetYaxis()->SetLabelOffset(0.007);
+    Graph_Graph24->GetYaxis()->SetLabelSize(0.05);
+    Graph_Graph24->GetYaxis()->SetTitleSize(0.06);
+    Graph_Graph24->GetYaxis()->SetTitleOffset(1.25);
+    Graph_Graph24->GetYaxis()->SetTitleFont(42);
+    Graph_Graph24->GetZaxis()->SetLabelFont(42);
+    Graph_Graph24->GetZaxis()->SetLabelOffset(0.007);
+    Graph_Graph24->GetZaxis()->SetLabelSize(0.05);
+    Graph_Graph24->GetZaxis()->SetTitleSize(0.06);
+    Graph_Graph24->GetZaxis()->SetTitleFont(42);
+    graph->SetHistogram(Graph_Graph24);
     
     graph->Draw("p, ");
     
-    TLegend *leg = new TLegend(0.6,0.2,0.875,0.4,NULL,"brNDC");
+    TLegend *leg = new TLegend(0.525,0.15,0.925,0.35,NULL,"brNDC");
     leg->SetBorderSize(0);
     leg->SetTextFont(62);
     leg->SetLineColor(1);
@@ -1860,6 +2329,11 @@ void SignalRegion_TauTau()
     entry->SetMarkerSize(1);
     entry->SetTextFont(62);
     leg->Draw();
+    
+    TPaveText *pt = new TPaveText(0.8,0.35,0.925,0.45,"NDC, NB");
+    pt->SetFillColor(0);
+    TText *pt_LaTex = pt->AddText("#tau_{h}#tau_{h}#gamma");
+    pt->Draw();
     TLatex *   tex = new TLatex(0.96,0.96,"138 fb^{-1} (13 TeV)");
     tex->SetNDC();
     tex->SetTextAlign(31);
@@ -1867,16 +2341,24 @@ void SignalRegion_TauTau()
     tex->SetTextSize(0.03);
     tex->SetLineWidth(2);
     tex->Draw();
-        tex = new TLatex(0.2342,0.9213,"CMS");
+    tex = new TLatex(0.2,0.96,"CMS");
     tex->SetNDC();
-    tex->SetTextAlign(13);
     tex->SetTextFont(61);
     tex->SetTextSize(0.0375);
     tex->SetLineWidth(2);
     tex->Draw();
+    tex = new TLatex(0.29275,0.9213,"Supplementary");
+    tex->SetNDC();
+    tex->SetTextAlign(13);
+    tex->SetTextFont(52);
+    tex->SetTextSize(0.0285);
+    tex->SetLineWidth(2);
+    tex->Draw();
     c_TauTau->Modified();
+    c_TauTau->cd();
     c_TauTau->SetSelected(c_TauTau);
 }
+
 
 //Figure 2. 2D collinear mass ditribution of set of signal masses
 void sigCollinMass2D()
@@ -6922,8 +7404,8 @@ void plotReproducer()
 {
     UpperLimitAsymptoticLimitsnominaly0();
     limits3();
-    SignalRegion_ETau();
-    SignalRegion_MuTau();
-    SignalRegion_TauTau();
+    signalYields_ETau();
+    signalYields_MuTau();
+    signalYields_TauTau();
     sigCollinMass2D();
 }
