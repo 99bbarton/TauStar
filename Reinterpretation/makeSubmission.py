@@ -623,6 +623,7 @@ def makeLimitsTables(dirpath = "", observed=False):
         var_xs = Variable("Theoretical Crossection (Lambda = 10 TeV)", is_independent=True, is_binned=False, units="fb")
         #xs = [0.0177, 0.0108, 6.639e-3, 4.069e-3, 2.494e-3, 1.529e-3, 9.371e-4, 5.744e-4, 3.521e-4, 2.159e-4, 1.323e-4, 8.12e-5, 4.97e-5, 3.05e-5, 1.87e-5, 1.14e-5, 7.02e-6, 4.30e-6, 2.64e-6, 1.62e-6]
         xs = [2.8988E-02, 2.1568E-02, 1.5570E-02, 1.1845E-02, 9.1358E-03, 7.0675E-03, 4.2595E-03, 2.5543E-03, 1.5285E-03, 9.0690E-04, 5.3708E-04, 1.8693E-04, 7.5051E-05, 2.7155E-05, 9.8806E-06, 3.6315E-06, 1.3593E-06] 
+
         var_xs.values = []
 
         for i, mass in enumerate(masses):
@@ -664,9 +665,9 @@ def makeLimitsTables(dirpath = "", observed=False):
 def make3ChLimitTable(dirpath, observed=False):
     print("Making 3 ch limits tables...")
     
-    tab = Table("Figure 5: Asymptotic Limits per Channel")
-    tab.description = """Observed upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. The limits are shown for when the final states are treated as independent. Only the ETauGamma channel is shown here."""
-    tab.location = "Figure 5"
+    tab = Table("Asymptotic Limits per Channel")
+    tab.description = """Observed upper limits on the cross section times branching fraction, as a function of the τ∗ mass, for single τ∗ production via a contact interaction in association with a SM τ. The limits are shown for when the final states are treated as independent."""
+    tab.location = "Supplemental"
     tab.add_image(dirpath + "limits3.pdf")
 
     var_mass = Variable("${Tau}$* mass", is_independent=True, is_binned=False, units="GeV")
@@ -693,7 +694,7 @@ def make3ChLimitTable(dirpath, observed=False):
     unc_2stdDev = Uncertainty("2 std dev", is_symmetric=False)
 
     #Crossections 
-    xs = [0.0177, 0.0108, 6.639e-3, 4.069e-3, 2.494e-3, 1.529e-3, 9.371e-4, 5.744e-4, 3.521e-4, 2.159e-4, 1.323e-4, 8.12e-5, 4.97e-5, 3.05e-5, 1.87e-5, 1.14e-5, 7.02e-6, 4.30e-6, 2.64e-6, 1.62e-6]
+    xs = [2.8988E-02, 2.1568E-02, 1.5570E-02, 1.1845E-02, 9.1358E-03, 7.0675E-03, 4.2595E-03, 2.5543E-03, 1.5285E-03, 9.0690E-04, 5.3708E-04, 1.8693E-04, 7.5051E-05, 2.7155E-05, 9.8806E-06, 3.6315E-06, 1.3593E-06]
 
     for ch in channels:
         for i, mass in enumerate(masses):
@@ -822,14 +823,14 @@ def makeObsVsExpEventYieldsTables(filepath):
         table = None
         if channel == "All":
             table = Table("Observed and Expected Event Yields")
-            table.description = "Observed signal yields in the 2-D mass plane for all final states. Of the two mass pairings, the minimum value is along the x-axis and the maximum value is along the y-axis"
+            table.description = "Observed signal yields in the 2-D mass plane for all final states. Of the two mass pairings, the minimum value is along the x-axis and the maximum value is along the y-axis. Expected yields are inclusive in the collinear mass and are shown only in tabular form."
             table.add_image("Inputs/EventYields/signalYields.pdf")
             #table.add_image("Inputs/EventYields/signalYieldsETau.pdf")
             #table.add_image("Inputs/EventYields/signalYieldsMuTau.pdf")
             #table.add_image("Inputs/EventYields/signalYieldsTauTau.pdf")
         else:
             table = Table("Observed and Expected Event Yields: " +channel + "γ Channel")
-            table.description = "Observed signal yields in the 2-D mass plane for the "  + channel + "γ final state. Of the two mass pairings, the minimum value is along the x-axis and the maximum value is along the y-axis"
+            table.description = "Observed signal yields in the 2-D mass plane for the "  + channel + "γ final state. Of the two mass pairings, the minimum value is along the x-axis and the maximum value is along the y-axis. Expected yields are inclusive in the collinear mass and are shown only in tabular form."
             table.add_image("Inputs/EventYields/signalYields"+channel+".pdf")
         table.location = "Table 4, Figure 3"
 
@@ -981,7 +982,7 @@ def makeSubmission():
         table.keywords["cmenergies"] = ["13000"] 
     submission.read_abstract("Inputs/abstract.txt")
     submission.add_link("CMS CADI", "https://cms.cern.ch/iCMS/analysisadmin/cadilines?line=EXO-22-007")
-    submission.add_additional_resource(description="Paper draft", location="Inputs/EXO-22-007-paper-v21.pdf", copy_file=True)
+    submission.add_additional_resource(description="Paper draft", location="Inputs/EXO-22-007-paper-v32.pdf", copy_file=True)
     submission.add_additional_resource("Physics Analysis Summary", "http://cds.cern.ch/record/2899714?ln=en")
     print("...text added to submission") 
 
